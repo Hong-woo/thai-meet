@@ -17,6 +17,7 @@ Record developer-facing changes that affect local setup, API contracts, generate
 - Added DB constraints/index matrix and scaffold drift check.
 - Added Gate 0 feature flag matrix, rollout sequence, rollback posture, and scaffold drift check.
 - Added reward ledger scaffold contract for append-only grants, idempotency, and future Gate 2 rewarded ads.
+- Tightened review gates: Dart room paths now require URL encoding, spawned API checks bind to ephemeral ports, scaffold smoke marks deferred infra as skipped, and privacy scanning covers docs, README, GitHub workflow files, and contributor docs.
 
 Migration notes:
 

@@ -5,7 +5,6 @@ import path from "node:path";
 
 const root = process.cwd();
 const failures = [];
-const port = 3775;
 
 const expectedErrors = [
   {
@@ -67,11 +66,12 @@ for (const expected of expectedErrors) {
 
 const child = spawn(process.execPath, ["apps/api/src/server.mjs"], {
   cwd: root,
-  env: { ...process.env, API_PORT: String(port) },
-  stdio: "ignore"
+  env: { ...process.env, API_PORT: "0" },
+  stdio: ["ignore", "pipe", "pipe"]
 });
 
 try {
+  const port = await waitForServerPort(child);
   await waitForHealth(port);
   for (const expected of expectedErrors) {
     const response = await fetch(`http://127.0.0.1:${port}/api/v1/chats/rooms/room_gate0_local/contact-exchanges/line?case=${expected.caseName}`, {
@@ -112,6 +112,45 @@ if (failures.length > 0) {
 }
 
 console.log("Gate 0 error envelope contract OK");
+
+async function waitForServerPort(child) {
+  let buffer = "";
+
+  child.stdout.setEncoding("utf8");
+  child.stderr.setEncoding("utf8");
+
+  return await new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(new Error("API server did not report its bound port"));
+    }, 3000);
+
+    const onData = (chunk) => {
+      buffer += chunk;
+      const match = buffer.match(/http:\/\/127\.0\.0\.1:(\d+)/);
+      if (match) {
+        cleanup();
+        resolve(Number(match[1]));
+      }
+    };
+
+    const onExit = () => {
+      cleanup();
+      reject(new Error("API server exited before reporting its port"));
+    };
+
+    function cleanup() {
+      clearTimeout(timeout);
+      child.stdout.off("data", onData);
+      child.stderr.off("data", onData);
+      child.off("exit", onExit);
+    }
+
+    child.stdout.on("data", onData);
+    child.stderr.on("data", onData);
+    child.on("exit", onExit);
+  });
+}
 
 async function waitForHealth(port) {
   const deadline = Date.now() + 3000;

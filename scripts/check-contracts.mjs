@@ -37,4 +37,10 @@ for (const clientMember of ["discoverProfilesPath", "chatRoomPath", "createSafet
   }
 }
 
+if (!dartClient.includes("Uri.encodeComponent(roomId)")) {
+  console.error("TM_CONTRACT_DART_CLIENT_STALE");
+  console.error("- generated Dart client must encode roomId path segments");
+  process.exit(1);
+}
+
 console.log("Gate 0 API contract scaffold OK");

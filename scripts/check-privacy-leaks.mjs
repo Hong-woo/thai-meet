@@ -9,7 +9,12 @@ const scanRoots = [
   "apps",
   "packages",
   "scripts",
-  ".thai-meet/smoke-runs"
+  "docs",
+  ".github",
+  ".thai-meet/smoke-runs",
+  ".env.example",
+  "README.md",
+  "CONTRIBUTING.md"
 ];
 
 const allowedFiles = new Set([
@@ -18,6 +23,23 @@ const allowedFiles = new Set([
 ]);
 
 const findings = [];
+const requiredScanRoots = [
+  "apps",
+  "packages",
+  "scripts",
+  "docs",
+  ".github",
+  ".thai-meet/smoke-runs",
+  ".env.example",
+  "README.md",
+  "CONTRIBUTING.md"
+];
+
+for (const requiredRoot of requiredScanRoots) {
+  if (!scanRoots.includes(requiredRoot)) {
+    findings.push({ file: "scripts/check-privacy-leaks.mjs", value: `missing scan root ${requiredRoot}` });
+  }
+}
 
 for (const scanRoot of scanRoots) {
   await scanPath(path.join(root, scanRoot));
