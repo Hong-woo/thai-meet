@@ -1,0 +1,101 @@
+{
+  "trustLoop": {
+    "steps": [
+      "mockLogin",
+      "publicIdGenerated",
+      "discoverProfileVisible",
+      "chatStarted",
+      "lineContactExchangeCreated",
+      "contactCardRendered",
+      "reportBlockRecorded"
+    ]
+  },
+  "mockUser": {
+    "userId": "usr_gate0_local",
+    "publicIdentityId": "pub_bkk_local_001",
+    "publicId": "TM-BKK-001",
+    "displayName": "Mai",
+    "city": "Bangkok"
+  },
+  "discoverProfile": {
+    "publicIdentityId": "pub_pattaya_tourist_001",
+    "displayName": "Alex",
+    "age": 31,
+    "city": "Pattaya"
+  },
+  "chatRoom": {
+    "id": "room_gate0_local",
+    "participantSnapshot": [
+      {
+        "userId": "usr_gate0_local",
+        "publicIdentityId": "pub_bkk_local_001",
+        "publicId": "TM-BKK-001",
+        "displayName": "Mai",
+        "city": "Bangkok"
+      },
+      {
+        "userId": "usr_tourist_local",
+        "publicIdentityId": "pub_pattaya_tourist_001",
+        "publicId": "TM-PTY-031",
+        "displayName": "Alex",
+        "city": "Pattaya"
+      }
+    ]
+  },
+  "chatMessages": [
+    {
+      "id": "msg_gate0_001",
+      "roomId": "room_gate0_local",
+      "senderPublicIdentityId": "pub_pattaya_tourist_001",
+      "body": "Hi Mai, nice to meet you.",
+      "createdAt": "2026-06-03T09:00:00.000Z"
+    },
+    {
+      "id": "msg_gate0_002",
+      "roomId": "room_gate0_local",
+      "senderPublicIdentityId": "pub_bkk_local_001",
+      "body": "Let's unlock a LINE contact card here.",
+      "createdAt": "2026-06-03T09:01:00.000Z",
+      "contactExchangeId": "cex_gate0_line_001"
+    }
+  ],
+  "contactExchange": {
+    "id": "cex_gate0_line_001",
+    "provider": "LINE",
+    "status": "available",
+    "roomId": "room_gate0_local",
+    "requestedByPublicIdentityId": "pub_bkk_local_001",
+    "targetPublicIdentityId": "pub_pattaya_tourist_001",
+    "permission": {
+      "canViewContactCard": true,
+      "canCopyRawValue": false,
+      "canReport": true,
+      "canBlock": true,
+      "scope": "gate0_contact_card"
+    }
+  },
+  "contactCard": {
+    "id": "card_gate0_line_001",
+    "contactExchangeId": "cex_gate0_line_001",
+    "provider": "LINE",
+    "displayLabel": "LINE contact available",
+    "valueRedacted": true,
+    "copyRawValue": false
+  },
+  "safetyEvents": [
+    {
+      "id": "safe_gate0_report_001",
+      "type": "report",
+      "targetType": "contact_exchange",
+      "targetId": "cex_gate0_line_001",
+      "actorPublicIdentityId": "pub_bkk_local_001"
+    },
+    {
+      "id": "safe_gate0_block_001",
+      "type": "block",
+      "targetType": "public_identity",
+      "targetId": "pub_pattaya_tourist_001",
+      "actorPublicIdentityId": "pub_bkk_local_001"
+    }
+  ]
+}

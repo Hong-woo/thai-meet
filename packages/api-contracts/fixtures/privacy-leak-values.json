@@ -1,0 +1,12 @@
+{
+  "description": "Test-only fake sensitive values. These values must never appear outside this file or privacy leak test expectations.",
+  "values": [
+    "tm_fake_line_id_do_not_leak",
+    "https://facebook.example.invalid/tm-fake-do-not-leak",
+    "tm_fake_qr_payload_do_not_leak",
+    "tm_fake_provider_token_do_not_leak",
+    "tm_fake_ad_key_do_not_leak",
+    "tm_fake_push_key_do_not_leak",
+    "tm_fake_decrypted_contact_do_not_leak"
+  ]
+}

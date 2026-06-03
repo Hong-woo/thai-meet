@@ -821,6 +821,319 @@ APIs that must be covered by generated contracts:
 - AdsConfig and ad event ingestion.
 - Admin-visible audit and moderation APIs.
 
+## Gate 0 Local Developer Experience Contract
+
+Target developer:
+
+- YC-style early MVP full-stack/mobile developer who expects to understand and run the repo from the README without reading every planning artifact first.
+
+Target time to hello world:
+
+- 10-15 minutes from clone to Gate 0 local smoke success.
+
+TTHW measurement contract:
+
+- Measure `clone -> pnpm install -> pnpm smoke -> all smoke stages pass`.
+- Prerequisites are tracked separately and do not count toward TTHW: Node/pnpm installed, Flutter stable installed, Docker Desktop installed and running, Chrome available for Flutter web smoke, and no real provider credentials required.
+- Record both cold timing and warm timing:
+  - Cold: first run after fresh clone, dependency install, image pulls, and generated artifacts.
+  - Warm: repeat run after dependencies, Docker images, Flutter cache, and generated artifacts already exist.
+- The 10-15 minute target applies to a normal prepared developer machine, not first-ever installation of Node, Flutter, Docker, Chrome, or Xcode.
+- `pnpm smoke` metrics must include whether the run was cold or warm so future `/devex-review` can compare reality against the target without arguing about setup boundaries.
+
+README quickstart requirement:
+
+- The root `README.md` must include a Gate 0 Developer Quickstart before broad implementation begins.
+- The quickstart must state current repo status, planned scaffold status, required tools, first command, expected smoke output, and the next implementation slice.
+- The README must make clear whether the repo is still planning-only or implementation-ready.
+
+Developer documentation information architecture:
+
+```text
+docs/dev/
+  GETTING_STARTED.md     clone -> install -> pnpm smoke -> expected output
+  ARCHITECTURE.md        monorepo, Flutter/NestJS/API-contract/data boundaries
+  API_CONTRACTS.md       OpenAPI source of truth, generated Dart client, drift gate
+  ERRORS.md              unified error envelope, smoke codes, secret redaction rules
+  SMOKE.md               structured smoke stages, fixtures, diagnostics, log paths
+  TRUST_LOOP_SLICE.md    first vertical slice implementation path and acceptance checks
+  CHANGELOG.md           API, DB, mobile route, and smoke contract changes
+  migrations/            dated notes for breaking or safety-sensitive migrations
+  REVIEW_CHECKLIST.md    PR checks for smoke, contracts, safety, UI, and logs
+```
+
+Rules:
+
+- `README.md` links to these docs instead of duplicating all details.
+- `docs/dev/` is execution documentation; PRD and planning docs remain product/decision references.
+- Each dev doc must include copy-paste commands, expected output, and the owner app/package where relevant.
+- Dev docs must stay short enough for a first developer to find the next action in under two minutes.
+
+Internal contributor kit:
+
+- Add `CONTRIBUTING.md` before multi-person implementation begins.
+- Add GitHub issue templates for bug, feature, DX friction, and safety/contact-sharing concern.
+- Add a pull request checklist covering:
+  - `pnpm smoke` result
+  - OpenAPI/generated Dart client freshness
+  - Prisma migration status
+  - Flutter Gate 0 route contract tests
+  - ContactExchange raw contact leakage check
+  - PublicIdentity/ChatRoomParticipant snapshot assumptions
+  - feature flag defaults and rollback posture
+  - mobile viewport/a11y impact when UI changes
+  - docs/dev update when commands, errors, contracts, or migrations change
+- `docs/dev/REVIEW_CHECKLIST.md` should explain the checks in enough detail for a new contributor or contractor to self-review before asking for review.
+
+Toolchain and mock-first environment matrix:
+
+```text
+Node/pnpm       required for monorepo scripts and NestJS API
+Flutter stable  required for apps/mobile
+Docker          required for local PostgreSQL and Redis
+PostgreSQL      local via Docker Compose
+Redis           local via Docker Compose
+LINE            mock-first locally, real provider keys only for staging/prod
+Facebook        mock-first locally and disabled in Gate 0 UI by default
+AdMob/UMP       mock-first locally, no ad key required for smoke
+FCM             mock-first locally, no push credential required for smoke
+Object storage  local/mock upload path for smoke
+```
+
+Cross-platform local environment policy:
+
+- `pnpm install`, `pnpm smoke`, `pnpm api:*`, `pnpm db:*`, and contract generation commands must work from Windows PowerShell and macOS/Linux shells where Node, pnpm, Flutter, and Docker are installed.
+- Local smoke should use Flutter web or a platform-neutral app shell target first, so Windows developers can validate Gate 0 routes and Trust Loop wiring without iOS tooling.
+- iOS simulator, signing, TestFlight, and App Store distribution are Mac/Xcode-only and must be documented as a separate distribution path, not a local smoke prerequisite.
+- Android emulator/device smoke can be added later, but the first Gate 0 local smoke should not require Android Studio to be open.
+- Scripts should avoid shell-specific assumptions where practical; if a command differs by OS, `docs/dev/GETTING_STARTED.md` must show the Windows PowerShell and macOS/Linux versions side by side.
+
+One-command local smoke:
+
+- `pnpm smoke` should be the canonical developer magical moment.
+- It should verify local infrastructure, API health, DB/Redis availability, seed data, OpenAPI generation, Flutter app shell, Gate 0 route wiring, and the Trust Loop vertical slice.
+- The smoke path must prove Contract + Trust Loop together rather than API-only or UI-only success.
+- `pnpm smoke` must remain a thin orchestrated smoke, not a full UI/E2E/regression suite.
+- Smoke must not require Android emulator, iOS simulator, mobile release builds, real LINE/Facebook providers, real AdMob/FCM credentials, production object storage, or broad admin workflows.
+- Smoke may use disposable local DB/Redis state, mock fixtures, API integration checks, generated-client freshness checks, Flutter route/widget checks, and one scripted Trust Loop.
+
+Smoke doctor / preflight:
+
+- `pnpm smoke` should start with a `doctor` or `preflight` stage before booting services.
+- Preflight checks should include Node version, pnpm/Corepack status, Flutter stable availability, Chrome availability for Flutter web, Docker running, required ports free, `.env` or `.env.local` creation, Prisma engine readiness, and OpenAPI/Dart generator prerequisites.
+- Preflight failures should use `TM_SMOKE_DOCTOR_*` error codes and exit before changing DB state.
+
+Minimal executable monorepo scaffold:
+
+- Sprint 0 implementation should create the smallest runnable monorepo before broad feature work.
+- The scaffold must include root `package.json`, `pnpm-workspace.yaml`, `apps/api`, `apps/mobile`, `packages/api-contracts`, `infra/docker`, `.env.example`, and `pnpm smoke`.
+- `apps/api` may start with health, config validation, Prisma connection check, OpenAPI generation, and mock seed endpoints/fixtures.
+- `apps/mobile` may start with a Flutter app shell, Gate 0 route table, mock API boundary, and Trust Loop placeholder screens.
+- `packages/api-contracts` may start with generated OpenAPI JSON plus generated Dart client output or a documented placeholder until the first generated client exists.
+- `infra/docker` must run PostgreSQL and Redis locally.
+- The scaffold is successful only if a new developer can clone the repo, install dependencies, run smoke, and see structured output without real LINE, Facebook, AdMob, FCM, object storage, or production secrets.
+
+Standard root scripts matrix:
+
+```text
+pnpm dev                  run the default local developer loop for API + mobile shell where supported
+pnpm smoke                run structured Gate 0 Contract + Trust Loop smoke
+pnpm test                 run all fast tests available in the current scaffold
+pnpm api:dev              start NestJS API in watch mode
+pnpm api:openapi          generate OpenAPI JSON from apps/api
+pnpm api-client:generate  generate Dart API client/types from OpenAPI
+pnpm db:migrate           run Prisma migrations locally
+pnpm db:seed              seed mock Gate 0 local data
+pnpm mobile:run           run Flutter app shell
+pnpm mobile:test:routes   verify Gate 0 route names, paths, reduced nav, and route guards
+```
+
+Rules:
+
+- Root commands are the public developer interface for the monorepo.
+- App-level scripts may exist, but the README should prefer root commands.
+- Root commands must work on Windows PowerShell and macOS/Linux shells where the underlying toolchain is available.
+- If a command is not implemented yet, it must fail with a clear "not scaffolded yet" message and point to the TODO item that will enable it.
+
+Structured smoke diagnostics:
+
+```text
+doctor      Node, pnpm/Corepack, Flutter, Chrome, Docker, ports, env, generator prerequisites
+infra       Docker, PostgreSQL, Redis
+api         NestJS boot, health endpoint, Prisma connection
+contract    OpenAPI JSON generation and generated Dart client freshness
+seed        mock users, Public ID, Discover profile, LINE contact fixture
+mobile      Flutter dependencies, app shell, Gate 0 routes
+trust-loop  mock login -> Public ID -> Discover -> Chat -> LINE ContactExchange -> Contact Card -> report/block
+```
+
+Failure output requirements:
+
+- Each smoke stage must print pass/fail status, the failing command, the most relevant log path, and the next command a developer should run.
+- ContactExchange failures must distinguish missing room membership, missing registered LINE contact, duplicate idempotency key, revoked contact, and raw contact leakage violations.
+- Smoke output must never print raw LINE IDs, Facebook URLs, QR payloads, decrypted external contact values, or provider secrets.
+
+Unified developer-facing error format:
+
+API errors should use one envelope shape:
+
+```json
+{
+  "error": {
+    "type": "validation_error | auth_error | permission_error | conflict_error | not_found | provider_error | system_error",
+    "code": "TM_API_CONTACT_EXCHANGE_MISSING_LINE_CONTACT",
+    "message": "Register a LINE contact before sending a LINE Contact Card.",
+    "param": "provider",
+    "requestId": "req_mock_123",
+    "docRef": "docs/errors/contact-exchange.md#missing-line-contact"
+  }
+}
+```
+
+Smoke and command errors should use stable prefixes:
+
+```text
+TM_SMOKE_DOCTOR_NODE_UNSUPPORTED
+TM_SMOKE_DOCTOR_DOCKER_NOT_RUNNING
+TM_SMOKE_DOCTOR_PORT_CONFLICT
+TM_SMOKE_DOCTOR_CHROME_UNAVAILABLE
+TM_SMOKE_INFRA_DOCKER_UNAVAILABLE
+TM_SMOKE_API_HEALTH_FAILED
+TM_CONTRACT_OPENAPI_STALE
+TM_CONTRACT_DART_CLIENT_STALE
+TM_DB_MIGRATION_PENDING
+TM_MOBILE_ROUTE_CONTRACT_DRIFT
+TM_TRUST_LOOP_CONTACT_EXCHANGE_FAILED
+```
+
+Rules:
+
+- Error messages must say what happened, why it likely happened, and the next command or file to inspect.
+- Developer-facing errors may reference fixture users, public IDs, room IDs, request IDs, and exchange IDs.
+- Developer-facing errors must not include raw LINE IDs, Facebook URLs, QR payloads, decrypted contact values, provider access tokens, refresh tokens, or ad/push secrets.
+- ContactExchange errors must be specific enough for Flutter to route to LINE setup, retry, unavailable-card, report/block, or membership-failed states without parsing message strings.
+
+Executable privacy and redaction checks:
+
+- Gate 0 tests must include fake sensitive fixture values that look like LINE IDs, Facebook URLs, QR payloads, provider tokens, ad keys, push keys, and decrypted contact values.
+- Tests must assert that those fake sensitive values never appear in:
+  - `ChatMessage` payloads
+  - API error JSON
+  - smoke output
+  - `.thai-meet/smoke-runs/*.json`
+  - application logs
+  - audit events
+  - notification payloads
+  - generated screenshots or test artifacts
+- ContactExchange tests should fail loudly if raw contact values cross the ContactExchange boundary into ChatMessage, logs, analytics, diagnostics, or client-visible generic errors.
+
+Local DX measurement:
+
+- `pnpm smoke` should write a local, gitignored JSON result under `.thai-meet/smoke-runs/`.
+- CI should upload the same result as a workflow artifact.
+- The result should help measure the 10-15 minute Gate 0 Local Smoke target without collecting secrets, raw contact data, user content, or unnecessary absolute paths.
+
+Suggested smoke run shape:
+
+```json
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-06-03T00:00:00Z",
+  "durationMs": 420000,
+  "status": "failed",
+  "failedStage": "contract",
+  "runTemperature": "cold",
+  "retryCount": 1,
+  "os": "windows",
+  "nodeMajor": 22,
+  "pnpmMajor": 10,
+  "flutterChannel": "stable",
+  "stages": {
+    "doctor": "passed",
+    "infra": "passed",
+    "api": "passed",
+    "contract": "failed",
+    "seed": "skipped",
+    "mobile": "skipped",
+    "trustLoop": "skipped"
+  }
+}
+```
+
+Measurement rules:
+
+- Do not store raw LINE IDs, Facebook URLs, QR payloads, provider tokens, ad keys, push keys, chat text, profile text, or local absolute user paths.
+- Track stage duration and failed stage so the team can see whether setup friction comes from infrastructure, API, contracts, seed data, mobile route wiring, or Trust Loop logic.
+- Future `/devex-review` should compare measured TTHW against the 10-15 minute target and update `docs/dev/SMOKE.md` and `docs/dev/GETTING_STARTED.md` when recurring failure patterns appear.
+
+## Gate 0 Developer Experience Vertical Slice
+
+The first real implementation unit after scaffolding should be a Trust Loop vertical slice, not a broad Sprint 1 module split.
+
+Goal:
+
+- Prove that the core Thai Meet promise can run locally end to end with mock providers before expanding feature coverage.
+
+Required local slice:
+
+```text
+mock login
+  -> Public ID generated
+  -> seeded Discover profile visible
+  -> Start Chat
+  -> LINE ContactExchange created
+  -> Contact Card rendered without copying raw LINE data into ChatMessage
+  -> report/block event recorded
+```
+
+Developer experience requirements:
+
+- The slice must run through the same `pnpm smoke` path used for Gate 0 local smoke.
+- LINE, Facebook, AdMob, FCM, and object storage must have mock-first local defaults so no external provider key is required for the first run.
+- The API contract generated from `apps/api` must be consumed by the Flutter app or verified against the Flutter-facing mock boundary.
+- The slice should be listed in `TODOS.md` as the first implementation task after design-system setup.
+- A developer should be able to tell whether the failure is in local infrastructure, API contract generation, seeded data, or Flutter route wiring from the smoke output.
+
+## Contract Drift Gate And Migration Policy
+
+Gate 0 must treat OpenAPI, generated Dart clients, Prisma migrations, and Flutter route contracts as developer experience boundaries. Silent drift is not acceptable because mobile releases are slower to roll back and ContactExchange/PublicIdentity changes affect safety.
+
+Required CI gates once the scaffold exists:
+
+```text
+openapi:generate
+  -> fail if generated OpenAPI differs from committed contract artifacts
+
+api-client:generate
+  -> fail if generated Dart client/types are stale
+  -> fail if Flutter cannot compile against the generated client
+
+prisma:migrate:status
+  -> fail if schema changes exist without a migration
+
+mobile:route-contract-test
+  -> fail if Gate 0 route names, paths, or reduced nav visibility drift
+
+api:contract-test
+  -> fail if PublicIdentity or ContactExchange endpoints are not covered by contract tests
+
+smoke
+  -> fail if Contract + Trust Loop local smoke no longer passes
+```
+
+Migration policy:
+
+- Breaking API changes require an explicit compatibility plan before merge.
+- API, DB, mobile route, smoke contract, and generated client breaking changes must be recorded in `docs/dev/CHANGELOG.md`.
+- Safety-sensitive migrations should also get a dated migration note under `docs/dev/migrations/YYYY-MM-DD-short-name.md`.
+- PublicIdentity, ChatRoomParticipant snapshot, ChatMessage identity, ExternalContact, ContactExchange, Report, Block, RewardLedger, and AuditEvent changes require tests that prove old safety/audit assumptions still hold.
+- DB migrations must be backward-compatible during Gate 0 alpha unless the app has no live testers.
+- Risky behavior changes must ship behind feature flags with safe defaults.
+- Generated client changes must be committed with the API change that caused them.
+- Flutter must not hand-write request/response models for generated-contract APIs unless a documented exception exists.
+- Generated-contract APIs must compile through the Flutter app or a Flutter package test that imports the generated Dart client.
+- ContactExchange and PublicIdentity endpoint changes require contract tests before merge.
+
 ## Database Constraints And Index Matrix
 
 Gate 0 schema work must include constraints and indexes up front. These are part of correctness, not later optimization.
@@ -940,6 +1253,124 @@ Local adversarial review score: 8/10.
 3. Ads may conflict with trust for Thai local women. Ads should not appear in chat detail and should not interrupt contact sharing.
 4. Five language packs add QA burden. Architecture should support all five early, but launch polish may need a narrower language priority.
 
+## Developer Experience Plan Review
+
+Completed by `/plan-devex-review` on 2026-06-03, using this plan, `README.md`, `TODOS.md`, and `C:\Dev\thai-meet\docs\prd\Thai-Meet_PRD_v3.0_Final_KO.docx`.
+
+Developer persona:
+
+```text
+Who:       YC-style early MVP full-stack/mobile developer
+Context:   Clones the repo to implement Gate 0 across Flutter, NestJS, OpenAPI, local infra, and tests.
+Tolerance: Expects a meaningful local smoke within 10-15 minutes; will lose confidence if setup is planning-only or credential-blocked.
+Expects:   README quickstart, toolchain matrix, mock-first provider defaults, one-command smoke, clear failure diagnostics, and a first vertical slice.
+```
+
+Developer empathy narrative:
+
+The developer opens `README.md` and sees that Thai Meet is a Thailand-focused Android/iOS dating app concept and MVP plan. The repo currently contains product requirements, benchmark material, and planning artifacts, while the implementation layout is still planned. Without a quickstart, the developer understands the product direction but cannot tell whether to implement immediately, scaffold first, or keep reading. The PRD makes the scope feel real and broad: Flutter, NestJS/AWS, Public Meet ID, LINE/Facebook Contact Card, AdMob/Reward, five languages, QA, and DevOps. The first useful experience should not require real provider keys or a full alpha build. It should prove locally that the Gate 0 Trust Loop is alive: mock login, Public ID, Discover, Chat, LINE ContactExchange, Contact Card, and report/block.
+
+Competitive DX benchmark:
+
+```text
+NestJS:            3-5 min to Hello World via CLI scaffold and npm run start.
+Vercel:           2-5 min to first deployment through CLI/dashboard flow.
+Supabase Flutter: 10-20 min for Flutter app setup plus project URL/key and client initialization.
+Firebase Flutter: 15-30 min because console setup and platform configuration add steps.
+Thai Meet now:    blocked until implementation scaffold and smoke script exist.
+Thai Meet target: 10-15 min Gate 0 Local Smoke.
+```
+
+Magical moment:
+
+```text
+pnpm smoke
+  -> infra OK
+  -> api OK
+  -> contract OK
+  -> seed OK
+  -> mobile OK
+  -> trust-loop OK
+```
+
+The developer should see that the API contract and Flutter Trust Loop work together, not as separate demos.
+
+Developer journey map:
+
+```text
+STAGE          DEVELOPER DOES                    FRICTION RESOLUTION                         STATUS
+Discover       Opens README                       Gate 0 Developer Quickstart required         Fixed in plan
+Install        Sets up local tools and env         Toolchain + mock-first env matrix fixed     Fixed in plan
+Hello World    Runs first local command            pnpm smoke = Contract + Trust Loop smoke     Fixed in plan
+Real Usage     Starts first implementation slice   Trust Loop Vertical Slice added             Fixed in plan/TODOS
+Debug          Diagnoses smoke failure             Structured smoke diagnostics added           Fixed in plan
+Upgrade        Changes API/DB/mobile contracts     Contract drift gate + migration policy       Fixed in plan/TODOS
+```
+
+First-time developer confusion report:
+
+```text
+T+0:00  README opens. Developer needs to know whether this is planning-only or implementation-ready.
+T+2:00  Toolchain questions appear: Node, pnpm, Flutter, Docker, provider keys, DB, Redis.
+T+5:00  First command should be pnpm smoke, not a choose-your-own-adventure setup.
+T+10:00 If smoke fails, output must identify infra, API, contract, seed, mobile, or trust-loop failure.
+T+15:00 If smoke succeeds, next work should be the Trust Loop Vertical Slice, not a broad sprint module.
+```
+
+What already exists:
+
+- Product and Gate 0 scope are clear.
+- Monorepo, OpenAPI contract-first, DB constraints/index matrix, feature flags, ContactExchange authority object, ChatRoom participant snapshot, reward ledger, and Gate 0 route/test matrix already exist in the plan.
+- PRD includes Flutter/NestJS/AWS, API contract, QA, sprint, and mobile toolchain guidance.
+- `TODOS.md` already tracks Sprint 0 design-system work.
+
+Not in scope for Gate 0 DX:
+
+- Hosted playground.
+- Public SDK/developer portal.
+- Real LINE/Facebook/AdMob/FCM credentials for local smoke.
+- Full admin production workflow before the Trust Loop vertical slice is runnable.
+- Swipe/Activity/Profile broad navigation as Gate 0 top-level surfaces.
+
+DX scorecard:
+
+```text
+Dimension                         Before review   Target after implementation
+Getting Started / TTHW            blocked         10-15 min
+API / Contract DX                 6/10            9/10
+Error / Debugging                 4/10            9/10
+Documentation / Learning          4/10            9/10
+Upgrade / Migration               5/10            9/10
+Developer Environment / Tooling   3/10            9/10
+Community / Ecosystem             3/10            6/10
+DX Measurement                    2/10            8/10
+Overall                           4/10            9/10 after scaffold + smoke + CI gates
+```
+
+DX implementation checklist:
+
+- Add root README Gate 0 Developer Quickstart.
+- Create monorepo scaffold: `apps/api`, `apps/mobile`, `packages/api-contracts`, and `infra/docker`.
+- Add `.env.example` with mock-first provider defaults.
+- Add Docker Compose for PostgreSQL and Redis.
+- Add `pnpm smoke` with structured `infra/api/contract/seed/mobile/trust-loop` diagnostics.
+- Implement Trust Loop Vertical Slice before broad sprint work.
+- Add OpenAPI generation and generated Dart client freshness checks.
+- Add Prisma migration status and Flutter route contract tests in CI.
+- Keep provider secrets and raw contact values out of logs, smoke output, and ChatMessage payloads.
+
+Outside Voice follow-up:
+
+An independent Codex outside review agreed that the DX direction is strong, but flagged implementation guardrails that must be explicit before scaffold work:
+
+- TTHW must define measurement boundaries: `clone -> pnpm install -> pnpm smoke -> all stages pass`, with tool installation, cold/warm runs, Docker pulls, Flutter cache, Chrome, and Docker Desktop status tracked separately.
+- `pnpm smoke` must stay thin and must not become full mobile E2E, release build, Android/iOS device, real provider, or admin workflow testing.
+- A `doctor`/preflight smoke stage should check Node, pnpm/Corepack, Flutter stable, Chrome, Docker, ports, `.env`, Prisma engine, and generator prerequisites before changing local state.
+- Drift gates should be compile-backed: Flutter must compile against the generated Dart client, and PublicIdentity/ContactExchange endpoints require contract tests.
+- Privacy rules need executable leak tests using fake sensitive LINE/Facebook/QR/provider/ad/push/contact fixtures across ChatMessage, API errors, smoke output, local smoke JSON, logs, audit events, notification payloads, screenshots, and test artifacts.
+- Full Figma/DESIGN.md polish must not block the first local smoke; placeholder screens may use the approved Gate 0 route and state matrix.
+- Sprint 0 DX sequence should be: scaffold + pinned toolchain + `.env.example`, smoke skeleton + doctor/preflight, Trust Loop vertical slice, CI drift gates + leak tests, then `docs/dev/` and contributor checklist.
+
 ## Design Plan Review Completion Summary
 
 Completed by `/plan-design-review` on 2026-06-03, using both this design document and `C:\Dev\thai-meet\docs\prd\Thai-Meet_PRD_v3.0_Final_KO.docx`.
@@ -998,7 +1429,7 @@ No unresolved design-review decisions remain for Gate 0 planning. Remaining desi
 | Codex Review | `/codex review` | Independent 2nd opinion | 0 | - | Not run |
 | Eng Review | `/plan-eng-review` | Architecture & tests (required) | 1 | CLEAR | ContactExchange, ChatRoom snapshot, reward ledger, feature flags, OpenAPI, DB matrix added |
 | Design Review | `/plan-design-review` | UI/UX gaps | 1 | CLEAR | score: 6/10 -> 8/10, 12 decisions |
-| DX Review | `/plan-devex-review` | Developer experience gaps | 0 | - | Not run |
+| DX Review | `/plan-devex-review` | Developer experience gaps | 1 | CLEAR | score: 4/10 -> 9/10 target; TTHW, smoke, docs/dev, drift gates, leak tests added |
 
 - **UNRESOLVED:** 0 design decisions for Gate 0 planning.
-- **VERDICT:** CEO + ENG + DESIGN CLEARED for Gate 0 planning; implement after Sprint 0 design assets are created.
+- **VERDICT:** CEO + ENG + DESIGN + DX CLEARED for Gate 0 planning. Implement Sprint 0 with the DX sequence first: executable scaffold, smoke doctor, thin local smoke, Trust Loop vertical slice, drift gates, leak tests, then docs/dev and contributor checklist. Full Figma/DESIGN.md polish should improve alpha quality but must not block first local smoke.

@@ -25,4 +25,4 @@ build/
 # Generated/local
 *.tmp
 *.bak
-
+.thai-meet/

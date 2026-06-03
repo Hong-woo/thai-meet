@@ -1,0 +1,15 @@
+name: thai_meet_mobile
+description: Thai Meet Gate 0 Flutter shell scaffold.
+publish_to: "none"
+version: 0.0.0
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
