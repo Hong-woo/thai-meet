@@ -25,6 +25,7 @@ Partial:
 
 - Cross-platform smoke parity: Windows/Ubuntu CI and Windows local checks exist; full Flutter/Docker prepared-machine smoke still depends on installed prerequisites.
 - Design system: source-of-truth docs and wireframes exist; Figma screen set and Public ID image templates remain.
+- Trust Loop implementation: API routes now call a fixture-backed Gate 0 service boundary; real Prisma/NestJS storage and Flutter screens remain.
 
 Remaining:
 

@@ -5,6 +5,7 @@ Record developer-facing changes that affect local setup, API contracts, generate
 ## 2026-06-04
 
 - Added executable wireframe QA contract and wired it into `npm test` and scaffold smoke.
+- Split the fixture-backed API scaffold behind a Gate 0 service boundary so Public ID, Discover, Chat, LINE ContactExchange, and safety actions can move toward real implementations without changing route contracts.
 
 ## 2026-06-03
 

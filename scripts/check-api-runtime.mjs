@@ -1,8 +1,21 @@
 import { spawn } from "node:child_process";
 import { once } from "node:events";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 
 const root = process.cwd();
 const failures = [];
+
+const serverSource = await readFile(path.join(root, "apps/api/src/server.mjs"), "utf8");
+const gate0ServiceSource = await readFile(path.join(root, "apps/api/src/gate0-service.mjs"), "utf8");
+if (!serverSource.includes("createGate0Service")) {
+  failures.push("API server must route through the Gate 0 service boundary");
+}
+for (const member of ["getMyPublicIdentity", "listDiscoverProfiles", "createLineContactExchange", "createSafetyReport", "createSafetyBlock"]) {
+  if (!gate0ServiceSource.includes(member)) {
+    failures.push(`Gate 0 service must expose ${member}`);
+  }
+}
 
 const child = spawn(process.execPath, ["apps/api/src/server.mjs"], {
   cwd: root,

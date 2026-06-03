@@ -18,13 +18,14 @@ scripts/      smoke, contract, privacy, and generation checks
 docs/dev/     execution docs for contributors
 ```
 
-Current API scaffold is fixture-backed. Future NestJS/Prisma modules should preserve the same externally visible contracts before replacing fixture responses with database-backed behavior.
+Current API scaffold is fixture-backed behind `apps/api/src/gate0-service.mjs`. Future NestJS/Prisma modules should preserve the same externally visible contracts before replacing fixture responses with database-backed behavior.
 
 Future Prisma schema work must follow `docs/dev/DB_CONSTRAINTS.md` before replacing fixture-backed Gate 0 responses.
 
 Ownership boundaries:
 
 - API owns backend routes, unified error envelopes, database access, and provider adapters.
+- `apps/api/src/gate0-service.mjs` owns the current fixture-backed Gate 0 use cases until Prisma/NestJS replaces the storage and framework layer.
 - Mobile owns Flutter routes, navigation shape, and rendered contact cards.
 - `packages/api-contracts` owns OpenAPI source, generated client placeholders, and mock fixtures.
 - `scripts` owns local drift checks, smoke diagnostics, and privacy leak checks.
