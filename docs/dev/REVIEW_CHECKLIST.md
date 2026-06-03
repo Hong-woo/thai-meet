@@ -21,6 +21,7 @@ Run when relevant:
 
 ```powershell
 npm run privacy:test
+node wireframes/qa-check.mjs
 npm run smoke:metrics
 npm run smoke:doctor
 pnpm smoke
@@ -37,7 +38,9 @@ API and contracts:
 
 Mobile and routes:
 
-- Gate 0 nav remains Discover, Chats, My ID, Safety.
+- Gate 0 nav remains Discover, Swipe, Chat, List, My.
+- Safety remains reachable from profile, Chat, Contact Card, List, and My surfaces without becoming a top-level tab.
+- Wireframe route IDs and component primitives remain aligned with `wireframes/qa-check.mjs`.
 - Gate 0 feature flags keep LINE visible and Facebook/rewards/ads/admin hidden by default.
 - Reward ledger remains append-only and idempotent even while reward UI is hidden.
 - Flutter route names and paths stay aligned with `scripts/check-mobile-routes.mjs`.

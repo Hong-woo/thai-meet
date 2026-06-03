@@ -26,3 +26,7 @@ build/
 *.tmp
 *.bak
 .thai-meet/
+.gstack/
+.playwright-mcp/
+.impeccable/
+thai-meet-interface-fix-*.png

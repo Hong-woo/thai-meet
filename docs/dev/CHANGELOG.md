@@ -2,6 +2,10 @@
 
 Record developer-facing changes that affect local setup, API contracts, generated clients, mobile routes, smoke stages, privacy checks, DB migrations, or safety-sensitive behavior.
 
+## 2026-06-04
+
+- Added executable wireframe QA contract and wired it into `npm test` and scaffold smoke.
+
 ## 2026-06-03
 
 - Added minimal executable monorepo scaffold for Gate 0.

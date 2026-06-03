@@ -31,7 +31,8 @@ Ownership boundaries:
 
 Gate 0 design defaults:
 
-- Reduced nav: Discover, Chats, My ID, Safety.
+- Reduced nav: Discover, Swipe, Chat, List, My.
+- Safety remains reachable from profile, Chat, Contact Card, List, and My surfaces rather than as a top-level tab.
 - ContactExchange is a permission object, not a raw chat message.
 - ChatRoom responses carry participant snapshots so future identity rotations do not rewrite old room context.
 - Feature flags keep LINE visible while Facebook, rewarded ads, chat-detail ads, and admin surfaces remain hidden by default.

@@ -11,7 +11,7 @@
     "smoke": "node scripts/smoke.mjs",
     "smoke:doctor": "node scripts/smoke.mjs --doctor",
     "smoke:metrics": "node scripts/smoke-metrics.mjs",
-    "test": "node scripts/check-mobile-routes.mjs && node scripts/check-contracts.mjs && node scripts/check-api-runtime.mjs && node scripts/check-trust-loop.mjs && node scripts/check-privacy-leaks.mjs && node scripts/check-dx-metrics.mjs && node scripts/check-env-matrix.mjs && node scripts/check-error-envelope.mjs && node scripts/check-db-matrix.mjs && node scripts/check-feature-flags.mjs && node scripts/check-reward-ledger.mjs",
+    "test": "node scripts/check-mobile-routes.mjs && node wireframes/qa-check.mjs && node scripts/check-contracts.mjs && node scripts/check-api-runtime.mjs && node scripts/check-trust-loop.mjs && node scripts/check-privacy-leaks.mjs && node scripts/check-dx-metrics.mjs && node scripts/check-env-matrix.mjs && node scripts/check-error-envelope.mjs && node scripts/check-db-matrix.mjs && node scripts/check-feature-flags.mjs && node scripts/check-reward-ledger.mjs",
     "api:dev": "node apps/api/src/server.mjs",
     "api:check": "node scripts/check-api-runtime.mjs",
     "api:openapi": "node scripts/generate-openapi.mjs",
@@ -25,7 +25,8 @@
     "db:migrate": "node scripts/not-scaffolded.mjs db:migrate \"Prisma schema/migrations are not scaffolded yet. See TODOS.md Sprint 0 Minimal Executable Monorepo Scaffold.\"",
     "db:seed": "node scripts/seed-gate0-fixtures.mjs",
     "mobile:run": "node scripts/not-scaffolded.mjs mobile:run \"Install Flutter stable, then run the app from apps/mobile. Flutter shell is placeholder-only in this scaffold.\"",
-    "mobile:test:routes": "node scripts/check-mobile-routes.mjs"
+    "mobile:test:routes": "node scripts/check-mobile-routes.mjs",
+    "wireframes:check": "node wireframes/qa-check.mjs"
   },
   "devDependencies": {}
 }

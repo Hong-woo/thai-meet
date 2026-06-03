@@ -24,6 +24,7 @@ doctor      OK  Node, pnpm/Corepack, Flutter, Chrome, Docker, ports, env
 infra       SKIP Docker Compose boot deferred in scaffold smoke
 api         OK  local scaffold health, OpenAPI, and fixture runtime
 contract    OK  OpenAPI JSON and generated Dart client are fresh
+wireframes  OK  route IDs, primitives, motion, accessibility, localization, and QA contracts
 seed        OK  mock users, Public ID, Discover profile, LINE contact fixture
 mobile      OK  Flutter app shell and Gate 0 routes
 trust-loop  OK  mock login -> Public ID -> Discover -> Chat -> LINE ContactExchange -> Contact Card -> report/block
@@ -40,7 +41,7 @@ npm test
 npm run privacy:test
 ```
 
-`npm test` checks the mobile route contract, OpenAPI/Dart client contract, local API runtime, executable Trust Loop fixture, and privacy leak guard.
+`npm test` checks the mobile route contract, wireframe QA contract, OpenAPI/Dart client contract, local API runtime, executable Trust Loop fixture, and privacy leak guard.
 
 Developer docs:
 

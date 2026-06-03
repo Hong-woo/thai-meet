@@ -19,6 +19,7 @@ Smoke stages:
 - `infra` - skipped in scaffold smoke; Docker Compose service boot is deferred.
 - `api` - starts the local scaffold API on an ephemeral port and checks health, OpenAPI, and fixtures.
 - `contract` - checks OpenAPI and Dart client drift.
+- `wireframes` - validates route IDs, component primitives, motion, accessibility, localization, and QA contracts.
 - `seed` - writes local Gate 0 fixture copies under `.thai-meet/fixtures/`.
 - `mobile` - checks Gate 0 reduced route contract.
 - `trustLoop` - runs mock login to LINE ContactExchange executable fixture path.

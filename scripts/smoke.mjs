@@ -12,6 +12,7 @@ const stages = {
   infra: "pending",
   api: "pending",
   contract: "pending",
+  wireframes: "pending",
   seed: "pending",
   mobile: "pending",
   privacy: "pending",
@@ -171,12 +172,13 @@ printStage("infra", "skipped", ["Docker Compose service boot is deferred in scaf
 
 const apiOk = runNodeScript("api", "scripts/check-api-runtime.mjs");
 const contractOk = runNodeScript("contract", "scripts/check-contracts.mjs");
+const wireframesOk = runNodeScript("wireframes", "wireframes/qa-check.mjs");
 const seedOk = runNodeScript("seed", "scripts/seed-gate0-fixtures.mjs");
 const mobileOk = runNodeScript("mobile", "scripts/check-mobile-routes.mjs");
 const trustLoopOk = runNodeScript("trustLoop", "scripts/check-trust-loop.mjs");
 const privacyOk = runNodeScript("privacy", "scripts/check-privacy-leaks.mjs");
 
-if (!apiOk || !contractOk || !seedOk || !mobileOk || !trustLoopOk || !privacyOk) {
+if (!apiOk || !contractOk || !wireframesOk || !seedOk || !mobileOk || !trustLoopOk || !privacyOk) {
   stages.trustLoop = trustLoopOk ? stages.trustLoop : "failed";
 }
 
