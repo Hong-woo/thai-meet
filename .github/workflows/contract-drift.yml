@@ -1,0 +1,60 @@
+name: Contract Drift Gate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - "codex/**"
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    name: Node ${{ matrix.node }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+        node:
+          - 24
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Verify fast Gate 0 checks
+        run: npm test
+
+      - name: Run smoke doctor for DX metrics
+        run: npm run smoke:doctor
+        continue-on-error: true
+
+      - name: Regenerate OpenAPI artifact
+        run: npm run api:openapi
+
+      - name: Regenerate Dart client placeholder
+        run: npm run api-client:generate
+
+      - name: Verify generated contract artifacts are fresh
+        run: git diff --exit-code -- packages/api-contracts/generated/gate0.openapi.json packages/api-contracts/dart/thai_meet_api_client.dart
+
+      - name: Verify whitespace
+        run: git diff --check
+
+      - name: Upload smoke run metrics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: smoke-runs-${{ matrix.os }}-node-${{ matrix.node }}
+          path: .thai-meet/smoke-runs/*.json
+          if-no-files-found: ignore

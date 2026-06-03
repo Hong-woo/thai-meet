@@ -1,0 +1,35 @@
+{
+  "rewardsEnabled": false,
+  "gate": "Gate 0",
+  "policy": {
+    "appendOnly": true,
+    "grantRequiresIdempotencyKey": true,
+    "consumptionCreatesRecord": true
+  },
+  "supportedRewardTypes": [
+    "EXTRA_MESSAGE",
+    "EXTRA_LINE_SHARE",
+    "EXTRA_FACEBOOK_SHARE",
+    "BOOST"
+  ],
+  "grant": {
+    "id": "rwd_gate0_mock_001",
+    "userId": "usr_gate0_local",
+    "publicIdentityId": "pub_bkk_local_001",
+    "type": "EXTRA_LINE_SHARE",
+    "source": "mock_admob_callback",
+    "idempotencyKey": "mock-admob-reward-2026-06-03-001",
+    "expiresAt": "2026-07-03T00:00:00.000Z"
+  },
+  "duplicateCallback": {
+    "idempotencyKey": "mock-admob-reward-2026-06-03-001",
+    "sameLedgerEntryId": "rwd_gate0_mock_001",
+    "createsNewLedgerEntry": false
+  },
+  "consumption": {
+    "id": "rwc_gate0_mock_001",
+    "rewardLedgerId": "rwd_gate0_mock_001",
+    "actionType": "CONTACT_EXCHANGE",
+    "actionId": "cex_gate0_line_001"
+  }
+}

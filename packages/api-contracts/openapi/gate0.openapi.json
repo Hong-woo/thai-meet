@@ -1,0 +1,198 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Thai Meet Gate 0 API",
+    "version": "0.0.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "getHealth",
+        "responses": {
+          "200": {
+            "description": "Local API scaffold is healthy"
+          }
+        }
+      }
+    },
+    "/api/v1/public-identities/me": {
+      "get": {
+        "operationId": "getMyPublicIdentities",
+        "responses": {
+          "200": {
+            "description": "Active and previous Public Meet IDs"
+          }
+        }
+      }
+    },
+    "/api/v1/discover/profiles": {
+      "get": {
+        "operationId": "listDiscoverProfiles",
+        "responses": {
+          "200": {
+            "description": "Seeded Gate 0 Discover profiles"
+          }
+        }
+      }
+    },
+    "/api/v1/chats/rooms/{roomId}": {
+      "get": {
+        "operationId": "getChatRoom",
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chat room with participant snapshot and messages"
+          }
+        }
+      }
+    },
+    "/api/v1/chats/rooms/{roomId}/contact-exchanges/line": {
+      "post": {
+        "operationId": "createLineContactExchange",
+        "x-error-codes": [
+          "TM_API_CONTACT_EXCHANGE_MISSING_LINE_CONTACT",
+          "TM_API_CONTACT_EXCHANGE_ROOM_MEMBERSHIP_REQUIRED",
+          "TM_API_CONTACT_EXCHANGE_DUPLICATE_IDEMPOTENCY_KEY",
+          "TM_API_CONTACT_EXCHANGE_REVOKED",
+          "TM_API_CONTACT_PROVIDER_UNAVAILABLE"
+        ],
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "LINE ContactExchange created without exposing raw contact values"
+          },
+          "400": {
+            "description": "LINE contact is missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Room membership is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate or revoked ContactExchange",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Contact provider is unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/safety/reports": {
+      "post": {
+        "operationId": "createSafetyReport",
+        "responses": {
+          "201": {
+            "description": "Seeded report event recorded for Gate 0 smoke"
+          }
+        }
+      }
+    },
+    "/api/v1/safety/blocks": {
+      "post": {
+        "operationId": "createSafetyBlock",
+        "responses": {
+          "201": {
+            "description": "Seeded block event recorded for Gate 0 smoke"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorEnvelope": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "type",
+              "code",
+              "message",
+              "param",
+              "requestId",
+              "docRef"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "validation_error",
+                  "auth_error",
+                  "permission_error",
+                  "conflict_error",
+                  "not_found",
+                  "provider_error",
+                  "system_error"
+                ]
+              },
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "param": {
+                "type": "string"
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "docRef": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

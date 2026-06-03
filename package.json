@@ -1,0 +1,30 @@
+{
+  "name": "thai-meet",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.0.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node apps/api/src/server.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "smoke:doctor": "node scripts/smoke.mjs --doctor",
+    "smoke:metrics": "node scripts/smoke-metrics.mjs",
+    "test": "node scripts/check-mobile-routes.mjs && node scripts/check-contracts.mjs && node scripts/check-trust-loop.mjs && node scripts/check-privacy-leaks.mjs && node scripts/check-dx-metrics.mjs && node scripts/check-env-matrix.mjs && node scripts/check-error-envelope.mjs && node scripts/check-db-matrix.mjs && node scripts/check-feature-flags.mjs && node scripts/check-reward-ledger.mjs",
+    "api:dev": "node apps/api/src/server.mjs",
+    "api:openapi": "node scripts/generate-openapi.mjs",
+    "api-client:generate": "node scripts/generate-dart-client.mjs",
+    "env:check": "node scripts/check-env-matrix.mjs",
+    "errors:check": "node scripts/check-error-envelope.mjs",
+    "flags:check": "node scripts/check-feature-flags.mjs",
+    "privacy:test": "node scripts/check-privacy-leaks.mjs",
+    "rewards:check": "node scripts/check-reward-ledger.mjs",
+    "db:check": "node scripts/check-db-matrix.mjs",
+    "db:migrate": "node scripts/not-scaffolded.mjs db:migrate \"Prisma schema/migrations are not scaffolded yet. See TODOS.md Sprint 0 Minimal Executable Monorepo Scaffold.\"",
+    "db:seed": "node scripts/seed-gate0-fixtures.mjs",
+    "mobile:run": "node scripts/not-scaffolded.mjs mobile:run \"Install Flutter stable, then run the app from apps/mobile. Flutter shell is placeholder-only in this scaffold.\"",
+    "mobile:test:routes": "node scripts/check-mobile-routes.mjs"
+  },
+  "devDependencies": {}
+}
