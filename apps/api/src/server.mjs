@@ -142,7 +142,9 @@ function sendJson(res, status, payload) {
 }
 
 server.listen(port, () => {
-  console.log(`thai-meet api scaffold listening on http://localhost:${port}`);
+  const address = server.address();
+  const actualPort = typeof address === "object" && address ? address.port : port;
+  console.log(`thai-meet api scaffold listening on http://127.0.0.1:${actualPort}`);
 });
 
 process.on("SIGTERM", () => {

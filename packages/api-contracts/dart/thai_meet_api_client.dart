@@ -9,11 +9,13 @@ class ThaiMeetApiClient {
   String get discoverProfilesPath => '/api/v1/discover/profiles';
 
   String chatRoomPath(String roomId) {
-    return '/api/v1/chats/rooms/$roomId';
+    final encodedRoomId = Uri.encodeComponent(roomId);
+    return '/api/v1/chats/rooms/$encodedRoomId';
   }
 
   String lineContactExchangePath(String roomId) {
-    return '/api/v1/chats/rooms/$roomId/contact-exchanges/line';
+    final encodedRoomId = Uri.encodeComponent(roomId);
+    return '/api/v1/chats/rooms/$encodedRoomId/contact-exchanges/line';
   }
 
   String get createSafetyReportPath => '/api/v1/safety/reports';

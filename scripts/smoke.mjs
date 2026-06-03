@@ -166,19 +166,17 @@ if (doctorOnly || !doctorPassed) {
   process.exit(doctorPassed ? 0 : 1);
 }
 
-stages.infra = "passed";
-printStage("infra", "passed", ["Docker prerequisites passed; Docker Compose service boot is deferred in scaffold smoke."]);
+stages.infra = "skipped";
+printStage("infra", "skipped", ["Docker Compose service boot is deferred in scaffold smoke."]);
 
+const apiOk = runNodeScript("api", "scripts/check-api-runtime.mjs");
 const contractOk = runNodeScript("contract", "scripts/check-contracts.mjs");
 const seedOk = runNodeScript("seed", "scripts/seed-gate0-fixtures.mjs");
 const mobileOk = runNodeScript("mobile", "scripts/check-mobile-routes.mjs");
 const trustLoopOk = runNodeScript("trustLoop", "scripts/check-trust-loop.mjs");
 const privacyOk = runNodeScript("privacy", "scripts/check-privacy-leaks.mjs");
 
-stages.api = "passed";
-printStage("api", "passed", ["API scaffold exposes Gate 0 health, contract, fixtures, and Trust Loop endpoints."]);
-
-if (!contractOk || !seedOk || !mobileOk || !trustLoopOk || !privacyOk) {
+if (!apiOk || !contractOk || !seedOk || !mobileOk || !trustLoopOk || !privacyOk) {
   stages.trustLoop = trustLoopOk ? stages.trustLoop : "failed";
 }
 

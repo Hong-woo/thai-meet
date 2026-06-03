@@ -16,7 +16,8 @@ npm test
 Smoke stages:
 
 - `doctor` - checks Node, pnpm/Corepack, Flutter, Chrome/Edge, Docker, daemon, and ports.
-- `infra` - currently confirms prerequisites; Docker Compose boot is deferred in the scaffold.
+- `infra` - skipped in scaffold smoke; Docker Compose service boot is deferred.
+- `api` - starts the local scaffold API on an ephemeral port and checks health, OpenAPI, and fixtures.
 - `contract` - checks OpenAPI and Dart client drift.
 - `seed` - writes local Gate 0 fixture copies under `.thai-meet/fixtures/`.
 - `mobile` - checks Gate 0 reduced route contract.

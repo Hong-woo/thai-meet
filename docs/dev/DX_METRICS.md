@@ -44,3 +44,5 @@ Measurement boundary:
 - Keep cold and warm run types explicit.
 
 CI uploads smoke doctor JSON as an artifact from `.thai-meet/smoke-runs/*.json`. Full smoke remains manual until Flutter, browser, and Docker prerequisites are intentionally provisioned in CI.
+
+Scaffold smoke treats `infra` as skipped until Docker Compose service boot is implemented. The `api` stage must start the local scaffold API on an ephemeral port and verify health, OpenAPI, and fixture endpoints before it can pass.

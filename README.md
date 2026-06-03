@@ -21,8 +21,8 @@ Expected `pnpm smoke` result on a prepared machine:
 
 ```text
 doctor      OK  Node, pnpm/Corepack, Flutter, Chrome, Docker, ports, env
-infra       OK  Docker, PostgreSQL, Redis
-api         OK  NestJS health and Prisma connection
+infra       SKIP Docker Compose boot deferred in scaffold smoke
+api         OK  local scaffold health, OpenAPI, and fixture runtime
 contract    OK  OpenAPI JSON and generated Dart client are fresh
 seed        OK  mock users, Public ID, Discover profile, LINE contact fixture
 mobile      OK  Flutter app shell and Gate 0 routes
@@ -40,7 +40,7 @@ npm test
 npm run privacy:test
 ```
 
-`npm test` checks the mobile route contract, OpenAPI/Dart client contract, executable Trust Loop fixture, and privacy leak guard.
+`npm test` checks the mobile route contract, OpenAPI/Dart client contract, local API runtime, executable Trust Loop fixture, and privacy leak guard.
 
 Developer docs:
 
