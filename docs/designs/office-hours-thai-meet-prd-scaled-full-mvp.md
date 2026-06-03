@@ -170,6 +170,366 @@ Approach B remains the approved MVP scope, but it must not be executed as one un
 
 Gate 0 success means Thai local women can safely try the core promise: fresh public identity plus controlled LINE sharing.
 
+Gate 0 UX information architecture:
+
+The Gate 0 app experience must be organized around the Trust Loop, not around a generic dating-app feature list. The first successful session should move a user from a fresh public identity to a real profile discovery and, when trust is sufficient, to a controlled LINE Contact Card.
+
+Primary Trust Loop:
+
+```text
+Login / Social Auth
+  -> Public ID Setup
+  -> Minimal Profile
+  -> Discover
+  -> Profile Detail
+  -> Chat
+  -> LINE Contact Card
+  -> Report / Block / Revoke safety paths
+```
+
+Gate 0 bottom navigation:
+
+```text
+Discover | Chats | My ID | Safety
+```
+
+Gate 0 navigation implementation decision:
+
+- Gate 0 uses the reduced Trust Loop navigation: `Discover`, `Chats`, `My ID`, and `Safety`.
+- PRD v3.0's broader tab set (`Discover`, `Swipe`, `Chat`, `Activity`, `Profile`) is treated as Gate 1+ scope, not Gate 0 navigation.
+- `Swipe` must not ship as a Gate 0 top-level tab. If a swipe/hot experiment is needed later, place it behind a feature flag and re-review the IA.
+- `Activity` should be deferred or folded into later Gate 1 surfaces; Gate 0 safety and contact-exchange history live under `Safety`.
+- `Profile` should not compete with `My ID` in Gate 0. Profile editing, Public ID history, LINE setup, and language entry points live under `My ID`.
+- Route tests must assert that Gate 0 users can reach `Discover`, `Chats`, `My ID`, and `Safety` from the app shell, and that `Swipe`, `Activity`, and standalone `Profile` tabs are not visible while Gate 0 flags are active.
+- Do not make the entire bottom navigation remotely configurable in Gate 0. Feature flags can hide provider/reward/ads behavior, but the app shell should remain stable for QA and onboarding.
+
+Gate 0 route contract and test matrix:
+
+Flutter `go_router` route names and paths must be stable enough for QA, analytics, deep links, and screen-level tests. Route paths are implementation contracts for Gate 0 and should not be renamed casually once mobile development starts.
+
+Gate 0 route contract:
+
+| Route name | Path | Shell tab | Gate | Purpose |
+|---|---|---|---:|---|
+| `onboarding.login` | `/login` | none | 0 | Social login and language/18+ entry. |
+| `onboarding.publicId` | `/onboarding/public-id` | none | 0 | Generated Public Meet ID and ID image selection. |
+| `onboarding.profile` | `/onboarding/profile` | none | 0 | Minimum profile before Discover. |
+| `discover.index` | `/discover` | Discover | 0 | Gate 0 main browsing surface. |
+| `discover.profileDetail` | `/profile/:publicIdentityId` | Discover | 0 | Public profile detail and Start Chat. |
+| `discover.filters` | `/discover/filters` | Discover | 0 | Filter bottom sheet route/state. |
+| `chats.index` | `/chats` | Chats | 0 | Chat list grouped by Public ID snapshot. |
+| `chats.detail` | `/chat/:roomId` | Chats | 0 | Chat Detail with Contact Card action. |
+| `chats.lineContactCard` | `/chat/:roomId/contact-card/line` | Chats | 0 | LINE Contact Card composer/confirmation. |
+| `myId.index` | `/my-id` | My ID | 0 | Active Public ID, ID history, and LINE setup entry. |
+| `myId.generate` | `/my-id/generate` | My ID | 0 | Generate new Public ID flow. |
+| `myId.lineSetup` | `/my-id/contact/line` | My ID | 0 | LINE contact registration/update. |
+| `safety.index` | `/safety` | Safety | 0 | Safety guidance and history entry. |
+| `safety.report` | `/safety/report/:targetType/:targetId` | Safety/modal | 0 | Report profile, chat, or Contact Card. |
+| `safety.blockedUsers` | `/safety/blocked-users` | Safety | 0 | Blocked user list. |
+| `safety.contactHistory` | `/safety/contact-exchanges` | Safety | 0 | Contact exchange history without raw contact leakage. |
+
+Gate 0 route exclusions:
+
+| Route/tab | Gate 0 behavior | Reason |
+|---|---|---|
+| `Swipe` tab | Not visible. | Would compete with Trust Loop and widen MVP. |
+| `Activity` tab | Not visible as top-level tab. | Liked/visited/reward surfaces are Gate 1+ or Gate 2. |
+| standalone `Profile` tab | Not visible. | Gate 0 uses `My ID` as the identity and profile control center. |
+| Facebook Contact Card route | Not visible unless Gate 1 flags are enabled. | Gate 0 UI/QA is LINE-first. |
+| Rewarded Ad routes/sheets | Not visible. | Gate 2 monetization only. |
+
+Gate 0 route test matrix:
+
+| Test | Expected result |
+|---|---|
+| App shell with Gate 0 flags shows exactly four tabs. | `Discover`, `Chats`, `My ID`, and `Safety` are visible. |
+| App shell with Gate 0 flags hides broad PRD tabs. | `Swipe`, `Activity`, and standalone `Profile` are not visible. |
+| First completed onboarding lands at Discover. | User routes from `/onboarding/profile` to `/discover`. |
+| Public ID setup precedes first Discover entry. | A new user cannot reach `/discover` before initial Public ID exists. |
+| Profile detail can start chat. | `/profile/:publicIdentityId` can create/open `/chat/:roomId`. |
+| LINE Contact Card route requires room membership. | `/chat/:roomId/contact-card/line` fails closed if membership is invalid. |
+| LINE Contact Card route requires registered LINE contact. | Missing LINE contact routes to `/my-id/contact/line` setup path. |
+| Blocked/reported exchange renders unavailable. | Contact Card route/detail does not expose raw LINE value. |
+| My ID generation archives old identity chats. | After `/my-id/generate`, old rooms are separated from active chat list. |
+| Safety routes are reachable from profile, chat, and Contact Card surfaces. | Report/block paths work from all sensitive surfaces. |
+
+Screen hierarchy:
+
+```text
+App
+  Onboarding Stack
+    Login
+    Public ID Setup
+    Minimal Profile
+    Optional LINE Setup
+  Main Tabs
+    Discover
+      Discover List/Grid
+      Filter Bottom Sheet
+      Profile Detail
+      Start Chat
+    Chats
+      Chat List
+      Chat Detail
+      LINE Contact Card Composer
+      LINE Contact Card Message
+    My ID
+      Active Public ID Card
+      Public ID History
+      Generate New Public ID
+      LINE Contact Setup
+    Safety
+      Blocked Users
+      Report History
+      Contact Exchange History
+      Safety Guidance
+```
+
+Gate 0 first-session hierarchy:
+
+1. The user should see their active Public Meet ID before seeing a full dating feed.
+2. The user should reach Discover immediately after the minimum profile is complete.
+3. The user should be able to start a chat from Profile Detail without matching being required.
+4. LINE sharing must happen from Chat Detail through a Contact Card action, not through raw text entry.
+5. Report, Block, and Contact Card safety actions must be reachable from Profile Detail, Chat Detail, and each Contact Card.
+
+Constraint rule:
+
+- If only three things can be visible on a small screen, show the active Public ID context, the next trust-loop action, and the safety escape.
+- Do not let ads, rewards, language settings, Facebook setup, or advanced filters compete with the Gate 0 LINE sharing path.
+- Public ID generation is not a settings afterthought; it is a first-class `My ID` tab because identity reset is the trust proposition.
+
+Gate 0 interaction state matrix:
+
+PRD v3.0 section 10.6 defines shared UI state rules: use skeleton cards for loading, warm empty states with a next action, retry-first errors, non-blocking ad failures, simple blocked/reported states, and separated archived Public ID activity. Gate 0 must translate those common rules into screen-specific states.
+
+| Feature | Loading | Empty | Error | Success | Partial |
+|---|---|---|---|---|---|
+| Public ID Setup | Show a compact card skeleton where the generated ID image and handle will appear. | If generation returns no candidate, show "We could not make an ID yet" with Retry. | Show retry and support link after repeated failure; do not expose provider or server codes. | Show generated Public Meet ID, ID image, and one primary Continue action. | If ID image generation fails but text ID succeeds, allow Continue with a neutral fallback image. |
+| Minimal Profile | Show field skeletons only for server-loaded defaults, not a full-screen spinner. | Not applicable after login; profile starts as an editable draft. | Keep completed fields in place and show retry near the failed save action. | Show profile completion confirmation and move to Discover. | Allow Discover only when required fields are complete; optional photos can remain pending. |
+| Discover | Show skeleton profile cards in the same grid/list shape users will browse. | Show city/distance empty copy and primary action to change city or distance. | Show retry and keep the current filters visible. | Show profiles with active Public ID context visible in the header. | If some images fail, render generated ID image fallback and keep the profile card usable. |
+| Profile Detail | Show photo/header skeleton, then reveal profile sections progressively. | If the profile is unavailable, show a short unavailable state and back to Discover. | Show retry for profile load; safety actions remain reachable if the profile was opened from a reportable surface. | Show profile, Start Chat, Report, Block, and Public ID context. | If photos fail, show ID image fallback; if user is blocked, suppress Start Chat and LINE actions. |
+| Chat List | Show row skeletons matching final chat rows. | Show "No chats yet" with action back to Discover, not a dead end. | Show retry while preserving local unread badges if available. | Show rooms grouped by visible Public ID snapshot. | Archived Public ID chats appear in a separate archive entry, not mixed with active chats. |
+| Chat Detail | Show recent-message skeletons and keep composer disabled until room membership is verified. | For a new room, show a first-message prompt and LINE Contact Card action only after contact setup rules pass. | Show send retry inline on failed messages; do not duplicate messages automatically. | Show text chat, contact-card action, profile/safety menu, and current Public ID snapshot. | If receiver blocks sender or exchange is revoked, render contact cards as unavailable and keep report/block visible. |
+| LINE Contact Card | Show a short confirmation sheet before first share and loading state while creating `ContactExchange`. | If no LINE contact is registered, show setup CTA instead of sending a message. | Show retry without creating duplicate card messages; preserve idempotency boundary. | Show card with Open, Copy, Report, Block, and revoke visibility where applicable. | If contact is later revoked, reported, or hidden, show unavailable card state without exposing raw LINE value. |
+| My ID | Show active Public ID card skeleton and history row placeholders. | If no previous IDs exist, show the active ID and explain that history starts after regeneration. | Show retry for history load; active ID remains visible from cached session if available. | Show active ID, ID image, history, Generate New ID, and LINE setup entry. | If regeneration limit is reached, show cooldown and safety explanation instead of hiding the button. |
+| Safety | Show list skeletons for blocked users, reports, and contact exchange history. | Show calm empty states: no blocked users, no reports, no contact exchanges yet. | Show retry and keep emergency/support guidance visible. | Show blocked users, report history, contact exchange history, and basic safety guidance. | If some history is restricted by privacy policy, show redacted rows rather than raw missing data. |
+
+Thai local woman Trust Storyboard:
+
+The Gate 0 emotional design target is confidence through control. A Thai local woman should understand within five seconds that Thai Meet is not asking her to expose her private LINE identity by default. Within five minutes, she should have seen a fresh Public Meet ID, browsed people, and understood that LINE sharing is an explicit card action she can report, block, or revoke.
+
+| Step | User does | User feels | UI support |
+|---|---|---|---|
+| 1. Opens app and logs in | Uses social login and enters onboarding. | Curious but cautious; wants to know what will be exposed. | Login copy states that public identity and private contact details are separate. |
+| 2. Receives Public Meet ID | Sees generated Public ID and ID image before Discover. | Relief: "I can start fresh without showing my real LINE yet." | Public ID card is the visual anchor, with short copy explaining that internal safety history still stays protected. |
+| 3. Completes minimum profile | Adds only required dating profile fields. | Momentum; the app is not making her over-explain herself. | Required fields are few, visible, and saved progressively; optional photos can wait. |
+| 4. Browses Discover | Looks at profiles in Bangkok or Pattaya. | In control; she can scan without commitment. | Active Public ID remains visible in the header; filters are in a bottom sheet, not dominant chrome. |
+| 5. Opens profile and starts chat | Opens a profile and creates a room without match friction. | Low pressure; the next step is obvious. | Start Chat is primary; Report and Block are visible but secondary. |
+| 6. Considers LINE sharing | Taps LINE Contact Card from Chat Detail. | Alert but not trapped; this is the sensitive moment. | First-share confirmation states exactly what will be shared and that Thai Meet cannot control outside-app conversation. |
+| 7. Sends Contact Card | Confirms and sends controlled card. | Agency; she chose to share, instead of being tricked by raw text. | Card shows provider, recipient, Open/Copy states for receiver, and Report/Block/Revoke actions. |
+| 8. Handles bad behavior | Reports, blocks, or revokes a card after a bad interaction. | Protected; reset does not feel like starting from zero. | Safety actions are one tap from Profile Detail, Chat Detail, and each Contact Card. |
+| 9. Generates a new Public ID | Uses My ID to start fresh later. | Renewal without panic; old activity is contained. | New ID flow explains that old chats are archived and user-level blocks/reports still apply. |
+
+Time horizon requirements:
+
+- First 5 seconds: user sees Thai Meet, active Public ID separation, and no private contact leakage.
+- First 5 minutes: user reaches Discover, understands direct chat, and sees that LINE sharing is a controlled Contact Card.
+- Long-term trust: user can regenerate Public ID without bypassing safety history, losing audit continuity, or mixing old identity chats into the new identity surface.
+
+Gate 0 app UI anti-slop rules:
+
+Thai Meet is an app UI, not a marketing site. The interface should feel calm, mobile-native, and trust-focused. Avoid generic dating-app visuals that make Public ID and Contact Card look like decorative features instead of safety and control mechanisms.
+
+Hard avoid:
+
+- Do not build the first screen as a generic dating-card feed with no Public ID context.
+- Do not use a large marketing hero, feature grid, or centered promotional copy inside the app shell.
+- Do not make every surface a rounded card; use cards only for actual profile cards, Public ID cards, Contact Cards, and list rows that behave like selectable objects.
+- Do not make ads or rewarded actions visually louder than chat, LINE sharing, report, block, or Public ID controls.
+- Do not use generic copy such as "connect instantly", "unlock meaningful connections", or "all-in-one dating experience."
+- Do not hide safety actions inside a deep overflow menu when the user is looking at a profile, chat, or Contact Card.
+- Do not make Contact Card look like a normal chat bubble; it must visibly differ because it carries external-contact permission.
+
+Concrete UI direction:
+
+- Public ID is the primary identity anchor. Show the active Public ID chip/card in onboarding, Discover header, Chat Detail context, and My ID.
+- Discover should be dense and scannable: profile photo or ID image, city, age, short status, and Start Chat. Avoid decorative profile summaries that push actions below the fold.
+- Profile Detail should prioritize identity, city/travel context, Start Chat, and safety actions before long biography content.
+- Chat Detail should keep text messaging simple and make the LINE Contact Card action visible, but not visually coercive.
+- Contact Card should read like a permission object: provider, sender Public ID, receiver, created time/status, Open/Copy actions, and Report/Block/Revoke paths.
+- Rewarded Ad CTAs should be utility prompts, not emotional pressure. They can unlock extra actions only after the user hits a limit or enters a clearly optional reward surface.
+- Safety surfaces should be plain, readable, and action-oriented. Avoid dramatic warning visuals unless there is an actual high-risk event.
+
+Litmus checks before implementation:
+
+- Can a user identify their current Public ID within three seconds?
+- Can a user tell whether LINE has or has not been shared yet?
+- Can a user report or block from any profile, chat, or Contact Card surface?
+- Can the app still feel trustworthy if all shadows, gradients, and decorative illustrations are removed?
+- Does every card earn its existence as an interactive object or state container?
+
+Gate 0 design system stub:
+
+Thai Meet does not yet have a `DESIGN.md` or Figma source of truth. Until a full design system exists, Gate 0 implementation must use this minimum system so core trust surfaces do not drift screen by screen.
+
+Design system status:
+
+- `DESIGN.md`: not present yet.
+- Figma UI/UX and full visual system: required before broader alpha, per PRD v3.0 Sprint 0.
+- Gate 0 allowed approach: implement with the minimum tokens and components below, then replace with formal tokens once Figma/DESIGN.md exists.
+
+Color roles:
+
+- `surface`: primary app background; calm and neutral.
+- `surfaceRaised`: sheets, selectable rows, profile cards, Contact Cards.
+- `textPrimary`: main readable text; contrast ratio must be at least 4.5:1.
+- `textSecondary`: metadata such as city, distance, timestamps, and status.
+- `accentTrust`: primary action and Public ID highlight; avoid loud neon or romance-coded colors.
+- `safety`: report, block, revoke, warning, and unavailable states.
+- `providerLine`: LINE provider identity only; do not use LINE green as the whole app brand.
+- `adMuted`: ad labels and rewarded prompts; intentionally quieter than trust-loop actions.
+
+Typography roles:
+
+- `screenTitle`: current screen or section title.
+- `identityLabel`: Public ID, provider, and identity snapshot labels.
+- `body`: profile, guidance, and chat copy.
+- `metadata`: timestamps, city, distance, status, and audit-like details.
+- `action`: buttons, chips, and menu labels.
+
+Spacing and sizing:
+
+- Use an 8px spacing scale.
+- Touch targets must be at least 44px high/wide.
+- Cards should use restrained radius, no more than 8px unless the future design system explicitly changes it.
+- Avoid nested cards; if a card appears inside another card, one of them is probably layout chrome and should be removed.
+
+Gate 0 component vocabulary:
+
+| Component | Purpose | Required constraints |
+|---|---|---|
+| `PublicIdCard` | Shows active Public Meet ID and ID image. | Must distinguish public identity from internal account and avoid looking like a legal ID. |
+| `PublicIdChip` | Compact active identity marker in headers. | Must be visible in Discover and Chat Detail. |
+| `ProfileCard` | Discover grid/list object. | Must show photo or ID image fallback, city, age, and primary action affordance. |
+| `ProfileActionBar` | Profile Detail action area. | Start Chat primary; Report and Block always reachable. |
+| `ContactCard` | Controlled external-contact permission object. | Must show provider, sender/receiver context, status, Open/Copy, Report/Block/Revoke. |
+| `SafetyActionSheet` | Report, block, revoke, unavailable-state actions. | Must use plain language and avoid burying irreversible actions. |
+| `FilterSheet` | Discover filter changes. | Bottom sheet; free filters and locked/rewarded filters clearly separated. |
+| `RewardSheet` | Optional rewarded ad prompt. | Must state reward amount and expiration; must include cancel. |
+| `EmptyState` | No profiles, no chats, no safety history. | Warm copy, one primary next action, no dead ends. |
+| `InlineError` | Recoverable save/send/load failures. | Preserve user input and place retry near failed action. |
+
+Public ID image principles:
+
+- Template-based only for MVP; do not generate AI faces.
+- Must include Thai Meet brand mark, Public ID, nickname or handle, color pattern, and optional symbol.
+- Must never resemble a government ID, age verification document, or official credential.
+- Must work as a fallback profile image before user photo upload.
+- Gate 0 visual direction is a non-ID badge template, not a realistic identity document.
+- The first Figma/design pass should create six editable template directions:
+  - Soft badge: friendly rounded badge with Public ID and simple symbol.
+  - City card: Bangkok/Pattaya city cue without tourist-poster clutter.
+  - Pattern card: abstract color pattern plus handle, optimized for photo fallback.
+  - Minimal handle: plain typographic card for users who want low visual noise.
+  - Travel-pass inspired: lightly references travel, but must not look official or government-issued.
+  - Photo fallback frame: neutral frame used when the user later adds a real profile photo.
+- Every template must pass the "not official ID" test: no document numbers, signatures, seals, hologram effects, flags as authority markers, or identity-verification wording.
+
+Copy principles:
+
+- Use control-first language: "Share LINE when you choose", not "connect faster."
+- Safety copy should be short and direct; do not write long warnings users will skip.
+- Provider copy must state exactly what is shared and when it leaves Thai Meet.
+- Reward copy must be transactional and optional; no pressure language.
+
+Gate 0 mobile viewport and accessibility matrix:
+
+Gate 0 is mobile-only. Responsive design means each supported mobile size preserves the trust-loop action hierarchy, not simply stacking the same content.
+
+Target viewport checks:
+
+| Viewport | Purpose | Required behavior |
+|---|---|---|
+| 360x640 | Small Android baseline. | Primary action, active Public ID context, and safety escape must fit without overlap. Long labels may wrap to two lines but must not push primary actions off-screen. |
+| 390x844 | Common iPhone baseline. | Discover cards, Chat Detail, and Contact Card sheets should show enough context for one-handed scanning. |
+| 430x932 | Large phone baseline. | Use extra vertical space for preview/context, not extra competing CTAs. |
+| Tablet portrait | Optional alpha smoke. | Keep phone-first layout with wider content max width; do not introduce a separate tablet IA for Gate 0. |
+
+Screen-specific responsive rules:
+
+| Screen | Small phone rule | Large phone / tablet rule | Accessibility rule |
+|---|---|---|---|
+| Public ID Setup | Public ID image, handle, and Continue must be visible with minimal scrolling. | ID image carousel may show more options, but selected ID remains primary. | Public ID and image choice need screen-reader labels that state selected/not selected. |
+| Discover | Two-column grid may degrade to dense one-column list if text or images collide. | Two-column grid can remain, with filters in a bottom sheet. | Profile cards must expose name/age/city/status and primary action in reading order. |
+| Profile Detail | Start Chat must appear before long biography content. | Use extra space for photos and trust context, not extra decorative sections. | Report and Block labels must be explicit, not icon-only. |
+| Chat List | Rows must keep sender Public ID, latest message, and unread state readable. | Use extra width for message preview only. | Unread state must not rely on color alone. |
+| Chat Detail | Composer, Contact Card action, and safety menu must remain reachable above keyboard. | Extra height may show more message history. | Message send failures must be announced and retryable without retyping. |
+| LINE Contact Card | First-share confirmation fits with provider, recipient, exact shared value type, confirm, and cancel. | Extra space may show timestamp/status details. | Open, Copy, Report, Block, and Revoke actions need distinct labels and focus order. |
+| My ID | Active ID card appears before history. | History may show more rows, but Generate New ID remains visible. | Regeneration cooldown must be text plus state, not color only. |
+| Safety | Empty states and safety actions fit without fear-heavy visual treatment. | Extra space can show more history rows. | Report/block status must be readable by screen readers and keyboard/focus navigation. |
+
+Global accessibility requirements:
+
+- Touch targets must be at least 44px in both dimensions.
+- Body text contrast must be at least 4.5:1.
+- Do not use placeholder text as the only label for fields.
+- All provider icons need text labels; do not rely on LINE or Facebook color alone.
+- All safety and contact-sharing actions must be reachable by screen reader and keyboard/focus traversal in Flutter.
+- Long Thai, Korean, Japanese, Chinese, and English strings must allow wrapping without clipping. No viewport-width font scaling.
+- Buttons may wrap labels to two lines; if still too long, shorten localized copy rather than shrinking below readable size.
+- Push notifications must never expose raw LINE IDs, Facebook URLs, QR payloads, or decrypted contact details.
+
+Gate 0 Public ID regeneration UX policy:
+
+PRD v3.0 default is accepted for Gate 0: a user may generate up to three new Public Meet IDs per rolling 30 days, with the limit controlled by server configuration or Remote Config.
+
+UX rules:
+
+- My ID must show the active Public ID first, then previous IDs in a clearly separated history section.
+- Generating a new Public ID archives existing chats tied to the previous Public ID snapshot by default.
+- Archived chats must not appear mixed into the new active Public ID chat list.
+- The new ID confirmation copy must state that previous chats are archived and user-level safety history still applies.
+- When the limit is reached, show the cooldown date and explain that this protects users from spam and impersonation.
+- Admin and audit views must retain full Public ID generation, activation, archive, report, and block history.
+
+Default copy:
+
+- Generate new ID: "Start fresh with a new Public Meet ID. Previous chats will be archived."
+- Safety continuity: "Blocks, reports, and safety history still protect you and other users."
+- Limit reached: "You can make up to 3 new IDs every 30 days. Try again after {date}."
+
+Gate 0 Public ID image style decision:
+
+Use the non-ID badge template direction for Gate 0. Public ID images are public persona assets and profile fallbacks, not credentials. The design may feel social and brand-owned, but it must not imply verification, nationality, age, legal identity, or platform endorsement.
+
+Gate 0 advertising UX policy:
+
+Gate 0 may show Native Ads only inside Discover, and only as a muted, clearly labeled content row/card. Ads exist to validate placement plumbing, not to maximize early revenue. Trust Loop actions must always outrank ad impressions.
+
+Gate 0 allowed:
+
+- Discover Native Ad only.
+- One Native Ad after every 8 to 12 profile cards, controlled by Remote Config.
+- Clear `Ad` label and visual treatment distinct from real profile cards.
+- Ad loading failure must collapse quietly or leave a small neutral placeholder; it must never block Discover, chat, or contact sharing.
+- Ad analytics may capture request, impression, click, fail, and revenue-paid events.
+
+Gate 0 disallowed:
+
+- No ads in Chat Detail.
+- No ads inside LINE Contact Card composer, confirmation, message, revoke, report, or open flow.
+- No ads in Public ID Setup, Minimal Profile, My ID, Safety, or first-share confirmation.
+- No Interstitial Ads.
+- No App Open Ads.
+- No Rewarded Ad UI, even if reward ledger schema exists.
+
+Gate 2 re-evaluation:
+
+- Rewarded Ads can appear only after Trust Loop metrics are healthy and support load is manageable.
+- Interstitial Ads remain off unless explicitly revisited after alpha; they must never interrupt chat, Contact Card sharing, report, block, or Public ID regeneration.
+- Any ad expansion requires a fresh design review because ads can directly erode Thai local women's trust.
+
 Gate 0 architecture decision:
 
 - Contact Card messages must reference `ContactExchange` by id only.
@@ -579,3 +939,66 @@ Local adversarial review score: 8/10.
 2. Demand evidence is not yet strong enough. The assignment must happen before treating the PRD as validated.
 3. Ads may conflict with trust for Thai local women. Ads should not appear in chat detail and should not interrupt contact sharing.
 4. Five language packs add QA burden. Architecture should support all five early, but launch polish may need a narrower language priority.
+
+## Design Plan Review Completion Summary
+
+Completed by `/plan-design-review` on 2026-06-03, using both this design document and `C:\Dev\thai-meet\docs\prd\Thai-Meet_PRD_v3.0_Final_KO.docx`.
+
+```text
+  +====================================================================+
+  |         DESIGN PLAN REVIEW - COMPLETION SUMMARY                    |
+  +====================================================================+
+  | System Audit         | No DESIGN.md, UI scope confirmed            |
+  | Step 0               | Initial 6/10, PRD section 10 referenced     |
+  | Pass 1  (Info Arch)  | 6/10 -> 9/10 after Trust Loop IA           |
+  | Pass 2  (States)     | 6/10 -> 9/10 after state matrix            |
+  | Pass 3  (Journey)    | 5/10 -> 9/10 after Thai local storyboard   |
+  | Pass 4  (AI Slop)    | 6/10 -> 9/10 after anti-slop rules         |
+  | Pass 5  (Design Sys) | 3/10 -> 8/10 after Gate 0 design stub      |
+  | Pass 6  (Responsive) | 4/10 -> 8/10 after viewport/a11y matrix    |
+  | Pass 7  (Decisions)  | 3 resolved, 0 deferred                     |
+  +--------------------------------------------------------------------+
+  | NOT in scope         | written (5 items)                          |
+  | What already exists  | written                                    |
+  | TODOS.md updates     | 1 item added                               |
+  | Approved Mockups     | 0 generated, designer unavailable          |
+  | Decisions made       | 12 added to plan                           |
+  | Decisions deferred   | 0                                          |
+  | Overall design score | 6/10 -> 8/10                               |
+  +====================================================================+
+```
+
+Plan is Gate 0 design-complete enough to implement. Run `/design-review` after implementation for visual QA. A formal `DESIGN.md` and Figma screen set are still required before broader alpha polish.
+
+## NOT In Scope
+
+- Consumer web app: MVP remains Android/iOS only.
+- Full premium subscription UX: database preparation only; user-facing premium UI is Phase 2.
+- Facebook Contact Card in Gate 0: backend/provider model supports it, but Gate 0 UI is LINE-first.
+- Rewarded and Interstitial Ads in Gate 0: reward ledger may exist, but reward/interstitial UI waits for Gate 2.
+- Strict identity verification UI: low-friction safety stays primary for MVP.
+
+## What Already Exists
+
+- PRD source: `C:\Dev\thai-meet\docs\prd\Thai-Meet_PRD_v3.0_Final_KO.docx`.
+- Benchmark source: `C:\Dev\thai-meet\benchmark\thai Friendly\thai Friendly.pdf`.
+- Existing design system: none; `DESIGN.md` is not present.
+- Existing UI implementation: none in repo yet.
+- Existing product decisions now captured: Gate 0 Trust Loop IA, ContactExchange authority object, ChatRoom participant snapshot, provider-agnostic contact model with LINE-first UI, reward ledger, feature flags, OpenAPI contract-first, DB constraints/index matrix, and Gate 0 UX design decisions.
+
+## Unresolved Design Decisions
+
+No unresolved design-review decisions remain for Gate 0 planning. Remaining design work is executional: create `DESIGN.md`, Figma Gate 0 screens, and Public ID image templates as tracked in `TODOS.md`.
+
+## GSTACK REVIEW REPORT
+
+| Review | Trigger | Why | Runs | Status | Findings |
+|--------|---------|-----|------|--------|----------|
+| CEO Review | `/plan-ceo-review` | Scope & strategy | 1 | CLEAR | HOLD SCOPE selected; launch gates added |
+| Codex Review | `/codex review` | Independent 2nd opinion | 0 | - | Not run |
+| Eng Review | `/plan-eng-review` | Architecture & tests (required) | 1 | CLEAR | ContactExchange, ChatRoom snapshot, reward ledger, feature flags, OpenAPI, DB matrix added |
+| Design Review | `/plan-design-review` | UI/UX gaps | 1 | CLEAR | score: 6/10 -> 8/10, 12 decisions |
+| DX Review | `/plan-devex-review` | Developer experience gaps | 0 | - | Not run |
+
+- **UNRESOLVED:** 0 design decisions for Gate 0 planning.
+- **VERDICT:** CEO + ENG + DESIGN CLEARED for Gate 0 planning; implement after Sprint 0 design assets are created.
