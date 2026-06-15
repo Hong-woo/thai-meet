@@ -1,4 +1,5 @@
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
+import { createWriteStream } from "node:fs";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -4862,6 +4863,8 @@ try {
 }
 
 function runStatus(args = []) {
+  if (args.includes("--json")) return runStatusToFile(args);
+
   return new Promise((resolve) => {
     execFile(process.execPath, [statusScriptPath, ...args], {
       cwd: tempRoot,
@@ -4873,6 +4876,44 @@ function runStatus(args = []) {
         stderr: error?.code && typeof error.code !== "number"
           ? `${stderr}${stderr ? "\n" : ""}${error.code}`
           : stderr
+      });
+    });
+  });
+}
+
+function runStatusToFile(args = []) {
+  return new Promise((resolve) => {
+    const stdoutPath = path.join(tempRoot, `gate0-status-${process.pid}-${Date.now()}.json`);
+    const stdoutFile = createWriteStream(stdoutPath);
+    let stdoutFinished = false;
+    const stdoutFinishedPromise = new Promise((finishResolve) => {
+      stdoutFile.on("finish", () => {
+        stdoutFinished = true;
+        finishResolve();
+      });
+    });
+    let stderr = "";
+    let spawnError = null;
+    const child = spawn(process.execPath, [statusScriptPath, ...args], {
+      cwd: tempRoot,
+      stdio: ["ignore", "pipe", "pipe"]
+    });
+
+    child.stdout.pipe(stdoutFile);
+    child.stderr.on("data", (chunk) => {
+      stderr += chunk.toString();
+    });
+    child.on("error", (error) => {
+      spawnError = error;
+    });
+    child.on("close", async (code) => {
+      if (!stdoutFinished) await stdoutFinishedPromise;
+      const stdout = await readFile(stdoutPath, "utf8").catch(() => "");
+      await rm(stdoutPath, { force: true });
+      resolve({
+        status: typeof code === "number" ? code : spawnError ? 1 : 0,
+        stdout,
+        stderr: spawnError ? `${stderr}${stderr ? "\n" : ""}${spawnError.code ?? spawnError.message}` : stderr
       });
     });
   });
