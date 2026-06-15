@@ -4863,11 +4863,16 @@ try {
 
 function runStatus(args = []) {
   return new Promise((resolve) => {
-    execFile(process.execPath, [statusScriptPath, ...args], { cwd: tempRoot }, (error, stdout, stderr) => {
+    execFile(process.execPath, [statusScriptPath, ...args], {
+      cwd: tempRoot,
+      maxBuffer: 16 * 1024 * 1024
+    }, (error, stdout, stderr) => {
       resolve({
-        status: typeof error?.code === "number" ? error.code : 0,
+        status: typeof error?.code === "number" ? error.code : error ? 1 : 0,
         stdout,
-        stderr
+        stderr: error?.code && typeof error.code !== "number"
+          ? `${stderr}${stderr ? "\n" : ""}${error.code}`
+          : stderr
       });
     });
   });
