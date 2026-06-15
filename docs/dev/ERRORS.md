@@ -52,6 +52,9 @@ Local service/runtime codes:
 - `TM_GATE0_PERSISTENCE_MODE_UNSUPPORTED` - Gate 0 API was started with a persistence mode that is not available yet.
 - `TM_GATE0_SERVICE_STORE_INVALID` - Gate 0 service was created without the required fixture store methods.
 - `TM_GATE1_DATABASE_STORE_NOT_SCAFFOLDED` - Gate 1 database persistence mode was selected before persisted reads were scaffolded.
+- `TM_GATE1_DATABASE_CLIENT_UNAVAILABLE` - Gate 1 database persistence mode was selected without `DATABASE_URL` or a generated Prisma client.
+- `TM_GATE1_DATABASE_URL_REQUIRED` - `npm run db:migrate` was run without `DATABASE_URL`.
+- `TM_GATE1_DATABASE_URL_INVALID` - `npm run db:migrate` was run with a non-PostgreSQL `DATABASE_URL` protocol.
 
 Route Not Found
 
@@ -113,8 +116,12 @@ Gate 0 Fixture Store Invalid JSON
 
 Local API boot or fixture-store tests should fail fast. Check that `packages/api-contracts/openapi/gate0.openapi.json` and `packages/api-contracts/fixtures/gate0-smoke.json` contain valid JSON.
 
+Gate 1 Database Client Unavailable
+
+Database mode should fail closed until local/dev PostgreSQL is configured. Set `DATABASE_URL`, run `npm run db:migrate`, generate the Prisma client, then retry persisted reads. Do not print the full database URL in logs or API errors.
+
 Gate 0 Persistence Mode Unsupported
 
-Local API boot should fail fast. `PERSISTENCE_MODE` is trimmed before selection, and unsupported errors include the supported mode list. Use `PERSISTENCE_MODE=fixture` until the Gate 1 database-backed store and Prisma migration checks are implemented.
+Local API boot should fail fast. `PERSISTENCE_MODE` is trimmed before selection, and unsupported errors include the supported mode list. Use `PERSISTENCE_MODE=fixture` unless Gate 1 database-backed read parity has a configured PostgreSQL URL and Prisma client. `db:migrate` checks the Prisma scaffold and validates `DATABASE_URL` before running Prisma.
 
 Privacy rule: do not include raw LINE, Facebook, QR, provider token, push token, or contact values in API errors, smoke output, logs, or generated fixtures.

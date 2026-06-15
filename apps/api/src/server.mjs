@@ -1,7 +1,7 @@
 import http from "node:http";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { createGate0Service, databaseStoreNotScaffolded, notFound, scaffoldFailure } from "./gate0-service.mjs";
+import { createGate0Service, databaseClientUnavailable, databaseStoreNotScaffolded, notFound, scaffoldFailure } from "./gate0-service.mjs";
 import { createGate0StoreFromEnv } from "./gate0-store-factory.mjs";
 
 const port = Number(process.env.API_PORT || 3000);
@@ -81,6 +81,10 @@ const server = http.createServer(async (req, res) => {
   } catch (error) {
     if (String(error?.message ?? error).includes("TM_GATE1_DATABASE_STORE_NOT_SCAFFOLDED")) {
       sendJson(res, 500, databaseStoreNotScaffolded());
+      return;
+    }
+    if (String(error?.message ?? error).includes("TM_GATE1_DATABASE_CLIENT_UNAVAILABLE")) {
+      sendJson(res, 500, databaseClientUnavailable());
       return;
     }
 

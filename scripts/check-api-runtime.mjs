@@ -24,6 +24,9 @@ if (packageJson.scripts?.["api:service:test"] !== "node scripts/check-gate0-serv
 if (packageJson.scripts?.["api:fixture-store:test"] !== "node scripts/check-gate0-fixture-store.mjs") {
   failures.push("package.json must expose api:fixture-store:test");
 }
+if (packageJson.scripts?.["gate1:database-store:test"] !== "node scripts/check-gate1-database-store.mjs") {
+  failures.push("package.json must expose gate1:database-store:test");
+}
 for (const marker of ["Gate 0 service boundary OK", "TM_GATE0_SERVICE_CHECK_FAILED", "createGate0Service(store)", "readFixture"]) {
   if (!gate0ServiceTestSource.includes(marker)) {
     failures.push(`Gate 0 service test must include ${marker}`);
@@ -50,9 +53,9 @@ for (const marker of ["createGate0StoreFromEnv", "PERSISTENCE_MODE", "fixture", 
     failures.push(`Gate 0 store factory must include ${marker}`);
   }
 }
-for (const marker of ["createGate1DatabaseStore", "TM_GATE1_DATABASE_STORE_NOT_SCAFFOLDED", "readOpenApi", "readFixture"]) {
+for (const marker of ["createGate1DatabaseStore", "TM_GATE1_DATABASE_CLIENT_UNAVAILABLE", "readOpenApi", "readFixture"]) {
   if (!gate1DatabaseStoreSource.includes(marker)) {
-    failures.push(`Gate 1 database store stub must include ${marker}`);
+    failures.push(`Gate 1 database store must include ${marker}`);
   }
 }
 for (const member of ["getMyPublicIdentity", "listDiscoverProfiles", "createLineContactExchange", "createSafetyReport", "createSafetyBlock"]) {
@@ -78,12 +81,12 @@ if (spacedFixtureStore.mode !== "fixture" || typeof spacedFixtureStore.store?.re
 
 const databaseStore = createGate0StoreFromEnv(root, { PERSISTENCE_MODE: "database" });
 if (databaseStore.mode !== "database" || typeof databaseStore.store?.readFixture !== "function") {
-  failures.push("Gate 0 store factory must return a fail-closed database store for PERSISTENCE_MODE=database");
+  failures.push("Gate 0 store factory must return a database store for PERSISTENCE_MODE=database");
 }
 await assertRejects(
   () => databaseStore.store.readFixture(),
-  "TM_GATE1_DATABASE_STORE_NOT_SCAFFOLDED",
-  "Gate 1 database store must fail closed until persisted reads are implemented"
+  "TM_GATE1_DATABASE_CLIENT_UNAVAILABLE",
+  "Gate 1 database store must fail closed until DATABASE_URL and Prisma client are available"
 );
 
 assertThrows(
@@ -142,8 +145,8 @@ try {
   if (scaffoldedRoute.status !== 500) {
     failures.push(`database mode fixture route must fail closed with 500, got ${scaffoldedRoute.status}`);
   }
-  if (scaffoldedRoute.payload?.error?.code !== "TM_GATE1_DATABASE_STORE_NOT_SCAFFOLDED") {
-    failures.push("database mode fixture route must expose TM_GATE1_DATABASE_STORE_NOT_SCAFFOLDED error envelope");
+  if (scaffoldedRoute.payload?.error?.code !== "TM_GATE1_DATABASE_CLIENT_UNAVAILABLE") {
+    failures.push("database mode fixture route must expose TM_GATE1_DATABASE_CLIENT_UNAVAILABLE error envelope");
   }
 } catch (error) {
   failures.push(`API database-mode runtime check failed: ${error.message}`);

@@ -41,6 +41,10 @@ export function createGate0Service(store) {
         return { status, payload: apiError(error) };
       }
 
+      if (typeof store.createLineContactExchange === "function") {
+        return await store.createLineContactExchange(roomId, state);
+      }
+
       const fixture = await store.readFixture();
       if (roomId !== fixture.chatRoom.id) return null;
       const lifecycle = state ? fixture.contactCardStates?.find((entry) => entry.state === state) : null;
@@ -56,11 +60,19 @@ export function createGate0Service(store) {
     },
 
     async createSafetyReport() {
+      if (typeof store.createSafetyReport === "function") {
+        return await store.createSafetyReport();
+      }
+
       const fixture = await store.readFixture();
       return { event: fixture.safetyEvents.find((event) => event.type === "report") };
     },
 
     async createSafetyBlock() {
+      if (typeof store.createSafetyBlock === "function") {
+        return await store.createSafetyBlock();
+      }
+
       const fixture = await store.readFixture();
       return { event: fixture.safetyEvents.find((event) => event.type === "block") };
     }
@@ -101,6 +113,16 @@ export function databaseStoreNotScaffolded() {
     code: "TM_GATE1_DATABASE_STORE_NOT_SCAFFOLDED",
     message: "Database persistence mode is present but persisted reads are not scaffolded yet.",
     param: "PERSISTENCE_MODE",
+    docRef: "docs/dev/GATE1_PERSISTENCE.md#local-modes"
+  });
+}
+
+export function databaseClientUnavailable() {
+  return apiError({
+    type: "system_error",
+    code: "TM_GATE1_DATABASE_CLIENT_UNAVAILABLE",
+    message: "Database persistence mode requires DATABASE_URL and a generated Prisma client before persisted reads can run.",
+    param: "DATABASE_URL",
     docRef: "docs/dev/GATE1_PERSISTENCE.md#local-modes"
   });
 }

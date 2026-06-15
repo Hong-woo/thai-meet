@@ -18,10 +18,13 @@ for (const term of ["Usage: node scripts/not-scaffolded.mjs <command> <message> 
 
 const migrateResult = await runNpm(["run", "db:migrate"]);
 const migrateOutput = `${migrateResult.stdout}\n${migrateResult.stderr}`;
-if (migrateResult.code === 0) failures.push("db:migrate must fail until Prisma migrations are scaffolded");
-if (!migrateOutput.includes("TM_COMMAND_NOT_SCAFFOLDED")) failures.push("db:migrate must print TM_COMMAND_NOT_SCAFFOLDED");
+if (migrateResult.code === 0) failures.push("db:migrate must require DATABASE_URL before running Prisma");
+if (!migrateOutput.includes("TM_GATE1_DATABASE_URL_REQUIRED")) failures.push("db:migrate must print TM_GATE1_DATABASE_URL_REQUIRED without DATABASE_URL");
 if (!migrateOutput.includes("command=db:migrate")) failures.push("db:migrate must print command=db:migrate");
 if (!migrateOutput.includes("docs/dev/GATE1_PERSISTENCE.md")) failures.push("db:migrate must point to Gate 1 persistence docs");
+if (migrateOutput.includes("postgresql://") || migrateOutput.includes("postgres://")) {
+  failures.push("db:migrate must not print DATABASE_URL values");
+}
 
 const directResult = await runNode(["scripts/not-scaffolded.mjs", "demo:task", "Demo task not ready.", "docs/dev/ROADMAP.md"]);
 if (directResult.code !== 1) failures.push("not-scaffolded helper must fail");

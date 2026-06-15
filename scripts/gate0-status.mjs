@@ -155,8 +155,8 @@ const nextGateMigrationStatusCommand = "npm run db:check -- --field migrationSta
 const nextGateMigrationStatusCommandField = "nextGateMigrationStatusCommand";
 const nextGateMigrationStatus = {
   command: nextGateMigrationStatusCommand,
-  currentExpectedStatus: "not_scaffolded",
-  nextExpectedStatus: "scaffolded",
+  currentExpectedStatus: "scaffolded",
+  nextExpectedStatus: "database_read_parity",
   guardCommand: "npm run not-scaffolded:test"
 };
 const nextGateMigrationStatusField = "nextGateMigrationStatus";
@@ -182,13 +182,25 @@ const nextGatePrismaScaffoldSummary = `schema=${nextGatePrismaScaffold.schemaPat
 const nextGatePrismaScaffoldSummaryField = "nextGatePrismaScaffoldSummary";
 const nextGatePrismaSchemaPresent = await pathExists(nextGatePrismaScaffold.schemaPath);
 const nextGatePrismaMigrationsPresent = await pathExists(nextGatePrismaScaffold.migrationsPath);
+const nextGateCurrentMigrationStatus = nextGatePrismaSchemaPresent && nextGatePrismaMigrationsPresent ? "scaffolded" : "not_scaffolded";
 const nextGatePrismaScaffoldStatus = {
   schemaPresent: nextGatePrismaSchemaPresent,
   migrationsPresent: nextGatePrismaMigrationsPresent,
-  migrationStatus: "not_scaffolded",
-  summary: `schema=${nextGatePrismaSchemaPresent}, migrations=${nextGatePrismaMigrationsPresent}, migrationStatus=not_scaffolded`
+  migrationStatus: nextGateCurrentMigrationStatus,
+  summary: `schema=${nextGatePrismaSchemaPresent}, migrations=${nextGatePrismaMigrationsPresent}, migrationStatus=${nextGateCurrentMigrationStatus}`
 };
 const prismaScaffoldStatusSummary = nextGatePrismaScaffoldStatus.summary;
+const nextGateSeedParityStatus = {
+  status: "planned",
+  fixturePath: "packages/api-contracts/fixtures/gate0-smoke.json",
+  planPath: ".thai-meet/gate1/seed-parity.json",
+  planCommand: "npm run gate1:seed:plan",
+  checkCommand: "npm run gate1:seed:test",
+  rawProviderValuesStored: false,
+  summary: "status=planned, fixture=gate0-smoke.json, rawProviderValuesStored=false"
+};
+const nextGateSeedParityStatusField = "nextGateSeedParityStatus";
+const nextGateSeedParityStatusSummaryField = "nextGateSeedParityStatus.summary";
 const nextGateDatabaseUrlStatusCommand = "npm run db:check -- --field databaseUrlStatus";
 const nextGateDatabaseUrlStatusCommandField = "nextGateDatabaseUrlStatusCommand";
 const nextGateDatabaseUrlProtocolCommand = "npm run db:check -- --field databaseUrlProtocol";
@@ -573,6 +585,7 @@ const nextGateDbMatrix = {
   migrationStatus: nextGateMigrationStatus,
   prismaScaffold: nextGatePrismaScaffold,
   prismaScaffoldStatus: nextGatePrismaScaffoldStatus,
+  seedParityStatus: nextGateSeedParityStatus,
   databaseUrl: nextGateDatabaseUrl,
   migrationGuard: nextGateMigrationGuard,
   requiredChecksSource: nextGateRequiredChecksSource,
@@ -589,6 +602,7 @@ const nextGateDbMatrixJsonCommandField = "nextGateDbMatrix.jsonCommand";
 const nextGateDbMatrixMigrationStatusCommandField = "nextGateDbMatrix.migrationStatusCommand";
 const nextGateDbMatrixDatabaseUrlExpectedStatusField = "nextGateDbMatrix.databaseUrl.expectedStatus";
 const nextGateDbMatrixPrismaScaffoldStatusSummaryField = "nextGateDbMatrix.prismaScaffoldStatus.summary";
+const nextGateDbMatrixSeedParityStatusSummaryField = "nextGateDbMatrix.seedParityStatus.summary";
 const nextGateDbMatrixRequiredChecksSourceField = "nextGateDbMatrix.requiredChecksSource";
 const nextGateDbMatrixRequiredChecksParsedField = "nextGateDbMatrix.requiredChecksParsed";
 const nextGateDbMatrixSummary = `check=${nextGateDbMatrix.checkCommand}, json=${nextGateDbMatrix.jsonCommand}, requiredChecks=${nextGateRequiredChecks.length}`;
@@ -1015,6 +1029,9 @@ const summary = {
   nextGatePrismaScaffoldSummary,
   nextGatePrismaScaffoldSummaryField,
   prismaScaffoldStatusSummary,
+  nextGateSeedParityStatus,
+  nextGateSeedParityStatusField,
+  nextGateSeedParityStatusSummaryField,
   nextGateDatabaseUrlStatusCommand,
   nextGateDatabaseUrlStatusCommandField,
   nextGateDatabaseUrlProtocolCommand,
@@ -1051,6 +1068,7 @@ const summary = {
   nextGateDbMatrixMigrationStatusCommandField,
   nextGateDbMatrixDatabaseUrlExpectedStatusField,
   nextGateDbMatrixPrismaScaffoldStatusSummaryField,
+  nextGateDbMatrixSeedParityStatusSummaryField,
   nextGateDbMatrixRequiredChecksSourceField,
   nextGateDbMatrixRequiredChecksParsedField,
   nextGateDbMatrixSummary,
@@ -1960,6 +1978,10 @@ function printHelp() {
     "nextGatePrismaScaffoldExpectedPresentField",
     "nextGatePrismaScaffoldSummary",
     "nextGatePrismaScaffoldSummaryField",
+    "nextGateSeedParityStatus",
+    "nextGateSeedParityStatusField",
+    "nextGateSeedParityStatus.summary",
+    "nextGateSeedParityStatusSummaryField",
     "nextGateDatabaseUrlStatusCommand",
     "nextGateDatabaseUrlStatusCommandField",
     "nextGateDatabaseUrlProtocolCommand",
@@ -2003,6 +2025,9 @@ function printHelp() {
     "nextGateDbMatrix.prismaScaffoldStatus",
     "nextGateDbMatrix.prismaScaffoldStatus.summary",
     "nextGateDbMatrixPrismaScaffoldStatusSummaryField",
+    "nextGateDbMatrix.seedParityStatus",
+    "nextGateDbMatrix.seedParityStatus.summary",
+    "nextGateDbMatrixSeedParityStatusSummaryField",
     "nextGateDbMatrix.databaseUrl.expectedStatus",
     "nextGateDbMatrixDatabaseUrlExpectedStatusField",
     "nextGateDbMatrix.requiredChecksSource",
@@ -3105,8 +3130,8 @@ function buildNextGateTransitionPlan() {
     transitions: {
       migrationStatus: {
         command: nextGateMigrationStatusCommand,
-        currentExpected: "not_scaffolded",
-        nextExpected: "scaffolded"
+        currentExpected: "scaffolded",
+        nextExpected: "database_read_parity"
       },
       databaseUrlStatus: {
         command: nextGateDatabaseUrlStatusCommand,
@@ -3123,7 +3148,7 @@ function buildNextGateTransitionPlan() {
       {
         id: "scaffold-prisma",
         command: nextGateMigrationStatusCommand,
-        target: "scaffolded"
+        target: "database_read_parity"
       },
       {
         id: "set-database-url",

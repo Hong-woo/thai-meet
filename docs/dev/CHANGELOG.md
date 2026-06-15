@@ -4,6 +4,7 @@ Record developer-facing changes that affect local setup, API contracts, generate
 
 ## 2026-06-15
 
+- Gate 1 seed parity plan and checks now map the Gate 0 Trust Loop fixture to Prisma model counts without raw provider values.
 - Gate 0 production readiness blockers are now closed by production integration contract, AWS deploy workflow, DESIGN.md source, and Android release signing scaffold.
 - Gate 0 status now exposes next gate required checks by-type command registry status summary fields.
 - Gate 0 status now exposes next gate required checks by-type command field summary fields.

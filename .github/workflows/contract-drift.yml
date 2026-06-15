@@ -32,6 +32,11 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
+      - name: Install Node dependencies
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -63,3 +68,44 @@ jobs:
           name: smoke-runs-${{ matrix.os }}-node-${{ matrix.node }}
           path: .thai-meet/smoke-runs/*.json
           if-no-files-found: ignore
+
+  gate1-postgres:
+    name: Gate 1 Postgres smoke
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: thai_meet
+          POSTGRES_PASSWORD: thai_meet
+          POSTGRES_DB: thai_meet
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U thai_meet -d thai_meet"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://thai_meet:thai_meet@localhost:5432/thai_meet
+      PERSISTENCE_MODE: database
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install Node dependencies
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+
+      - name: Run Gate 1 Postgres smoke
+        run: |
+          npm run db:migrate
+          npm run gate1:seed:database
+          npm run gate1:live-smoke

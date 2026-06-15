@@ -9,6 +9,17 @@ const persistenceDocPath = "docs/dev/GATE1_PERSISTENCE.md";
 const reviewChecklistPath = "docs/dev/REVIEW_CHECKLIST.md";
 const prismaSchemaPath = "apps/api/prisma/schema.prisma";
 const prismaMigrationsPath = "apps/api/prisma/migrations";
+const seedParityPlanCommand = "npm run gate1:seed:plan";
+const seedParityCheckCommand = "npm run gate1:seed:test";
+const migrationPreflightCheckCommand = "npm run gate1:migrate:test";
+const seedDatabaseCheckCommand = "npm run gate1:seed:database:test";
+const readParityCheckCommand = "npm run gate1:database-store:test";
+const endpointReadParityCheckCommand = "npm run gate1:read-parity:test";
+const writePathCheckCommand = "npm run gate1:write-path:test";
+const rollbackCheckCommand = "npm run gate1:rollback:test";
+const liveSmokeCheckCommand = "npm run gate1:live-smoke:test";
+const ciPostgresCheckCommand = "npm run gate1:ci-postgres:test";
+const seedParityPlanPath = ".thai-meet/gate1/seed-parity.json";
 const requiredEnvKeys = ["DATABASE_URL"];
 const requiredModels = [
   "UserIdentity",
@@ -31,17 +42,84 @@ const notScaffoldedGuard = {
 };
 const prismaSchemaPresent = await pathExists(prismaSchemaPath);
 const prismaMigrationsPresent = await pathExists(prismaMigrationsPath);
+const databaseReadParityPresent = prismaSchemaPresent
+  && prismaMigrationsPresent
+  && await pathExists("apps/api/src/gate1-database-store.mjs")
+  && await pathExists("scripts/check-gate1-database-store.mjs")
+  && await pathExists("scripts/check-gate1-read-parity.mjs");
+const migrationStatus = databaseReadParityPresent
+  ? "database_read_parity"
+  : prismaSchemaPresent && prismaMigrationsPresent
+    ? "scaffolded"
+    : "not_scaffolded";
 const databaseUrlPresent = Boolean(process.env.DATABASE_URL);
 const databaseUrlMetadata = getDatabaseUrlMetadata(process.env.DATABASE_URL);
+const prismaScaffoldMigrationStatus = prismaSchemaPresent && prismaMigrationsPresent ? "scaffolded" : "not_scaffolded";
 const prismaScaffoldStatus = {
   schemaPresent: prismaSchemaPresent,
   migrationsPresent: prismaMigrationsPresent,
-  migrationStatus: "not_scaffolded",
-  summary: `schema=${prismaSchemaPresent}, migrations=${prismaMigrationsPresent}, migrationStatus=not_scaffolded`
+  migrationStatus: prismaScaffoldMigrationStatus,
+  summary: `schema=${prismaSchemaPresent}, migrations=${prismaMigrationsPresent}, migrationStatus=${prismaScaffoldMigrationStatus}`
+};
+const seedParityStatus = {
+  status: "planned",
+  fixturePath: "packages/api-contracts/fixtures/gate0-smoke.json",
+  planPath: seedParityPlanPath,
+  planCommand: seedParityPlanCommand,
+  checkCommand: seedParityCheckCommand,
+  rawProviderValuesStored: false,
+  summary: "status=planned, fixture=gate0-smoke.json, rawProviderValuesStored=false"
+};
+const readParityStatus = {
+  status: "store_implemented",
+  checkCommand: readParityCheckCommand,
+  endpointCheckCommand: endpointReadParityCheckCommand,
+  boundary: "apps/api/src/gate1-database-store.mjs",
+  summary: "status=store_implemented, boundary=gate1-database-store, fixtureShape=gate0-compatible, endpointParity=checked"
+};
+const seedDatabaseStatus = {
+  status: "writer_implemented",
+  command: "npm run gate1:seed:database",
+  checkCommand: seedDatabaseCheckCommand,
+  rawProviderValuesStored: false,
+  summary: "status=writer_implemented, command=gate1:seed:database, rawProviderValuesStored=false"
+};
+const migrationPreflightStatus = {
+  status: "ready",
+  checkCommand: migrationPreflightCheckCommand,
+  rawSecretsPrinted: false,
+  summary: "status=ready, command=gate1:migrate:test, rawSecretsPrinted=false"
+};
+const rollbackStatus = {
+  status: "ready",
+  mode: "fixture",
+  checkCommand: rollbackCheckCommand,
+  summary: "status=ready, mode=fixture, rawSecretsPrinted=false"
+};
+const writePathStatus = {
+  status: "implemented",
+  checkCommand: writePathCheckCommand,
+  rawProviderValuesStored: false,
+  summary: "status=implemented, command=gate1:write-path:test, rawProviderValuesStored=false"
+};
+const liveSmokeStatus = {
+  status: "preflight_ready",
+  command: "npm run gate1:live-smoke",
+  checkCommand: liveSmokeCheckCommand,
+  requiresDatabaseUrl: true,
+  rawSecretsPrinted: false,
+  summary: "status=preflight_ready, command=gate1:live-smoke, requiresDatabaseUrl=true, rawSecretsPrinted=false"
+};
+const ciPostgresStatus = {
+  status: "enabled",
+  workflow: ".github/workflows/contract-drift.yml",
+  checkCommand: ciPostgresCheckCommand,
+  smokeCommand: "npm run gate1:live-smoke",
+  summary: "status=enabled, workflow=contract-drift.yml, command=gate1:ci-postgres:test, smoke=gate1:live-smoke"
 };
 const summary = {
   status: "passed",
-  migrationStatus: "not_scaffolded",
+  migrationStatus,
   persistenceGate: "Gate 1",
   constraintsDoc: constraintsDocPath,
   persistenceDoc: persistenceDocPath,
@@ -54,6 +132,25 @@ const summary = {
   prismaSchemaPresent,
   prismaMigrationsPresent,
   prismaScaffoldStatus,
+  seedParityStatus,
+  migrationPreflightStatus,
+  seedDatabaseStatus,
+  readParityStatus,
+  writePathStatus,
+  rollbackStatus,
+  liveSmokeStatus,
+  ciPostgresStatus,
+  seedParityPlanCommand,
+  seedParityCheckCommand,
+  migrationPreflightCheckCommand,
+  seedDatabaseCheckCommand,
+  readParityCheckCommand,
+  endpointReadParityCheckCommand,
+  writePathCheckCommand,
+  rollbackCheckCommand,
+  liveSmokeCheckCommand,
+  ciPostgresCheckCommand,
+  seedParityPlanPath,
   requiredEnvKeys,
   databaseUrlPresent,
   databaseUrlStatus: databaseUrlMetadata.status,
@@ -74,13 +171,68 @@ const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "
 if (packageJson.scripts?.["db:check"] !== "node scripts/check-db-matrix.mjs") {
   failures.push("package.json must expose db:check");
 }
-if (packageJson.scripts?.["db:check:test"] !== "node scripts/check-db-matrix.mjs && node scripts/check-db-matrix-command.mjs") {
+if (packageJson.scripts?.["db:check:test"] !== "node scripts/check-db-matrix.mjs && node scripts/check-db-matrix-command.mjs && npm run gate1:prisma:test && npm run gate1:migrate:test && npm run gate1:seed:test && npm run gate1:seed:database:test && npm run gate1:database-store:test && npm run gate1:read-parity:test && npm run gate1:write-path:test && npm run gate1:rollback:test && npm run gate1:live-smoke:test && npm run gate1:ci-postgres:test") {
   failures.push("package.json must expose db:check:test");
+}
+if (packageJson.scripts?.["gate1:prisma:test"] !== "node scripts/check-gate1-prisma-scaffold.mjs") {
+  failures.push("package.json must expose gate1:prisma:test");
+}
+if (packageJson.scripts?.["gate1:migrate:test"] !== "node scripts/check-gate1-migrate.mjs") {
+  failures.push("package.json must expose gate1:migrate:test");
+}
+if (packageJson.scripts?.["gate1:seed:plan"] !== "node scripts/gate1-seed-parity.mjs --write") {
+  failures.push("package.json must expose gate1:seed:plan");
+}
+if (packageJson.scripts?.["gate1:seed:test"] !== "node scripts/check-gate1-seed-parity.mjs") {
+  failures.push("package.json must expose gate1:seed:test");
+}
+if (packageJson.scripts?.["gate1:seed:database"] !== "node scripts/gate1-seed-database.mjs") {
+  failures.push("package.json must expose gate1:seed:database");
+}
+if (packageJson.scripts?.["gate1:seed:database:test"] !== "node scripts/check-gate1-database-seed.mjs") {
+  failures.push("package.json must expose gate1:seed:database:test");
+}
+if (packageJson.scripts?.["gate1:database-store:test"] !== "node scripts/check-gate1-database-store.mjs") {
+  failures.push("package.json must expose gate1:database-store:test");
+}
+if (packageJson.scripts?.["gate1:read-parity:test"] !== "node scripts/check-gate1-read-parity.mjs") {
+  failures.push("package.json must expose gate1:read-parity:test");
+}
+if (packageJson.scripts?.["gate1:write-path:test"] !== "node scripts/check-gate1-write-path.mjs") {
+  failures.push("package.json must expose gate1:write-path:test");
+}
+if (packageJson.scripts?.["gate1:rollback"] !== "node scripts/gate1-rollback-preflight.mjs") {
+  failures.push("package.json must expose gate1:rollback");
+}
+if (packageJson.scripts?.["gate1:rollback:test"] !== "node scripts/check-gate1-rollback.mjs") {
+  failures.push("package.json must expose gate1:rollback:test");
+}
+if (packageJson.scripts?.["gate1:live-smoke"] !== "node scripts/gate1-live-smoke.mjs") {
+  failures.push("package.json must expose gate1:live-smoke");
+}
+if (packageJson.scripts?.["gate1:live-smoke:test"] !== "node scripts/check-gate1-live-smoke.mjs") {
+  failures.push("package.json must expose gate1:live-smoke:test");
+}
+if (packageJson.scripts?.["gate1:ci-postgres:test"] !== "node scripts/check-gate1-ci-postgres.mjs") {
+  failures.push("package.json must expose gate1:ci-postgres:test");
 }
 
 await requireFile(constraintsDocPath);
 await requireFile(persistenceDocPath);
 await requireFile("scripts/check-db-matrix-command.mjs");
+await requireFile("scripts/gate1-seed-parity.mjs");
+await requireFile("scripts/check-gate1-seed-parity.mjs");
+await requireFile("scripts/check-gate1-migrate.mjs");
+await requireFile("scripts/gate1-seed-database.mjs");
+await requireFile("scripts/check-gate1-database-seed.mjs");
+await requireFile("scripts/check-gate1-database-store.mjs");
+await requireFile("scripts/check-gate1-read-parity.mjs");
+await requireFile("scripts/check-gate1-write-path.mjs");
+await requireFile("scripts/gate1-rollback-preflight.mjs");
+await requireFile("scripts/check-gate1-rollback.mjs");
+await requireFile("scripts/gate1-live-smoke.mjs");
+await requireFile("scripts/check-gate1-live-smoke.mjs");
+await requireFile("scripts/check-gate1-ci-postgres.mjs");
 
 const doc = await readIfExists(constraintsDocPath);
 const persistenceDoc = await readIfExists(persistenceDocPath);
@@ -113,8 +265,16 @@ const requiredPersistenceTerms = [
   "RewardLedger",
   "PERSISTENCE_MODE=fixture",
   "without a database",
-  "TM_COMMAND_NOT_SCAFFOLDED",
+  "TM_GATE1_DATABASE_URL_REQUIRED",
+  "seed parity",
+  "database seed writer",
+  "migration preflight",
+  "read parity",
+  "write path",
   "rollback",
+  "gate1:rollback:test",
+  "gate1:live-smoke",
+  "CI Postgres smoke",
   "raw provider values"
 ];
 
@@ -190,6 +350,14 @@ function printHelp() {
   console.log("  notScaffoldedGuard.helperCommand");
   console.log("  notScaffoldedGuard.errorCode");
   console.log("  prismaScaffoldStatus.summary");
+  console.log("  seedParityStatus.summary");
+  console.log("  migrationPreflightStatus.summary");
+  console.log("  seedDatabaseStatus.summary");
+  console.log("  readParityStatus.summary");
+  console.log("  writePathStatus.summary");
+  console.log("  rollbackStatus.summary");
+  console.log("  liveSmokeStatus.summary");
+  console.log("  ciPostgresStatus.summary");
   console.log("");
   console.log("Stable error codes:");
   console.log("  TM_DB_MATRIX_UNKNOWN_OPTION");

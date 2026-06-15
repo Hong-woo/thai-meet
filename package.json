@@ -35,14 +35,34 @@
     "privacy:test": "node scripts/check-privacy-leaks.mjs",
     "rewards:check": "node scripts/check-reward-ledger.mjs",
     "db:check": "node scripts/check-db-matrix.mjs",
-    "db:check:test": "node scripts/check-db-matrix.mjs && node scripts/check-db-matrix-command.mjs",
+    "db:check:test": "node scripts/check-db-matrix.mjs && node scripts/check-db-matrix-command.mjs && npm run gate1:prisma:test && npm run gate1:migrate:test && npm run gate1:seed:test && npm run gate1:seed:database:test && npm run gate1:database-store:test && npm run gate1:read-parity:test && npm run gate1:write-path:test && npm run gate1:rollback:test && npm run gate1:live-smoke:test && npm run gate1:ci-postgres:test",
+    "gate1:prisma:test": "node scripts/check-gate1-prisma-scaffold.mjs",
+    "gate1:migrate:test": "node scripts/check-gate1-migrate.mjs",
+    "gate1:seed:plan": "node scripts/gate1-seed-parity.mjs --write",
+    "gate1:seed:test": "node scripts/check-gate1-seed-parity.mjs",
+    "gate1:seed:database": "node scripts/gate1-seed-database.mjs",
+    "gate1:seed:database:test": "node scripts/check-gate1-database-seed.mjs",
+    "gate1:database-store:test": "node scripts/check-gate1-database-store.mjs",
+    "gate1:read-parity:test": "node scripts/check-gate1-read-parity.mjs",
+    "gate1:write-path:test": "node scripts/check-gate1-write-path.mjs",
+    "gate1:ci-postgres:test": "node scripts/check-gate1-ci-postgres.mjs",
+    "gate1:rollback": "node scripts/gate1-rollback-preflight.mjs",
+    "gate1:rollback:test": "node scripts/check-gate1-rollback.mjs",
+    "gate1:live-smoke": "node scripts/gate1-live-smoke.mjs",
+    "gate1:live-smoke:test": "node scripts/check-gate1-live-smoke.mjs",
     "not-scaffolded:test": "node scripts/check-not-scaffolded.mjs",
-    "db:migrate": "node scripts/not-scaffolded.mjs db:migrate \"Prisma schema/migrations are not scaffolded yet. See docs/dev/GATE1_PERSISTENCE.md.\" docs/dev/GATE1_PERSISTENCE.md",
+    "db:migrate": "node scripts/gate1-migrate.mjs",
     "db:seed": "node scripts/seed-gate0-fixtures.mjs",
     "mobile:run": "cd apps/mobile && flutter run",
     "mobile:preview:web": "cd apps/mobile && flutter run -d web-server --web-hostname=127.0.0.1 --web-port=5370",
     "mobile:test:routes": "node scripts/check-mobile-routes.mjs",
     "wireframes:check": "node wireframes/qa-check.mjs"
   },
-  "devDependencies": {}
+  "dependencies": {
+    "@prisma/adapter-pg": "7.8.0",
+    "@prisma/client": "7.8.0"
+  },
+  "devDependencies": {
+    "prisma": "7.8.0"
+  }
 }

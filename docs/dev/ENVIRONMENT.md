@@ -30,8 +30,8 @@ Local defaults in `.env.example`:
 | `ADMOB_MODE` | `mock` | No ad key required for smoke. |
 | `FCM_MODE` | `mock` | No push credential required for smoke. |
 | `OBJECT_STORAGE_MODE` | `local` | Local/mock upload path for smoke. |
-| `PERSISTENCE_MODE` | `fixture` | Trimmed before selection. Fixture-backed storage remains the only supported local mode until Gate 1 database checks pass. |
-| `DATABASE_URL` | unset | Required for Gate 1 database persistence only. `npm run db:check -- --field databaseUrlPresent` reports whether it is set. |
+| `PERSISTENCE_MODE` | `fixture` | Trimmed before selection. Fixture-backed API reads remain the default until Gate 1 database read parity passes. |
+| `DATABASE_URL` | unset | Required for Gate 1 `db:migrate` and database persistence only. `npm run db:check -- --field databaseUrlPresent` reports whether it is set without printing the URL. |
 
 Rules:
 

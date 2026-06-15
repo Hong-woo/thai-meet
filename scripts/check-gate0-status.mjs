@@ -46,6 +46,7 @@ assertIncludes(realStatusDoc, "Gate 1 database persistence mode routes unscaffol
 try {
   await mkdir(path.join(tempRoot, "docs", "dev"), { recursive: true });
   await mkdir(path.join(tempRoot, ".thai-meet", "device-smoke"), { recursive: true });
+  await mkdir(path.join(tempRoot, "apps", "api", "prisma", "migrations", "20260615000000_gate1_persistence_scaffold"), { recursive: true });
 
   await writeFile(path.join(tempRoot, "docs", "dev", "GATE0_STATUS.md"), [
     "# Gate 0 Status",
@@ -114,6 +115,8 @@ try {
     androidRelease: "16",
     androidSdk: "36"
   }, null, 2));
+  await writeFile(path.join(tempRoot, "apps", "api", "prisma", "schema.prisma"), "model User {\n  id String @id\n}\n");
+  await writeFile(path.join(tempRoot, "apps", "api", "prisma", "migrations", "20260615000000_gate1_persistence_scaffold", "migration.sql"), "CREATE TABLE \"User\" (\"id\" TEXT PRIMARY KEY);\n");
 
   const result = await runStatus();
 
@@ -134,7 +137,7 @@ try {
   assertIncludes(result.stdout, "Next gate check command: npm run db:check", "status output should include next gate check command");
   assertIncludes(result.stdout, "Next gate check JSON command: npm run db:check -- --json", "status output should include next gate check JSON command");
   assertIncludes(result.stdout, "Next gate migration status command: npm run db:check -- --field migrationStatus", "status output should include next gate migration status command");
-  assertIncludes(result.stdout, "Next gate migration status handoff: not_scaffolded -> scaffolded", "status output should include next gate migration status handoff summary");
+  assertIncludes(result.stdout, "Next gate migration status handoff: scaffolded -> database_read_parity", "status output should include next gate migration status handoff summary");
   assertIncludes(result.stdout, "Next gate database URL status command: npm run db:check -- --field databaseUrlStatus", "status output should include next gate database URL status command");
   assertIncludes(result.stdout, "Next gate database URL protocol command: npm run db:check -- --field databaseUrlProtocol", "status output should include next gate database URL protocol command");
   assertIncludes(result.stdout, "Next gate database URL validation command: $env:DATABASE_URL='<postgresql-url>'; npm run db:check -- --field databaseUrlStatus; npm run db:check -- --field databaseUrlProtocol; Remove-Item Env:DATABASE_URL -ErrorAction SilentlyContinue", "status output should include next gate database URL validation command");
@@ -153,7 +156,7 @@ try {
   assertIncludes(result.stdout, "Next gate required checks summary: 13 checks from docs/dev/GATE1_PERSISTENCE.md#required-checks", "status output should include next gate required checks summary");
   assertIncludes(result.stdout, "Next gate required checks by type: db=8, guard=2, test=1, privacy=1, errors=1", "status output should include next gate required checks type summary");
   assertIncludes(result.stdout, "Next gate readiness: 10 verified now, 3 transition checks", "status output should include next gate readiness summary");
-  assertIncludes(result.stdout, "Next gate transition plan: 3 transitions -> scaffolded, valid, postgresql|postgres", "status output should include next gate transition plan summary");
+  assertIncludes(result.stdout, "Next gate transition plan: 3 transitions -> database_read_parity, valid, postgresql|postgres", "status output should include next gate transition plan summary");
   assertIncludes(result.stdout, "Next gate transition steps: scaffold-prisma -> set-database-url -> verify-db-matrix", "status output should include next gate transition steps summary");
   assertIncludes(result.stdout, "Next gate CI handoff: 3 watch fields, 13 required checks", "status output should include next gate CI handoff summary");
   assertIncludes(result.stdout, "Next gate required checks: npm run db:check, npm run db:check -- --json, npm run db:check -- --field migrationStatus, npm run db:check -- --field prismaSchemaPresent, npm run db:check -- --field prismaScaffoldStatus.summary, npm run db:check -- --field databaseUrlPresent, npm run db:check -- --field databaseUrlStatus, npm run db:check -- --field databaseUrlProtocol, npm run not-scaffolded:test, node scripts/not-scaffolded.mjs --help, npm test, npm run privacy:test, npm run errors:check", "status output should include next gate required checks from Gate 1 doc");
@@ -172,10 +175,10 @@ try {
   assertEqual(parsed.progressBasis.totalCount, 8, "JSON should include total progress count");
   assertEqual(parsed.progressBasisSummary, "3/8 completed, 5 remaining, 38%", "JSON should include compact progress basis summary");
   assertEqual(parsed.ciReadyStatus, "all_assertions_pass", "JSON should include compact CI ready status");
-  assertEqual(parsed.ciReadySummary, "migrationStatus=scaffolded, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "JSON should include compact CI ready summary");
+  assertEqual(parsed.ciReadySummary, "migrationStatus=database_read_parity, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "JSON should include compact CI ready summary");
   assertObject(parsed.ciReadyReportValues, "JSON should include compact CI ready report values");
   assertEqual(parsed.ciReadyReportValues.status, "all_assertions_pass", "JSON CI ready report values should include ready status");
-  assertEqual(parsed.ciReadyReportValues.summary, "migrationStatus=scaffolded, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "JSON CI ready report values should include ready summary");
+  assertEqual(parsed.ciReadyReportValues.summary, "migrationStatus=database_read_parity, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "JSON CI ready report values should include ready summary");
   assertArrayIncludes(parsed.ciReadyReportValueKeys, "status", "JSON CI ready report value keys should include status");
   assertArrayIncludes(parsed.ciReadyReportValueKeys, "remainingBlockersSummary", "JSON CI ready report value keys should include remaining blockers summary");
   assertEqual(parsed.ciReadyReportValueCount, 25, "JSON CI ready report value count should include report value count");
@@ -254,7 +257,7 @@ try {
   assertEqual(parsed.ciAssertionCountField, "nextGateCiHandoff.assertionCount", "JSON CI assertion count alias should include canonical path");
   assertEqual(parsed.ciReadyAssertionCount, 3, "JSON CI ready assertion count should include count");
   assertEqual(parsed.ciReadyAssertionCountField, "nextGateCiHandoff.readyWhen.assertionCount", "JSON CI ready assertion count alias should include canonical path");
-  assertEqual(parsed.ciAssertionMigrationStatusExpected, "scaffolded", "JSON CI assertion migration status expected should include expected value");
+  assertEqual(parsed.ciAssertionMigrationStatusExpected, "database_read_parity", "JSON CI assertion migration status expected should include expected value");
   assertEqual(parsed.ciAssertionMigrationStatusCommand, "npm run db:check -- --field migrationStatus", "JSON CI assertion migration status command should include command");
   assertEqual(parsed.ciAssertionDatabaseUrlStatusExpected, "valid", "JSON CI assertion database URL status expected should include expected value");
   assertEqual(parsed.ciAssertionDatabaseUrlStatusCommand, "npm run db:check -- --field databaseUrlStatus", "JSON CI assertion database URL status command should include command");
@@ -264,10 +267,10 @@ try {
   assertEqual(parsed.ciPassCriteriaCount, 3, "JSON CI pass criteria count should include count");
   assertEqual(parsed.ciPassCriteriaField, "nextGateCiHandoff.passCriteria", "JSON CI pass criteria alias should include canonical path");
   assertEqual(parsed.ciPassCriteriaCountField, "nextGateCiHandoff.passCriteriaCount", "JSON CI pass criteria count alias should include canonical path");
-  assertEqual(parsed.ciPassCriteriaMigrationStatus, "scaffolded", "JSON CI pass criteria migration status should include expected value");
+  assertEqual(parsed.ciPassCriteriaMigrationStatus, "database_read_parity", "JSON CI pass criteria migration status should include expected value");
   assertEqual(parsed.ciPassCriteriaDatabaseUrlStatus, "valid", "JSON CI pass criteria database URL status should include expected value");
   assertArrayIncludes(parsed.ciPassCriteriaDatabaseUrlProtocol, "postgresql", "JSON CI pass criteria database URL protocol should include postgresql");
-  assertEqual(parsed.nextGateCiHandoffPassCriteriaSummary, "migrationStatus=scaffolded, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "JSON should include next gate CI handoff pass criteria summary");
+  assertEqual(parsed.nextGateCiHandoffPassCriteriaSummary, "migrationStatus=database_read_parity, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "JSON should include next gate CI handoff pass criteria summary");
   assertEqual(parsed.nextGateCiHandoffPassCriteriaSummaryField, "nextGateCiHandoffPassCriteriaSummary", "JSON should include next gate CI handoff pass criteria summary alias");
   assertObject(parsed.ciFailureCodes, "JSON CI failure codes should include failure codes");
   assertEqual(parsed.ciFailureCodeCount, 3, "JSON CI failure code count should include count");
@@ -314,15 +317,15 @@ try {
   assertEqual(parsed.nextGateCiHandoffReadinessTransitionSummary, "verifiedNow=10, readinessTransitions=3, transitionPlan=3", "JSON should include next gate CI handoff readiness transition summary");
   assertEqual(parsed.nextGateCiHandoffReadinessTransitionSummaryField, "nextGateCiHandoffReadinessTransitionSummary", "JSON should include next gate CI handoff readiness transition summary alias");
   assertEqual(parsed.ciTransitionMigrationStatusCommand, "npm run db:check -- --field migrationStatus", "JSON CI transition migration command should include command");
-  assertEqual(parsed.ciTransitionMigrationStatusCurrentExpected, "not_scaffolded", "JSON CI transition migration current expected should include current value");
-  assertEqual(parsed.ciTransitionMigrationStatusNextExpected, "scaffolded", "JSON CI transition migration next expected should include next value");
+  assertEqual(parsed.ciTransitionMigrationStatusCurrentExpected, "scaffolded", "JSON CI transition migration current expected should include current value");
+  assertEqual(parsed.ciTransitionMigrationStatusNextExpected, "database_read_parity", "JSON CI transition migration next expected should include next value");
   assertEqual(parsed.ciTransitionDatabaseUrlStatusCommand, "npm run db:check -- --field databaseUrlStatus", "JSON CI transition database URL status command should include command");
   assertEqual(parsed.ciTransitionDatabaseUrlStatusCurrentExpected, "missing", "JSON CI transition database URL status current expected should include current value");
   assertEqual(parsed.ciTransitionDatabaseUrlStatusNextExpected, "valid", "JSON CI transition database URL status next expected should include next value");
   assertEqual(parsed.ciTransitionDatabaseUrlProtocolCommand, "npm run db:check -- --field databaseUrlProtocol", "JSON CI transition database URL protocol command should include command");
   assertEqual(parsed.ciTransitionDatabaseUrlProtocolCurrentExpected, "none", "JSON CI transition database URL protocol current expected should include current value");
   assertArrayIncludes(parsed.ciTransitionDatabaseUrlProtocolNextExpected, "postgresql", "JSON CI transition database URL protocol next expected should include postgresql");
-  assertEqual(parsed.nextGateCiHandoffTransitionExpectedSummary, "migrationStatus=not_scaffolded->scaffolded, databaseUrlStatus=missing->valid, databaseUrlProtocol=none->postgresql|postgres", "JSON should include next gate CI handoff transition expected summary");
+  assertEqual(parsed.nextGateCiHandoffTransitionExpectedSummary, "migrationStatus=scaffolded->database_read_parity, databaseUrlStatus=missing->valid, databaseUrlProtocol=none->postgresql|postgres", "JSON should include next gate CI handoff transition expected summary");
   assertEqual(parsed.nextGateCiHandoffTransitionExpectedSummaryField, "nextGateCiHandoffTransitionExpectedSummary", "JSON should include next gate CI handoff transition expected summary alias");
   assertEqual(parsed.nextGateCiHandoffTransitionCommandSummary, "migrationStatus=npm run db:check -- --field migrationStatus, databaseUrlStatus=npm run db:check -- --field databaseUrlStatus, databaseUrlProtocol=npm run db:check -- --field databaseUrlProtocol", "JSON should include next gate CI handoff transition command summary");
   assertEqual(parsed.nextGateCiHandoffTransitionCommandSummaryField, "nextGateCiHandoffTransitionCommandSummary", "JSON should include next gate CI handoff transition command summary alias");
@@ -334,9 +337,9 @@ try {
   assertEqual(parsed.ciTransitionThirdStepId, "verify-db-matrix", "JSON CI transition third step should include id");
   assertEqual(parsed.ciTransitionFirstStepCommand, "npm run db:check -- --field migrationStatus", "JSON CI transition first step command should include command");
   assertEqual(parsed.ciTransitionThirdStepCommand, "npm run db:check -- --json", "JSON CI transition third step command should include command");
-  assertEqual(parsed.ciTransitionFirstStepTarget, "scaffolded", "JSON CI transition first step target should include target");
+  assertEqual(parsed.ciTransitionFirstStepTarget, "database_read_parity", "JSON CI transition first step target should include target");
   assertEqual(parsed.ciTransitionThirdStepTarget, "all Gate 1 DB matrix fields pass", "JSON CI transition third step target should include target");
-  assertEqual(parsed.nextGateCiHandoffTransitionTargetSummary, "scaffold-prisma=scaffolded, set-database-url=valid postgresql|postgres DATABASE_URL, verify-db-matrix=all Gate 1 DB matrix fields pass", "JSON should include next gate CI handoff transition target summary");
+  assertEqual(parsed.nextGateCiHandoffTransitionTargetSummary, "scaffold-prisma=database_read_parity, set-database-url=valid postgresql|postgres DATABASE_URL, verify-db-matrix=all Gate 1 DB matrix fields pass", "JSON should include next gate CI handoff transition target summary");
   assertEqual(parsed.nextGateCiHandoffTransitionTargetSummaryField, "nextGateCiHandoffTransitionTargetSummary", "JSON should include next gate CI handoff transition target summary alias");
   assertObject(parsed.ciRollback, "JSON CI rollback should include rollback object");
   assertEqual(parsed.ciRollbackMode, "fixture", "JSON CI rollback mode should include fixture");
@@ -591,7 +594,7 @@ try {
   assertEqual(parsed.nextGateDocField, "nextGateDoc", "JSON should include next gate doc alias");
   assertEqual(parsed.nextGateDocPath, "docs/dev/GATE1_PERSISTENCE.md", "JSON should include next gate doc path");
   assertEqual(parsed.nextGateDocPathField, "nextGateDocPath", "JSON should include next gate doc path alias");
-  assertEqual(parsed.prismaScaffoldStatusSummary, "schema=false, migrations=false, migrationStatus=not_scaffolded", "JSON should include compact Prisma scaffold status summary");
+  assertEqual(parsed.prismaScaffoldStatusSummary, "schema=true, migrations=true, migrationStatus=scaffolded", "JSON should include compact Prisma scaffold status summary");
   assertEqual(parsed.nextGateCommand, "npm run gate0:status -- --field nextGateDocPath", "JSON should include next gate command");
   assertEqual(parsed.nextGateCommandField, "nextGateCommand", "JSON should include next gate command alias");
   assertEqual(parsed.nextGateSummary, "Gate 1 production backend persistence -> docs/dev/GATE1_PERSISTENCE.md", "JSON should include next gate summary");
@@ -607,13 +610,13 @@ try {
   assertObject(parsed.nextGateMigrationStatus, "JSON should include next gate migration status handoff object");
   assertEqual(parsed.nextGateMigrationStatusField, "nextGateMigrationStatus", "JSON should include next gate migration status object alias");
   assertEqual(parsed.nextGateMigrationStatus.command, "npm run db:check -- --field migrationStatus", "JSON migration status object should include command");
-  assertEqual(parsed.nextGateMigrationStatus.currentExpectedStatus, "not_scaffolded", "JSON migration status object should include current expected status");
+  assertEqual(parsed.nextGateMigrationStatus.currentExpectedStatus, "scaffolded", "JSON migration status object should include current expected status");
   assertEqual(parsed.nextGateMigrationStatusCurrentExpectedStatusField, "nextGateMigrationStatus.currentExpectedStatus", "JSON should include next gate migration status current alias");
-  assertEqual(parsed.nextGateMigrationStatus.nextExpectedStatus, "scaffolded", "JSON migration status object should include next expected status");
+  assertEqual(parsed.nextGateMigrationStatus.nextExpectedStatus, "database_read_parity", "JSON migration status object should include next expected status");
   assertEqual(parsed.nextGateMigrationStatusNextExpectedStatusField, "nextGateMigrationStatus.nextExpectedStatus", "JSON should include next gate migration status next alias");
   assertEqual(parsed.nextGateMigrationStatus.guardCommand, "npm run not-scaffolded:test", "JSON migration status object should include guard command");
   assertEqual(parsed.nextGateMigrationStatusGuardCommandField, "nextGateMigrationStatus.guardCommand", "JSON should include next gate migration status guard alias");
-  assertEqual(parsed.nextGateMigrationStatusSummary, "not_scaffolded -> scaffolded", "JSON should include next gate migration status summary");
+  assertEqual(parsed.nextGateMigrationStatusSummary, "scaffolded -> database_read_parity", "JSON should include next gate migration status summary");
   assertEqual(parsed.nextGateMigrationStatusSummaryField, "nextGateMigrationStatusSummary", "JSON should include next gate migration status summary alias");
   assertEqual(parsed.nextGateDatabaseUrlStatusCommand, "npm run db:check -- --field databaseUrlStatus", "JSON should include next gate database URL status command");
   assertEqual(parsed.nextGateDatabaseUrlStatusCommandField, "nextGateDatabaseUrlStatusCommand", "JSON should include next gate database URL status command alias");
@@ -677,13 +680,13 @@ try {
   assertEqual(parsed.nextGateDbMatrixJsonCommandField, "nextGateDbMatrix.jsonCommand", "JSON should include next gate DB matrix JSON command alias");
   assertEqual(parsed.nextGateDbMatrix.migrationStatusCommand, "npm run db:check -- --field migrationStatus", "JSON DB matrix object should include migration status command");
   assertEqual(parsed.nextGateDbMatrixMigrationStatusCommandField, "nextGateDbMatrix.migrationStatusCommand", "JSON should include next gate DB matrix migration status command alias");
-  assertEqual(parsed.nextGateDbMatrix.migrationStatus.currentExpectedStatus, "not_scaffolded", "JSON DB matrix object should include migration status handoff object");
+  assertEqual(parsed.nextGateDbMatrix.migrationStatus.currentExpectedStatus, "scaffolded", "JSON DB matrix object should include migration status handoff object");
   assertEqual(parsed.nextGateDbMatrix.prismaScaffold.schemaPath, "apps/api/prisma/schema.prisma", "JSON DB matrix object should include Prisma scaffold object");
   assertObject(parsed.nextGateDbMatrix.prismaScaffoldStatus, "JSON DB matrix object should include Prisma scaffold status object");
-  assertEqual(parsed.nextGateDbMatrix.prismaScaffoldStatus.schemaPresent, false, "JSON DB matrix object should include current Prisma schema presence");
-  assertEqual(parsed.nextGateDbMatrix.prismaScaffoldStatus.migrationsPresent, false, "JSON DB matrix object should include current Prisma migrations presence");
-  assertEqual(parsed.nextGateDbMatrix.prismaScaffoldStatus.migrationStatus, "not_scaffolded", "JSON DB matrix object should include current migration status");
-  assertEqual(parsed.nextGateDbMatrix.prismaScaffoldStatus.summary, "schema=false, migrations=false, migrationStatus=not_scaffolded", "JSON DB matrix object should include Prisma scaffold status summary");
+  assertEqual(parsed.nextGateDbMatrix.prismaScaffoldStatus.schemaPresent, true, "JSON DB matrix object should include current Prisma schema presence");
+  assertEqual(parsed.nextGateDbMatrix.prismaScaffoldStatus.migrationsPresent, true, "JSON DB matrix object should include current Prisma migrations presence");
+  assertEqual(parsed.nextGateDbMatrix.prismaScaffoldStatus.migrationStatus, "scaffolded", "JSON DB matrix object should include current migration status");
+  assertEqual(parsed.nextGateDbMatrix.prismaScaffoldStatus.summary, "schema=true, migrations=true, migrationStatus=scaffolded", "JSON DB matrix object should include Prisma scaffold status summary");
   assertEqual(parsed.nextGateDbMatrixPrismaScaffoldStatusSummaryField, "nextGateDbMatrix.prismaScaffoldStatus.summary", "JSON should include next gate DB matrix Prisma scaffold status summary alias");
   assertEqual(parsed.nextGateDbMatrix.databaseUrl.expectedStatus, "valid", "JSON DB matrix object should include database URL object");
   assertEqual(parsed.nextGateDbMatrixDatabaseUrlExpectedStatusField, "nextGateDbMatrix.databaseUrl.expectedStatus", "JSON should include next gate DB matrix database URL expected status alias");
@@ -816,8 +819,8 @@ try {
   assertEqual(parsed.nextGateTransitionPlanField, "nextGateTransitionPlan", "JSON should include next gate transition plan alias");
   assertEqual(parsed.nextGateTransitionPlan.count, 3, "JSON transition plan should include transition count");
   assertEqual(parsed.nextGateTransitionPlanCountField, "nextGateTransitionPlan.count", "JSON should include next gate transition plan count alias");
-  assertEqual(parsed.nextGateTransitionPlan.transitions.migrationStatus.currentExpected, "not_scaffolded", "JSON transition plan should include migration current expectation");
-  assertEqual(parsed.nextGateTransitionPlan.transitions.migrationStatus.nextExpected, "scaffolded", "JSON transition plan should include migration next expectation");
+  assertEqual(parsed.nextGateTransitionPlan.transitions.migrationStatus.currentExpected, "scaffolded", "JSON transition plan should include migration current expectation");
+  assertEqual(parsed.nextGateTransitionPlan.transitions.migrationStatus.nextExpected, "database_read_parity", "JSON transition plan should include migration next expectation");
   assertEqual(parsed.nextGateTransitionPlanMigrationStatusNextExpectedField, "nextGateTransitionPlan.transitions.migrationStatus.nextExpected", "JSON should include next gate transition plan migration next alias");
   assertEqual(parsed.nextGateTransitionPlan.transitions.databaseUrlStatus.nextExpected, "valid", "JSON transition plan should include database URL status next expectation");
   assertEqual(parsed.nextGateTransitionPlanDatabaseUrlStatusNextExpectedField, "nextGateTransitionPlan.transitions.databaseUrlStatus.nextExpected", "JSON should include next gate transition plan database URL status alias");
@@ -830,7 +833,7 @@ try {
   assertEqual(parsed.nextGateTransitionPlanFirstStepIdField, "nextGateTransitionPlan.orderedSteps.0.id", "JSON should include next gate transition plan first step alias");
   assertEqual(parsed.nextGateTransitionPlanStepSummary, "scaffold-prisma -> set-database-url -> verify-db-matrix", "JSON should include next gate transition plan step summary");
   assertEqual(parsed.nextGateTransitionPlanStepSummaryField, "nextGateTransitionPlanStepSummary", "JSON should include next gate transition plan step summary alias");
-  assertEqual(parsed.nextGateTransitionPlanSummary, "3 transitions -> scaffolded, valid, postgresql|postgres", "JSON should include next gate transition plan summary");
+  assertEqual(parsed.nextGateTransitionPlanSummary, "3 transitions -> database_read_parity, valid, postgresql|postgres", "JSON should include next gate transition plan summary");
   assertEqual(parsed.nextGateTransitionPlanSummaryField, "nextGateTransitionPlanSummary", "JSON should include next gate transition plan summary alias");
   assertObject(parsed.nextGateCiHandoff, "JSON should include next gate CI handoff");
   assertEqual(parsed.nextGateCiHandoffField, "nextGateCiHandoff", "JSON should include next gate CI handoff alias");
@@ -841,9 +844,9 @@ try {
   assertEqual(parsed.nextGateCiHandoffSummaryField, "nextGateCiHandoffSummary", "JSON should include next gate CI handoff summary alias");
   assertEqual(parsed.nextGateCiHandoffReadyStatus, "all_assertions_pass", "JSON should include next gate CI handoff ready status");
   assertEqual(parsed.nextGateCiHandoffReadyStatusField, "nextGateCiHandoff.readyWhen.status", "JSON should include next gate CI handoff ready status alias");
-  assertEqual(parsed.nextGateCiHandoffReadySummary, "migrationStatus=scaffolded, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "JSON should include next gate CI handoff ready summary");
+  assertEqual(parsed.nextGateCiHandoffReadySummary, "migrationStatus=database_read_parity, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "JSON should include next gate CI handoff ready summary");
   assertEqual(parsed.nextGateCiHandoffReadySummaryField, "nextGateCiHandoff.readyWhen.summary", "JSON should include next gate CI handoff ready summary alias");
-  assertEqual(parsed.nextGateCiHandoffReadyTopSummary, "all_assertions_pass: migrationStatus=scaffolded, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "JSON should include next gate CI handoff ready top summary");
+  assertEqual(parsed.nextGateCiHandoffReadyTopSummary, "all_assertions_pass: migrationStatus=database_read_parity, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "JSON should include next gate CI handoff ready top summary");
   assertEqual(parsed.nextGateCiHandoffReadyTopSummaryField, "nextGateCiHandoffReadyTopSummary", "JSON should include next gate CI handoff ready top summary alias");
   assertEqual(parsed.nextGateCiHandoff.fieldAliasCount, 324, "JSON CI handoff should include field alias count");
   assertEqual(parsed.nextGateCiHandoff.fieldAliasCountField, "nextGateCiHandoff.fieldAliasCount", "JSON CI handoff should include field alias count alias");
@@ -986,7 +989,7 @@ try {
   assertEqual(parsed.nextGateCiHandoff.passCriteriaField, "nextGateCiHandoff.passCriteria", "JSON CI handoff should include pass criteria field alias");
   assertEqual(parsed.nextGateCiHandoff.passCriteriaCount, 3, "JSON CI handoff should include pass criteria count");
   assertEqual(parsed.nextGateCiHandoff.passCriteriaCountField, "nextGateCiHandoff.passCriteriaCount", "JSON CI handoff should include pass criteria count field alias");
-  assertEqual(parsed.nextGateCiHandoff.passCriteria.migrationStatus, "scaffolded", "JSON CI handoff should include migration pass criteria");
+  assertEqual(parsed.nextGateCiHandoff.passCriteria.migrationStatus, "database_read_parity", "JSON CI handoff should include migration pass criteria");
   assertEqual(parsed.nextGateCiHandoff.passCriteria.databaseUrlStatus, "valid", "JSON CI handoff should include database URL status pass criteria");
   assertArrayIncludes(parsed.nextGateCiHandoff.passCriteria.databaseUrlProtocol, "postgresql", "JSON CI handoff should include database URL protocol pass criteria");
   assertObject(parsed.nextGateCiHandoff.failureCodes, "JSON CI handoff should include failure codes");
@@ -1008,12 +1011,12 @@ try {
   assertEqual(parsed.nextGateCiHandoff.assertionCount, 3, "JSON CI handoff should include assertion count");
   assertEqual(parsed.nextGateCiHandoff.assertionCountField, "nextGateCiHandoff.assertionCount", "JSON CI handoff should include assertion count field alias");
   assertEqual(parsed.nextGateCiHandoff.assertions.migrationStatus.command, "npm run db:check -- --field migrationStatus", "JSON CI handoff should include migration assertion command");
-  assertEqual(parsed.nextGateCiHandoff.assertions.migrationStatus.expected, "scaffolded", "JSON CI handoff should include migration assertion expected value");
+  assertEqual(parsed.nextGateCiHandoff.assertions.migrationStatus.expected, "database_read_parity", "JSON CI handoff should include migration assertion expected value");
   assertEqual(parsed.nextGateCiHandoff.assertions.databaseUrlStatus.expected, "valid", "JSON CI handoff should include database URL status assertion expected value");
   assertArrayIncludes(parsed.nextGateCiHandoff.assertions.databaseUrlProtocol.expected, "postgresql", "JSON CI handoff should include database URL protocol assertion expected value");
   assertObject(parsed.nextGateCiHandoff.readyWhen, "JSON CI handoff should include ready-when summary");
   assertEqual(parsed.nextGateCiHandoff.readyWhen.status, "all_assertions_pass", "JSON CI handoff should include ready status");
-  assertEqual(parsed.nextGateCiHandoff.readyWhen.summary, "migrationStatus=scaffolded, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "JSON CI handoff should include ready summary");
+  assertEqual(parsed.nextGateCiHandoff.readyWhen.summary, "migrationStatus=database_read_parity, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "JSON CI handoff should include ready summary");
   assertEqual(parsed.nextGateCiHandoff.readyWhen.statusField, "nextGateCiHandoff.readyWhen.status", "JSON CI handoff should include ready status field alias");
   assertEqual(parsed.nextGateCiHandoff.readyWhen.summaryField, "nextGateCiHandoff.readyWhen.summary", "JSON CI handoff should include ready summary field alias");
   assertEqual(parsed.nextGateCiHandoff.readyWhen.requiredFieldsField, "nextGateCiHandoff.readyWhen.requiredFields", "JSON CI handoff should include ready required fields alias");
@@ -1078,7 +1081,7 @@ try {
   assertEqual(parsed.nextGateCiHandoff.readyWhen.reportValues.status, "all_assertions_pass", "JSON CI handoff should include ready status report value");
   assertEqual(parsed.nextGateCiHandoff.readyWhen.reportValues.rollbackCommandLast, "npm run gate0:status -- --field nextGateCiHandoff.rollback", "JSON CI handoff should include rollback command last report value");
   assertEqual(parsed.nextGateCiHandoff.readyWhen.reportValues.rollbackCommandEndpointSummary, "first=$env:PERSISTENCE_MODE='fixture'; npm test; Remove-Item Env:PERSISTENCE_MODE -ErrorAction SilentlyContinue, last=npm run gate0:status -- --field nextGateCiHandoff.rollback", "JSON CI handoff should include rollback command endpoint summary report value");
-  assertEqual(parsed.nextGateCiHandoff.readyWhen.reportValues.prismaScaffoldStatusSummary, "schema=false, migrations=false, migrationStatus=not_scaffolded", "JSON CI handoff should include Prisma scaffold status report value");
+  assertEqual(parsed.nextGateCiHandoff.readyWhen.reportValues.prismaScaffoldStatusSummary, "schema=true, migrations=true, migrationStatus=scaffolded", "JSON CI handoff should include Prisma scaffold status report value");
   assertEqual(parsed.nextGateCiHandoff.readyWhen.reportValues.productionGateOrderDetailsSummary, "gate1: Production backend persistence. -> docs/dev/GATE1_PERSISTENCE.md | gate2: AWS CI/deploy pipeline. -> docs/dev/CI.md | gate3: Formal Figma/DESIGN.md source of truth. -> docs/dev/DESIGN_STATUS.md | gate4: App store/release build signing. -> docs/dev/ROADMAP.md", "JSON CI handoff should include production gate summary report value");
   assertEqual(parsed.nextGateCiHandoff.readyWhen.reportValues.productionBlockerCount, 5, "JSON CI handoff should include production blocker count report value");
   assertEqual(parsed.nextGateCiHandoff.readyWhen.reportValues.progressPercent, 38, "JSON CI handoff should include progress percent report value");
@@ -1211,7 +1214,7 @@ try {
 
   const ciReadySummaryField = await runStatus(["--field", "ciReadySummary"]);
   assertExit(ciReadySummaryField, 0, "gate0 status CI ready summary field should pass");
-  assertEqual(ciReadySummaryField.stdout.trim(), "migrationStatus=scaffolded, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "CI ready summary field should include compact ready summary");
+  assertEqual(ciReadySummaryField.stdout.trim(), "migrationStatus=database_read_parity, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "CI ready summary field should include compact ready summary");
 
   const ciReadyReportValuesField = await runStatus(["--field", "ciReadyReportValues"]);
   assertExit(ciReadyReportValuesField, 0, "gate0 status CI ready report values field should pass");
@@ -1378,7 +1381,7 @@ try {
 
   const ciAssertionMigrationStatusExpectedField = await runStatus(["--field", "ciAssertionMigrationStatusExpected"]);
   assertExit(ciAssertionMigrationStatusExpectedField, 0, "gate0 status CI assertion migration status expected field should pass");
-  assertEqual(ciAssertionMigrationStatusExpectedField.stdout.trim(), "scaffolded", "CI assertion migration status expected field should include expected value");
+  assertEqual(ciAssertionMigrationStatusExpectedField.stdout.trim(), "database_read_parity", "CI assertion migration status expected field should include expected value");
 
   const ciAssertionDatabaseUrlProtocolExpectedField = await runStatus(["--field", "ciAssertionDatabaseUrlProtocolExpected"]);
   assertExit(ciAssertionDatabaseUrlProtocolExpectedField, 0, "gate0 status CI assertion database URL protocol expected field should pass");
@@ -1386,7 +1389,7 @@ try {
 
   const ciPassCriteriaField = await runStatus(["--field", "ciPassCriteria"]);
   assertExit(ciPassCriteriaField, 0, "gate0 status CI pass criteria field should pass");
-  assertIncludes(ciPassCriteriaField.stdout, "\"migrationStatus\": \"scaffolded\"", "CI pass criteria field should include migration status");
+  assertIncludes(ciPassCriteriaField.stdout, "\"migrationStatus\": \"database_read_parity\"", "CI pass criteria field should include migration status");
 
   const ciPassCriteriaCountField = await runStatus(["--field", "ciPassCriteriaCount"]);
   assertExit(ciPassCriteriaCountField, 0, "gate0 status CI pass criteria count field should pass");
@@ -1394,7 +1397,7 @@ try {
 
   const nextGateCiHandoffPassCriteriaSummaryField = await runStatus(["--field", "nextGateCiHandoffPassCriteriaSummary"]);
   assertExit(nextGateCiHandoffPassCriteriaSummaryField, 0, "gate0 status next gate CI handoff pass criteria summary should pass");
-  assertEqual(nextGateCiHandoffPassCriteriaSummaryField.stdout.trim(), "migrationStatus=scaffolded, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "next gate CI handoff pass criteria summary should include compact criteria");
+  assertEqual(nextGateCiHandoffPassCriteriaSummaryField.stdout.trim(), "migrationStatus=database_read_parity, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "next gate CI handoff pass criteria summary should include compact criteria");
 
   const nextGateCiHandoffPassCriteriaSummaryAliasField = await runStatus(["--field", "nextGateCiHandoffPassCriteriaSummaryField"]);
   assertExit(nextGateCiHandoffPassCriteriaSummaryAliasField, 0, "gate0 status next gate CI handoff pass criteria summary alias should pass");
@@ -1482,7 +1485,7 @@ try {
 
   const ciTransitionMigrationStatusNextExpectedField = await runStatus(["--field", "ciTransitionMigrationStatusNextExpected"]);
   assertExit(ciTransitionMigrationStatusNextExpectedField, 0, "gate0 status CI transition migration next expected field should pass");
-  assertEqual(ciTransitionMigrationStatusNextExpectedField.stdout.trim(), "scaffolded", "CI transition migration next expected field should include next expected value");
+  assertEqual(ciTransitionMigrationStatusNextExpectedField.stdout.trim(), "database_read_parity", "CI transition migration next expected field should include next expected value");
 
   const ciTransitionDatabaseUrlProtocolNextExpectedField = await runStatus(["--field", "ciTransitionDatabaseUrlProtocolNextExpected"]);
   assertExit(ciTransitionDatabaseUrlProtocolNextExpectedField, 0, "gate0 status CI transition database URL protocol next expected field should pass");
@@ -1490,7 +1493,7 @@ try {
 
   const nextGateCiHandoffTransitionExpectedSummaryField = await runStatus(["--field", "nextGateCiHandoffTransitionExpectedSummary"]);
   assertExit(nextGateCiHandoffTransitionExpectedSummaryField, 0, "gate0 status next gate CI handoff transition expected summary should pass");
-  assertEqual(nextGateCiHandoffTransitionExpectedSummaryField.stdout.trim(), "migrationStatus=not_scaffolded->scaffolded, databaseUrlStatus=missing->valid, databaseUrlProtocol=none->postgresql|postgres", "next gate CI handoff transition expected summary should include compact expected values");
+  assertEqual(nextGateCiHandoffTransitionExpectedSummaryField.stdout.trim(), "migrationStatus=scaffolded->database_read_parity, databaseUrlStatus=missing->valid, databaseUrlProtocol=none->postgresql|postgres", "next gate CI handoff transition expected summary should include compact expected values");
 
   const nextGateCiHandoffTransitionExpectedSummaryAliasField = await runStatus(["--field", "nextGateCiHandoffTransitionExpectedSummaryField"]);
   assertExit(nextGateCiHandoffTransitionExpectedSummaryAliasField, 0, "gate0 status next gate CI handoff transition expected summary alias should pass");
@@ -1514,7 +1517,7 @@ try {
 
   const nextGateCiHandoffTransitionTargetSummaryField = await runStatus(["--field", "nextGateCiHandoffTransitionTargetSummary"]);
   assertExit(nextGateCiHandoffTransitionTargetSummaryField, 0, "gate0 status next gate CI handoff transition target summary should pass");
-  assertEqual(nextGateCiHandoffTransitionTargetSummaryField.stdout.trim(), "scaffold-prisma=scaffolded, set-database-url=valid postgresql|postgres DATABASE_URL, verify-db-matrix=all Gate 1 DB matrix fields pass", "next gate CI handoff transition target summary should include compact targets");
+  assertEqual(nextGateCiHandoffTransitionTargetSummaryField.stdout.trim(), "scaffold-prisma=database_read_parity, set-database-url=valid postgresql|postgres DATABASE_URL, verify-db-matrix=all Gate 1 DB matrix fields pass", "next gate CI handoff transition target summary should include compact targets");
 
   const nextGateCiHandoffTransitionTargetSummaryAliasField = await runStatus(["--field", "nextGateCiHandoffTransitionTargetSummaryField"]);
   assertExit(nextGateCiHandoffTransitionTargetSummaryAliasField, 0, "gate0 status next gate CI handoff transition target summary alias should pass");
@@ -2063,7 +2066,7 @@ try {
 
   const prismaScaffoldStatusSummaryField = await runStatus(["--field", "prismaScaffoldStatusSummary"]);
   assertExit(prismaScaffoldStatusSummaryField, 0, "gate0 status Prisma scaffold status summary field should pass");
-  assertEqual(prismaScaffoldStatusSummaryField.stdout.trim(), "schema=false, migrations=false, migrationStatus=not_scaffolded", "Prisma scaffold status summary field should include compact scaffold state");
+  assertEqual(prismaScaffoldStatusSummaryField.stdout.trim(), "schema=true, migrations=true, migrationStatus=scaffolded", "Prisma scaffold status summary field should include compact scaffold state");
 
   const productionBlockersCountField = await runStatus(["--field", "productionBlockersSummary.count"]);
   assertExit(productionBlockersCountField, 0, "gate0 status production blockers count field should pass");
@@ -2567,8 +2570,8 @@ try {
 
   const nextGateMigrationStatusField = await runStatus(["--field", "nextGateMigrationStatus"]);
   assertExit(nextGateMigrationStatusField, 0, "gate0 status next gate migration status field should pass");
-  assertIncludes(nextGateMigrationStatusField.stdout, "\"currentExpectedStatus\": \"not_scaffolded\"", "next gate migration status field should include current expected status");
-  assertIncludes(nextGateMigrationStatusField.stdout, "\"nextExpectedStatus\": \"scaffolded\"", "next gate migration status field should include next expected status");
+  assertIncludes(nextGateMigrationStatusField.stdout, "\"currentExpectedStatus\": \"scaffolded\"", "next gate migration status field should include current expected status");
+  assertIncludes(nextGateMigrationStatusField.stdout, "\"nextExpectedStatus\": \"database_read_parity\"", "next gate migration status field should include next expected status");
 
   const nextGateMigrationStatusAliasField = await runStatus(["--field", "nextGateMigrationStatusField"]);
   assertExit(nextGateMigrationStatusAliasField, 0, "gate0 status next gate migration status alias field should pass");
@@ -2576,7 +2579,7 @@ try {
 
   const nextGateMigrationStatusNestedField = await runStatus(["--field", "nextGateMigrationStatus.currentExpectedStatus"]);
   assertExit(nextGateMigrationStatusNestedField, 0, "gate0 status next gate migration status nested field should pass");
-  assertEqual(nextGateMigrationStatusNestedField.stdout.trim(), "not_scaffolded", "next gate migration status nested field should include current expected status");
+  assertEqual(nextGateMigrationStatusNestedField.stdout.trim(), "scaffolded", "next gate migration status nested field should include current expected status");
 
   const nextGateMigrationStatusCurrentAliasField = await runStatus(["--field", "nextGateMigrationStatusCurrentExpectedStatusField"]);
   assertExit(nextGateMigrationStatusCurrentAliasField, 0, "gate0 status next gate migration status current alias field should pass");
@@ -2584,7 +2587,7 @@ try {
 
   const nextGateMigrationStatusNextField = await runStatus(["--field", "nextGateMigrationStatus.nextExpectedStatus"]);
   assertExit(nextGateMigrationStatusNextField, 0, "gate0 status next gate migration status next field should pass");
-  assertEqual(nextGateMigrationStatusNextField.stdout.trim(), "scaffolded", "next gate migration status next field should include target expected status");
+  assertEqual(nextGateMigrationStatusNextField.stdout.trim(), "database_read_parity", "next gate migration status next field should include target expected status");
 
   const nextGateMigrationStatusNextAliasField = await runStatus(["--field", "nextGateMigrationStatusNextExpectedStatusField"]);
   assertExit(nextGateMigrationStatusNextAliasField, 0, "gate0 status next gate migration status next alias field should pass");
@@ -2600,7 +2603,7 @@ try {
 
   const nextGateMigrationStatusSummaryField = await runStatus(["--field", "nextGateMigrationStatusSummary"]);
   assertExit(nextGateMigrationStatusSummaryField, 0, "gate0 status next gate migration status summary field should pass");
-  assertEqual(nextGateMigrationStatusSummaryField.stdout.trim(), "not_scaffolded -> scaffolded", "next gate migration status summary field should include transition summary");
+  assertEqual(nextGateMigrationStatusSummaryField.stdout.trim(), "scaffolded -> database_read_parity", "next gate migration status summary field should include transition summary");
 
   const nextGateMigrationStatusSummaryAliasField = await runStatus(["--field", "nextGateMigrationStatusSummaryField"]);
   assertExit(nextGateMigrationStatusSummaryAliasField, 0, "gate0 status next gate migration status summary alias field should pass");
@@ -2848,7 +2851,7 @@ try {
 
   const nextGateDbMatrixPrismaScaffoldStatusSummaryField = await runStatus(["--field", "nextGateDbMatrix.prismaScaffoldStatus.summary"]);
   assertExit(nextGateDbMatrixPrismaScaffoldStatusSummaryField, 0, "gate0 status next gate DB matrix Prisma scaffold status summary field should pass");
-  assertEqual(nextGateDbMatrixPrismaScaffoldStatusSummaryField.stdout.trim(), "schema=false, migrations=false, migrationStatus=not_scaffolded", "next gate DB matrix Prisma scaffold status summary field should include current scaffold status");
+  assertEqual(nextGateDbMatrixPrismaScaffoldStatusSummaryField.stdout.trim(), "schema=true, migrations=true, migrationStatus=scaffolded", "next gate DB matrix Prisma scaffold status summary field should include current scaffold status");
 
   const nextGateDbMatrixPrismaScaffoldStatusSummaryAliasField = await runStatus(["--field", "nextGateDbMatrixPrismaScaffoldStatusSummaryField"]);
   assertExit(nextGateDbMatrixPrismaScaffoldStatusSummaryAliasField, 0, "gate0 status next gate DB matrix Prisma scaffold status summary alias field should pass");
@@ -3259,7 +3262,7 @@ try {
 
   const nextGateTransitionPlanNestedField = await runStatus(["--field", "nextGateTransitionPlan.transitions.migrationStatus.nextExpected"]);
   assertExit(nextGateTransitionPlanNestedField, 0, "gate0 status next gate transition plan nested field should pass");
-  assertEqual(nextGateTransitionPlanNestedField.stdout.trim(), "scaffolded", "next gate transition plan nested field should include migration next expectation");
+  assertEqual(nextGateTransitionPlanNestedField.stdout.trim(), "database_read_parity", "next gate transition plan nested field should include migration next expectation");
 
   const nextGateTransitionPlanMigrationNextAliasField = await runStatus(["--field", "nextGateTransitionPlanMigrationStatusNextExpectedField"]);
   assertExit(nextGateTransitionPlanMigrationNextAliasField, 0, "gate0 status next gate transition plan migration next alias field should pass");
@@ -3307,7 +3310,7 @@ try {
 
   const nextGateTransitionPlanSummaryField = await runStatus(["--field", "nextGateTransitionPlanSummary"]);
   assertExit(nextGateTransitionPlanSummaryField, 0, "gate0 status next gate transition plan summary field should pass");
-  assertEqual(nextGateTransitionPlanSummaryField.stdout.trim(), "3 transitions -> scaffolded, valid, postgresql|postgres", "next gate transition plan summary field should include compact transition summary");
+  assertEqual(nextGateTransitionPlanSummaryField.stdout.trim(), "3 transitions -> database_read_parity, valid, postgresql|postgres", "next gate transition plan summary field should include compact transition summary");
 
   const nextGateTransitionPlanSummaryAliasField = await runStatus(["--field", "nextGateTransitionPlanSummaryField"]);
   assertExit(nextGateTransitionPlanSummaryAliasField, 0, "gate0 status next gate transition plan summary alias field should pass");
@@ -3370,7 +3373,7 @@ try {
 
   const nextGateCiHandoffReadySummaryTopField = await runStatus(["--field", "nextGateCiHandoffReadySummary"]);
   assertExit(nextGateCiHandoffReadySummaryTopField, 0, "gate0 status next gate CI handoff ready summary top field should pass");
-  assertEqual(nextGateCiHandoffReadySummaryTopField.stdout.trim(), "migrationStatus=scaffolded, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "next gate CI handoff ready summary top field should include summary");
+  assertEqual(nextGateCiHandoffReadySummaryTopField.stdout.trim(), "migrationStatus=database_read_parity, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "next gate CI handoff ready summary top field should include summary");
 
   const nextGateCiHandoffReadySummaryTopAliasField = await runStatus(["--field", "nextGateCiHandoffReadySummaryField"]);
   assertExit(nextGateCiHandoffReadySummaryTopAliasField, 0, "gate0 status next gate CI handoff ready summary top alias field should pass");
@@ -3378,7 +3381,7 @@ try {
 
   const nextGateCiHandoffReadyTopSummaryField = await runStatus(["--field", "nextGateCiHandoffReadyTopSummary"]);
   assertExit(nextGateCiHandoffReadyTopSummaryField, 0, "gate0 status next gate CI handoff ready top summary field should pass");
-  assertEqual(nextGateCiHandoffReadyTopSummaryField.stdout.trim(), "all_assertions_pass: migrationStatus=scaffolded, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "next gate CI handoff ready top summary field should include compact ready summary");
+  assertEqual(nextGateCiHandoffReadyTopSummaryField.stdout.trim(), "all_assertions_pass: migrationStatus=database_read_parity, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "next gate CI handoff ready top summary field should include compact ready summary");
 
   const nextGateCiHandoffReadyTopSummaryAliasField = await runStatus(["--field", "nextGateCiHandoffReadyTopSummaryField"]);
   assertExit(nextGateCiHandoffReadyTopSummaryAliasField, 0, "gate0 status next gate CI handoff ready top summary alias field should pass");
@@ -3610,7 +3613,7 @@ try {
 
   const nextGateCiHandoffPassCriteriaField = await runStatus(["--field", "nextGateCiHandoff.passCriteria.migrationStatus"]);
   assertExit(nextGateCiHandoffPassCriteriaField, 0, "gate0 status next gate CI handoff pass criteria field should pass");
-  assertEqual(nextGateCiHandoffPassCriteriaField.stdout.trim(), "scaffolded", "next gate CI handoff pass criteria field should include migration target");
+  assertEqual(nextGateCiHandoffPassCriteriaField.stdout.trim(), "database_read_parity", "next gate CI handoff pass criteria field should include migration target");
 
   const nextGateCiHandoffPassCriteriaCountField = await runStatus(["--field", "nextGateCiHandoff.passCriteriaCount"]);
   assertExit(nextGateCiHandoffPassCriteriaCountField, 0, "gate0 status next gate CI handoff pass criteria count field should pass");
@@ -3687,7 +3690,7 @@ try {
 
   const nextGateCiHandoffAssertionField = await runStatus(["--field", "nextGateCiHandoff.assertions.migrationStatus.expected"]);
   assertExit(nextGateCiHandoffAssertionField, 0, "gate0 status next gate CI handoff assertion field should pass");
-  assertEqual(nextGateCiHandoffAssertionField.stdout.trim(), "scaffolded", "next gate CI handoff assertion field should include migration expected value");
+  assertEqual(nextGateCiHandoffAssertionField.stdout.trim(), "database_read_parity", "next gate CI handoff assertion field should include migration expected value");
 
   const nextGateCiHandoffAssertionsAliasField = await runStatus(["--field", "nextGateCiHandoff.assertionsField"]);
   assertExit(nextGateCiHandoffAssertionsAliasField, 0, "gate0 status next gate CI handoff assertions alias field should pass");
@@ -3720,7 +3723,7 @@ try {
 
   const nextGateCiHandoffReadySummaryField = await runStatus(["--field", "nextGateCiHandoff.readyWhen.summary"]);
   assertExit(nextGateCiHandoffReadySummaryField, 0, "gate0 status next gate CI handoff ready summary field should pass");
-  assertEqual(nextGateCiHandoffReadySummaryField.stdout.trim(), "migrationStatus=scaffolded, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "next gate CI handoff ready summary field should include summary");
+  assertEqual(nextGateCiHandoffReadySummaryField.stdout.trim(), "migrationStatus=database_read_parity, databaseUrlStatus=valid, databaseUrlProtocol=postgresql|postgres", "next gate CI handoff ready summary field should include summary");
 
   const nextGateCiHandoffReadyRequiredField = await runStatus(["--field", "nextGateCiHandoff.readyWhen.requiredFields.0"]);
   assertExit(nextGateCiHandoffReadyRequiredField, 0, "gate0 status next gate CI handoff ready required field should pass");
