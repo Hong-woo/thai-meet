@@ -36,12 +36,35 @@ const expectedErrors = [
     param: "contactExchangeId"
   },
   {
+    caseName: "contact-reported",
+    status: 409,
+    type: "conflict_error",
+    code: "TM_API_CONTACT_EXCHANGE_REPORTED",
+    param: "contactExchangeId"
+  },
+  {
+    caseName: "contact-blocked",
+    status: 403,
+    type: "permission_error",
+    code: "TM_API_CONTACT_EXCHANGE_BLOCKED",
+    param: "contactExchangeId"
+  },
+  {
     caseName: "provider-unavailable",
     status: 503,
     type: "provider_error",
     code: "TM_API_CONTACT_PROVIDER_UNAVAILABLE",
     param: "provider"
   }
+];
+
+const expectedRuntimeErrors = [
+  "TM_GATE0_FIXTURE_STORE_INVALID_JSON",
+  "TM_GATE0_FIXTURE_STORE_READ_FAILED",
+  "TM_GATE0_FIXTURE_STORE_ROOT_INVALID",
+  "TM_GATE0_PERSISTENCE_MODE_UNSUPPORTED",
+  "TM_GATE0_SERVICE_STORE_INVALID",
+  "TM_GATE1_DATABASE_STORE_NOT_SCAFFOLDED"
 ];
 
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
@@ -61,6 +84,12 @@ for (const expected of expectedErrors) {
   }
   if (!JSON.stringify(openApi).includes(expected.code)) {
     failures.push(`OpenAPI must document ${expected.code}`);
+  }
+}
+
+for (const code of expectedRuntimeErrors) {
+  if (!errorsDoc.includes(code)) {
+    failures.push(`docs/dev/ERRORS.md must document ${code}`);
   }
 }
 

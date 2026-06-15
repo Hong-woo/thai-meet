@@ -2,6 +2,730 @@
 
 Record developer-facing changes that affect local setup, API contracts, generated clients, mobile routes, smoke stages, privacy checks, DB migrations, or safety-sensitive behavior.
 
+## 2026-06-15
+
+- Gate 0 production readiness blockers are now closed by production integration contract, AWS deploy workflow, DESIGN.md source, and Android release signing scaffold.
+- Gate 0 status now exposes next gate required checks by-type command registry status summary fields.
+- Gate 0 status now exposes next gate required checks by-type command field summary fields.
+- Gate 0 status now exposes next gate required checks by-type command registry summary fields.
+- Gate 0 status now exposes next gate required checks by-type command endpoint summary fields.
+- Gate 0 status now exposes next gate required checks by-type command count summary fields.
+- Gate 0 status now exposes next gate required checks by-type field summary fields.
+- Gate 0 status now exposes next gate required checks by-type registry summary fields.
+- Gate 0 status now exposes next gate required checks by-type endpoint summary fields.
+- Gate 0 status now exposes next gate required checks by-type summary fields.
+- Gate 0 status now exposes next gate CI rollback top field summary fields.
+- Gate 0 status now exposes next gate CI rollback registry field summary fields.
+- Gate 0 status now exposes next gate CI rollback endpoint field summary fields.
+- Gate 0 status now exposes next gate CI rollback command field summary fields.
+- Gate 0 status now exposes next gate CI rollback command count summary fields.
+- Gate 0 status now exposes next gate CI rollback verification/report summary fields.
+- Gate 0 status now exposes next gate CI rollback command sequence summary fields.
+- Gate 0 status now exposes next gate CI rollback mode summary fields.
+- Gate 0 status now exposes next gate CI rollback command registry summary fields.
+- Gate 0 status now exposes next gate CI transition target summary fields.
+- Gate 0 status now exposes next gate CI transition command summary fields.
+- Gate 0 status now exposes next gate CI transition expected value summary fields.
+- Gate 0 status now exposes next gate CI readiness transition summary fields.
+- Gate 0 status now exposes next gate CI required checks summary fields.
+- Gate 0 status now exposes next gate CI watch field summary fields.
+- Gate 0 status now exposes next gate CI evidence doc summary fields.
+- Gate 0 status now exposes next gate CI failure code summary fields.
+- Gate 0 status now exposes next gate CI pass criteria summary fields.
+- Gate 0 status now exposes next gate CI rollback top-level aliases and summary fields.
+- Gate 0 status now exposes next gate CI ready status and summary aliases.
+- Gate 0 status now exposes next gate CI handoff top-level aliases and summary fields.
+- Gate 0 status now exposes next gate transition plan aliases and summary fields.
+- Gate 0 status now exposes next gate readiness aliases and summary fields.
+- Gate 0 status now exposes next gate required checks aliases and compact summary fields.
+- Gate 0 status now exposes next gate DB matrix aliases and summary fields.
+- Gate 0 status now exposes next gate migration guard aliases and summary fields.
+- Gate 0 status now exposes next gate Prisma scaffold aliases and summary fields.
+- Gate 0 status now exposes next gate `DATABASE_URL` aliases and summary fields.
+- Gate 0 status now exposes next gate migration status aliases and summary fields.
+- Gate 0 status now exposes next gate check command aliases and summary fields.
+- Gate 0 status now exposes next gate alias and summary fields.
+- Gate 0 status now verifies Android device smoke nested identity fields and aliases.
+- Gate 0 status now verifies Android device smoke identity alias fields through field-level checks.
+- Gate 0 status now exposes compact Android device smoke identity and summary fields.
+- Gate 0 status now verifies persistence mode alias fields through field-level checks.
+- Gate 0 status now exposes persistence mode endpoints and summary fields.
+- Gate 0 status now verifies related docs alias fields through field-level checks.
+- Gate 0 status now exposes related docs boundary endpoints and summary fields.
+- Gate 0 status now exposes current status alias and summary fields.
+- Gate 0 status now exposes full test baseline command, alias, and summary fields.
+- Gate 0 status now verifies local API boundary check alias fields through field-level checks.
+- Gate 0 status now exposes local API boundary check endpoints and summary fields.
+- Gate 0 status now verifies completed-local registry alias fields through field-level checks.
+- Gate 0 status now exposes completed-local registry invariant and summary fields.
+- Gate 0 status now verifies completed-local boundary alias fields through field-level checks.
+- Gate 0 status now exposes completed-local count and boundary items as stable help-listed fields.
+- Gate 0 status now exposes first and last remaining blocker list endpoints as stable help-listed fields.
+- Gate 0 status now exposes progress basis nested counts as stable help-listed fields.
+- Gate 0 status now verifies production blocker raw list endpoints appear in help output.
+- Gate 0 status now verifies production blocker by-gate endpoint matrix appears in help output.
+- Gate 0 status now verifies production blocker by-gate endpoint matrix through field-level checks.
+- Gate 0 status now verifies production blocker gate-order detail registry aliases through field-level checks.
+- Gate 0 status now verifies production blocker gate-order detail registry endpoints through field-level checks.
+- Gate 0 status now verifies production blocker gate-order detail aliases through field-level checks.
+- Gate 0 status now verifies production blocker gate-order registry aliases through field-level checks.
+- Gate 0 status now verifies production blocker gate-order registry endpoints through field-level checks.
+- Gate 0 status now verifies production blocker gate-order endpoints and aliases through field-level checks.
+- Gate 0 status now verifies production blocker by-gate registry aliases through field-level checks.
+- Gate 0 status now verifies production blocker by-gate registry endpoints through field-level checks.
+- Gate 0 status now verifies production blocker by-gate aliases through field-level checks.
+- Gate 0 status now verifies production blocker summary endpoints through field-level checks.
+- Gate 0 status now verifies production blocker summary metadata aliases through field-level checks.
+- Gate 0 status now verifies production blocker summary aliases through field-level checks.
+- Gate 0 status now verifies production blocker top-level field registry invariant aliases through field-level checks.
+- Gate 0 status now exposes production blocker top-level field registry invariants as stable fields.
+- Gate 0 status now verifies production blocker top-level field registry endpoints through field-level checks.
+- Gate 0 status now exposes production blocker top-level field registry indexes as stable fields.
+- Gate 0 status now exposes production blocker top-level field registry as stable fields.
+- Gate 0 status now exposes production blocker top-level aliases as stable fields.
+- Gate 0 status now verifies remaining production blocker field registry invariant aliases through field-level checks.
+- Gate 0 status now exposes remaining production blocker field registry invariants as top-level stable fields.
+- Gate 0 status now verifies remaining production blocker field registry aliases through field-level checks.
+- Gate 0 status now exposes remaining production blocker field registry endpoints and indexes as top-level stable fields.
+- Gate 0 status now exposes remaining production blocker field registry as top-level stable fields.
+- Gate 0 status now verifies remaining production blocker aliases through field-level checks.
+- Gate 0 status now exposes remaining production blocker registry invariants as top-level stable fields.
+- Gate 0 status now exposes remaining production blocker endpoints and aliases as top-level stable fields.
+- Gate 0 status now exposes CI rollback ready report value registry index aliases as top-level stable fields.
+- Gate 0 status now exposes CI rollback ready report value registry index summaries as top-level stable fields.
+- Gate 0 status now exposes CI rollback ready report value registry indexes as top-level stable fields.
+- Gate 0 status now exposes CI rollback ready report value registry invariants as top-level stable fields.
+- Gate 0 status now exposes CI rollback ready report value registry endpoints as top-level stable fields.
+- Gate 0 status now exposes CI rollback ready report value registry aliases as top-level stable fields.
+- Gate 0 status now exposes CI rollback ready report value alias registry as top-level stable fields.
+- Gate 0 status now exposes CI rollback ready report value aliases as top-level stable fields.
+- Gate 0 status now exposes CI rollback ready report values as top-level stable fields.
+- Gate 0 status now includes CI rollback command endpoints in ready report values.
+- Gate 0 status now exposes nested CI rollback command endpoints and aliases.
+
+## 2026-06-14
+
+- Gate 0 status now exposes CI rollback command endpoint aliases as top-level stable fields.
+- Gate 0 status now exposes CI rollback command endpoints as top-level stable fields.
+- Gate 0 status now exposes ordered CI rollback command aliases as top-level stable fields.
+- Gate 0 status now exposes ordered CI rollback commands as top-level stable fields.
+- Gate 0 status now exposes CI rollback alias fields as top-level stable fields.
+- Gate 0 status now exposes CI rollback summary as top-level stable fields.
+- Gate 0 status now exposes CI transition ordered steps as top-level stable fields.
+- Gate 0 status now exposes CI transition expectations as top-level stable fields.
+- Gate 0 status now exposes CI readiness and transition plan as top-level stable fields.
+- Gate 0 status now exposes CI required check metadata as top-level stable fields.
+- Gate 0 status now exposes CI watch fields as top-level stable fields.
+- Gate 0 status now exposes CI evidence docs as top-level stable fields.
+- Gate 0 status now exposes CI failure codes as top-level stable fields.
+- Gate 0 status now exposes CI pass criteria as top-level stable fields.
+- Gate 0 status now exposes CI assertion expected values and commands as top-level stable fields.
+- Gate 0 status now exposes CI assertions as top-level stable fields.
+- Gate 0 status now exposes CI ready commands as top-level stable fields.
+- Gate 0 status now exposes CI ready required fields as top-level stable fields.
+- Gate 0 status now exposes all CI ready report value alias fields as top-level stable fields.
+- Gate 0 status now exposes CI ready report value alias fields as top-level stable fields.
+- Gate 0 status now exposes CI ready report value endpoints and indexes as top-level stable fields.
+- Gate 0 status now exposes CI ready report value registry status as top-level stable fields.
+- Gate 0 status now exposes CI ready report value endpoints as top-level stable fields.
+- Gate 0 status now exposes CI ready report value count and summary as top-level stable fields.
+- Gate 0 status now exposes CI ready report value keys as a top-level stable field.
+- Gate 0 status now exposes CI ready report values as a top-level stable field.
+- Gate 0 status now exposes production gate order details summary as a top-level stable field.
+- Gate 0 status now exposes CI ready status and summary as top-level stable fields.
+- Gate 0 status now exposes Prisma scaffold status summary as a top-level stable field.
+- Gate 0 status now exposes production blocker count as a top-level stable field.
+- Gate 0 status now exposes progress basis summary as a top-level stable field.
+- Gate 0 status now exposes remaining blockers summary as a top-level stable field.
+- Gate 1 database persistence mode now routes unscaffolded reads through a stable error envelope.
+- Gate 1 database persistence mode now exists as a fail-closed store boundary while fixture remains the default.
+- Gate 1 CI ready report now includes remaining blockers summary for compact handoff logs.
+- Gate 1 CI ready report now includes progress basis summary for compact handoff logs.
+- Gate 1 CI ready report now includes progress percent for compact handoff logs.
+- Gate 1 CI ready report now includes the production blocker count for compact handoff logs.
+- Gate 1 CI ready report now includes the compact Prisma scaffold status summary.
+- Gate 1 required checks now include the compact Prisma scaffold status summary command.
+- Gate 0 status and DB matrix now expose a compact Prisma scaffold status summary for Gate 1 CI handoff.
+- Gate 0 status now exposes a compact Gate 1 CI ready report value endpoint summary.
+- Gate 0 status now exposes Gate 1 CI ready report value endpoints for deterministic handoff checks.
+- Gate 0 status now exposes a compact Gate 1 CI ready report value summary.
+- Gate 0 status now exposes ordered Gate 1 CI ready report value keys for deterministic handoff checks.
+- Gate 0 status now exposes Gate 1 CI ready report value registry metadata for deterministic handoff checks.
+- Gate 0 status now exposes Gate 1 CI ready report values for compact handoff logs.
+- Gate 0 status now includes the compact production gate order summary in the Gate 1 CI ready report fields.
+- Gate 0 status now exposes a compact production gate order detail summary for CI logs.
+- Gate 0 status now registers production gate order detail metadata in the Gate 1 CI handoff alias registry.
+- Gate 0 status now exposes production gate order details with blocker and doc metadata.
+- Gate 0 status now registers production gate order metadata in the Gate 1 CI handoff alias registry.
+- Gate 0 status now exposes production gate execution order separately from Gate 1 prep.
+- Gate 0 status now registers production blocker by-gate registry metadata in the Gate 1 CI handoff alias registry.
+- Gate 0 status now exposes production blocker by-gate registry keys and invariants.
+- Gate 0 status now registers production blocker by-gate fields in the Gate 1 CI handoff alias registry.
+- Gate 0 status now maps production blockers by gate with follow-up doc paths.
+- Gate 0 status now registers production blocker summary fields in the Gate 1 CI handoff alias registry.
+- Gate 0 status now exposes a production blockers summary with next Gate 1 blocker and doc path.
+- Gate 0 status now registers top-level Gate 1 required check type detail fields in the Gate 1 CI handoff alias registry.
+- Gate 0 status now registers DB matrix required check type detail fields in the Gate 1 CI handoff alias registry.
+- Gate 0 status now exposes DB matrix required check type command endpoints as stable fields.
+- Gate 0 status now exposes DB matrix required check type command registry status and invariant fields.
+- Gate 0 status now exposes DB matrix required check type command last indexes as stable fields.
+- Gate 0 status now exposes DB matrix required check type command field aliases as stable fields.
+- Gate 0 status now exposes DB matrix required check type counts as stable fields.
+- Gate 0 status now registers DB matrix required check type registry fields in the Gate 1 CI handoff alias registry.
+- Gate 0 status now mirrors Gate 1 required check type registry fields through the DB matrix handoff.
+- Gate 0 status now exposes Gate 1 required check type registry keys and invariants as stable fields.
+- Gate 0 status now exposes Gate 1 required check type count and command field aliases.
+- Gate 0 status now exposes Gate 1 required check type command registry field aliases.
+- Gate 0 status now exposes Gate 1 required check type command registry invariants as stable fields.
+- Gate 0 status now exposes Gate 1 required check type command endpoints as stable fields.
+- Gate 0 status now exposes all Gate 1 required check type counts as stable fields.
+- Gate 0 status now pins the twelfth Gate 1 CI handoff command as a stable field.
+- Gate 0 status now exposes Gate 1 CI handoff command registry status and invariant fields.
+- Gate 0 status now exposes Gate 1 CI handoff alias endpoint object fields for CI audits.
+- Gate 0 status now exposes Gate 1 CI ready report field endpoints for CI audits.
+- Gate 0 status now registers Gate 1 CI ready report field aliases in the handoff alias registry.
+- Gate 0 status now exposes Gate 1 CI handoff alias and ready report last indexes for automation.
+- Gate 0 status now includes last-index aliases in the Gate 1 CI handoff alias registry.
+- Gate 0 status now exposes Gate 1 CI handoff alias registry status and invariant fields.
+- Gate 0 status now exposes Gate 1 CI ready report field registry status and invariant fields.
+- Gate 0 status now exposes Gate 1 CI ready command registry status and invariant fields.
+- Gate 0 status now exposes Gate 1 CI ready required field registry status and invariant fields.
+- Gate 0 status now exposes Gate 1 CI rollback command registry status and invariant fields.
+- Gate 0 status now exposes first and last Gate 1 CI handoff alias endpoint field aliases for CI audits.
+- Gate 0 status now exposes first and last Gate 1 CI handoff alias registry values for CI audits.
+- Gate 0 status now exposes the Gate 1 CI handoff alias count field alias for CI report wiring.
+- Gate 0 status now exposes the Gate 1 CI handoff alias summary field alias for CI report wiring.
+- Gate 0 status now exposes a one-line Gate 1 CI handoff alias registry summary for CI reports.
+- Gate 0 status now pins the Gate 1 CI handoff alias registry field and tail alias for machine-readable audits.
+- Gate 0 status now exposes a Gate 1 CI handoff field alias registry for machine-readable handoff audits.
+- Gate 0 status now exposes Gate 1 CI ready-when and rollback count aliases for handoff output.
+- Gate 0 status now exposes Gate 1 CI command, watch, criteria, failure, evidence, and assertion count aliases for handoff output.
+- Gate 0 status now exposes Gate 1 CI required check count, source, and parsed aliases for handoff output.
+- Gate 0 status now exposes the Gate 1 CI command list alias for handoff output.
+- Gate 0 status now exposes Gate 1 CI watch fields, failure codes, and evidence docs aliases for handoff output.
+- Gate 0 status now exposes Gate 1 CI pass criteria and assertions aliases for handoff output.
+- Gate 0 status now exposes Gate 1 CI transition plan and readiness aliases for handoff output.
+- Gate 0 status now exposes Gate 1 CI rollback command aliases for command, verification, and report fields.
+- Gate 0 status now exposes the primary Gate 1 CI rollback command and commands alias as stable fields.
+- Gate 0 status now exposes Gate 1 ready commands and report fields aliases for CI handoff output.
+- Gate 0 status now exposes a Gate 1 ready required fields alias for CI handoff output.
+- Gate 0 status now pins the Gate 1 ready summary and required fields report aliases as stable fields.
+- Gate 0 status now includes the Gate 1 required check count in the CI ready report field list.
+- Gate 0 status now includes the Gate 1 evidence doc count in the CI ready report field list.
+- Gate 0 status now includes the Gate 1 failure code count in the CI ready report field list.
+- Gate 0 status now includes the Gate 1 required checks parsed status in the CI ready report field list.
+- Gate 0 status now includes the Gate 1 required checks source in the CI ready report field list.
+- Gate 0 status now pins all Gate 1 CI failure codes as stable fields.
+- Gate 0 status now exposes Gate 1 CI failure code count for object length checks.
+- Gate 0 status now exposes Gate 1 CI evidence doc count for object length checks.
+- Gate 0 status now pins all Gate 1 CI evidence docs as stable fields.
+- Gate 0 status help now explains that the CI handoff includes required checks source and parsed status.
+- Gate 0 status now carries the Gate 1 required checks parsed status inside the CI handoff object.
+- Gate 0 status now carries the Gate 1 required checks source inside the CI handoff object.
+
+## 2026-06-13
+
+- Gate 0 status now exposes Gate 1 CI required check count as a stable field.
+- Gate 0 status now pins the final fixture Gate 1 CI handoff commands as stable fields.
+- Gate 0 status now pins the guard and baseline Gate 1 CI handoff commands as stable fields.
+- Gate 0 status now pins the middle Gate 1 CI handoff commands as stable fields.
+- Gate 0 status now pins the first Gate 1 CI handoff commands as stable fields.
+- Gate 0 status now exposes Gate 1 CI command count as a stable field.
+- Gate 0 status now pins each Gate 1 CI watch field as a stable field.
+- Gate 0 status now exposes Gate 1 CI watch field count as a stable field.
+- Gate 0 status now exposes Gate 1 CI pass criteria count as a stable field.
+- Gate 0 status now exposes Gate 1 CI assertion count as a stable field.
+- Gate 0 status now pins each Gate 1 CI assertion command as a stable field.
+- Gate 0 status now pins Gate 1 CI `DATABASE_URL` pass criteria as stable fields.
+- Gate 0 status now pins Gate 1 CI `DATABASE_URL` assertion expected values as stable fields.
+- Gate 0 status now exposes Gate 1 CI ready assertion count as a stable field.
+- Gate 0 status now pins each Gate 1 CI required assertion field as a stable field.
+- Gate 0 status now pins each Gate 1 CI ready command as a stable field.
+- Gate 0 status now exposes Gate 1 CI ready required field count for array length checks.
+- Gate 0 status now exposes Gate 1 CI ready command count for array length checks.
+- Gate 0 status now exposes Gate 1 CI report field count for array length checks.
+- Gate 0 status now includes the Gate 1 CI rollback expected mode field alias in the report field list.
+- Gate 0 status now exposes a Gate 1 CI rollback expected mode field alias for automation output.
+- Gate 0 status now includes the Gate 1 CI rollback mode field alias in the report field list.
+- Gate 0 status now exposes a Gate 1 CI rollback mode field alias for automation output.
+- Gate 0 status now includes the Gate 1 CI rollback summary field alias in the report field list.
+- Gate 0 status now exposes a Gate 1 CI rollback summary field alias for automation output.
+- Gate 0 status now includes the Gate 1 CI rollback summary in the report field list.
+- Gate 0 status now exposes a Gate 1 CI rollback summary for compact automation logs.
+- Gate 0 status now includes the Gate 1 CI rollback expected mode in the report field list.
+- Gate 0 status now exposes Gate 1 CI rollback expected mode as a stable field.
+- Gate 0 status now exposes Gate 1 CI rollback command count for array length checks.
+- Gate 0 status now pins each ordered Gate 1 CI rollback command as a stable field.
+- Gate 0 status now exposes ordered Gate 1 CI rollback commands for fixture-mode recovery automation.
+- Gate 0 status now includes the Gate 1 CI rollback report command in the report field list.
+- Gate 0 status now exposes a Gate 1 CI rollback report command for one-shot rollback handoff output.
+- Gate 0 status now pins the Gate 1 CI rollback verification command in the report field list.
+- Gate 0 status now includes rollback fields in the Gate 1 CI report field list.
+- Gate 0 status now exposes Gate 1 CI rollback guidance for fixture-mode recovery after failed persistence transitions.
+- Gate 0 status now exposes Gate 1 CI canonical ready status, summary, and report fields for automation output.
+- Gate 0 status now exposes Gate 1 CI required assertion fields for deterministic readiness checks.
+- Gate 0 status now exposes a Gate 1 CI ready summary string for migration and `DATABASE_URL` targets.
+- Gate 0 status now exposes Gate 1 CI ready status for all assertion checks passing.
+- Gate 0 status now exposes Gate 1 CI assertion commands and expected values.
+- Gate 0 status now exposes Gate 1 CI evidence docs for persistence and DB constraints handoff.
+- Gate 0 status now exposes Gate 1 CI failure codes for migration guard and matrix field checks.
+- Gate 0 status now exposes Gate 1 CI pass criteria for migration status and `DATABASE_URL` checks.
+- Gate 0 status now exposes a Gate 1 CI handoff object with watch fields, commands, and counts.
+- Gate 0 status now exposes ordered Gate 1 transition steps for Prisma, `DATABASE_URL`, and DB matrix verification.
+- Gate 0 status now maps Gate 1 transition checks to current and target expected values.
+- Gate 0 status now separates Gate 0 verified checks from Gate 1 transition checks for readiness handoff.
+- Gate 0 status now groups Gate 1 required checks by command type for CI handoff coverage.
+- Gate 0 status now reports a Gate 1 required checks summary object with count, source, parse status, and commands.
+- Gate 0 status now reports the Gate 1 migration status handoff object for `not_scaffolded` to `scaffolded` transition checks.
+- Gate 0 status now reports the full Gate 1 DB matrix handoff object for one-shot automation.
+- Gate 0 status now reports the Gate 1 Prisma scaffold handoff object for schema and migration presence checks.
+- Gate 0 status now reports the full Gate 1 `DATABASE_URL` handoff object without storing a real URL.
+- Gate 0 status now reports the full Gate 1 fail-closed migration guard object for CI handoff.
+- Gate 0 status now reports the Gate 1 fail-closed migration guard commands and stable error code.
+- Gate 0 status now reports the expected Gate 1 `DATABASE_URL` status and accepted PostgreSQL protocols.
+- Gate 0 status now reports a placeholder PowerShell `DATABASE_URL` validation command without storing a real URL.
+- Gate 0 status now reports Gate 1 `DATABASE_URL` status and protocol handoff commands.
+- `npm run db:check -- --json` now reports `databaseUrlStatus` and `databaseUrlProtocol` without printing the full `DATABASE_URL`.
+- `npm run db:check:test` now covers the `DATABASE_URL` present path for `databaseUrlPresent`.
+- `npm run db:check -- --json` now reports required database environment keys and `databaseUrlPresent`.
+- `npm run db:check -- --json` now reports Prisma schema and migration path presence for Gate 1 scaffold detection.
+- Gate 0 status now counts Gate 1 persistence handoff automation as completed local evidence, raising reported progress to 58%.
+- `npm run db:check -- --field` now supports nested fields such as `notScaffoldedGuard.errorCode`.
+- `npm run db:check -- --json` now exposes `notScaffoldedGuard` for Gate 1 migration guard automation.
+- Gate 0 status Required Checks parsing now includes `node` command lines as well as `npm` command lines.
+- `scripts/not-scaffolded.mjs --help` now documents the fail-closed command guard contract.
+- Added `not-scaffolded:test` so `db:migrate` stays fail-closed with `TM_COMMAND_NOT_SCAFFOLDED` until Gate 1 Prisma migrations are scaffolded.
+- `npm run db:check` now validates unknown options, conflicting outputs, and missing/unknown fields with stable error codes.
+- Gate 0 status command now reports `nextGateCheckJsonCommand` and `nextGateMigrationStatusCommand` for Gate 1 DB handoff automation.
+- `npm run db:check` now supports `--json`, `--field`, and `--help` for Gate 1 persistence handoff automation.
+- Added `npm run db:check:test` to cover the DB matrix command contract in `npm test`.
+- Gate 0 status command now reports `nextGateRequiredChecksParsed` to distinguish parsed Gate 1 checks from fallback checks.
+- Gate 0 status help now explains the Gate 1 handoff fields.
+- Gate 0 status command now reports `nextGateRequiredChecksSource` for the parsed Gate 1 checks.
+- Gate 0 status command now parses `nextGateRequiredChecks` from `GATE1_PERSISTENCE.md`.
+- Gate 0 status command now reports `nextGateRequiredChecks` for Gate 1 persistence handoff validation.
+- Gate 0 status command now reports `nextGateCheckCommand` for the Gate 1 DB handoff check.
+- Gate 0 status command now reports persistence default and supported persistence modes.
+- API persistence mode selection now trims `PERSISTENCE_MODE` and reports supported modes on unsupported values.
+- OpenAPI health now requires the `persistenceMode` fixture/database response contract.
+- API health now exposes `persistenceMode` for fixture/database mode diagnostics.
+- API startup now routes Gate 0 storage through a `PERSISTENCE_MODE` factory and fails closed for unsupported modes.
+- Gate 1 persistence docs now preserve `PERSISTENCE_MODE=fixture` for DB-free local smoke.
+- Review checklist now includes Gate 1 persistence handoff, fixture-store replacement, and rollback checks.
+- Gate 0 status command now points `nextGateCommand` at the next gate document path field.
+- Gate 0 status command now points `nextGateDoc` to `GATE1_PERSISTENCE.md`.
+- Added Gate 1 persistence handoff docs and wired them into `npm run db:check`.
+- Gate 0 fixture store now rejects relative project roots with `TM_GATE0_FIXTURE_STORE_ROOT_INVALID`.
+- Gate 0 fixture store now rejects blank project roots with `TM_GATE0_FIXTURE_STORE_ROOT_INVALID`.
+- Gate 0 fixture store now distinguishes invalid fixture JSON with `TM_GATE0_FIXTURE_STORE_INVALID_JSON`.
+- Gate 0 fixture store now wraps fixture read failures with `TM_GATE0_FIXTURE_STORE_READ_FAILED`.
+- Gate 0 status command now reports `nextGateDocPath` for direct doc linking.
+- Gate 0 status command now reports `nextGateCommand` for the next follow-up lookup.
+- Gate 0 status command now reports `nextGateDoc` for the next production follow-up doc.
+- Gate 0 status command now reports `progressBasis` counts for progress percent explainability.
+- `npm run gate0:status -- --help` now prints the stable summary field list.
+- Gate 0 status command now reports `progressPercent` from completed and remaining status sections.
+- Gate 0 status command now exposes `completedLocally` for progress automation.
+- Gate 0 status command now exposes `relatedDocs` for CI, design, production gaps, and roadmap follow-up.
+- Gate 0 status command now exposes `stillNotDone` production blockers for scripts.
+- Gate 0 status command now exposes local API boundary checks, including fixture-store and service tests.
+- Added `npm run api:fixture-store:test` and root validation for the Gate 0 fixture store.
+- Documented `TM_GATE0_SERVICE_STORE_INVALID` in the local error catalog and contract check.
+- Gate 0 service now validates injected store contracts with `TM_GATE0_SERVICE_STORE_INVALID`.
+- Added `npm run api:service:test` for the injected Gate 0 service/store boundary.
+- Split Gate 0 API fixture reads into an injected fixture store boundary for future persistence work.
+- Added Gate 0 status command docs for CLI options and stable error codes.
+- `npm run gate0:status -- --help` now prints status command usage and options.
+- `npm run gate0:status -- --field <name>` now prints one Gate 0 status summary value for scripts.
+- `npm run gate0:status -- --json` now prints a compact automation-friendly Gate 0 summary.
+- Added `npm run gate0:status:test` and wired it into `npm test`.
+- Added `npm run gate0:status` for a quick local Gate 0/device/next-gate summary.
+- Gate 0 status doc now links the CI, design status, production gaps, and roadmap docs.
+- Updated TODO implementation status with the latest Gate 0 local/device baseline and production gate order.
+- Added roadmap doc for the next execution order after the local Gate 0 slice.
+- Added production gaps doc for remaining alpha blockers.
+- Added design status doc for the current DESIGN.md boundary and remaining Figma work.
+- Added CI doc for the current GitHub Actions gate and AWS CI boundary.
+- Gate 0 status doc now records the latest full `npm test` baseline.
+- Root README now links the Gate 0 status doc.
+- Gate 0 status doc now records latest OPPO device smoke run ID and archived artifact paths.
+- Added Gate 0 status doc for local vertical slice evidence and remaining production gaps.
+- Smoke docs now describe the separate physical Android device smoke and strict saved-result check.
+- README and Getting Started now document strict Android device smoke result verification.
+- Gate 0 review checklist now includes Android device smoke and strict saved-result verification when a physical phone is available.
+- Gate 0 Android device smoke passed on OPPO CPH2695 / Android 16 / API 36 with archived result and screenshot artifacts.
+- Gate 0 chat message text now exposes stable message ID keys.
+- Gate 0 chat message bubbles now expose stable message ID keys.
+- Gate 0 bottom navigation tab icons now expose stable keys.
+- Gate 0 shell app bar title and Public ID badge now expose stable keys.
+- Gate 0 profile visual and Swipe queue status chip labels now expose stable keys.
+- Gate 0 Public ID status chip labels now expose stable keys.
+- Gate 0 Swipe status chip labels now expose stable keys.
+- Gate 0 Contact State Alert status chip labels now expose stable keys.
+- Gate 0 Contact State selector option labels now expose stable keys for all states.
+- Gate 0 LINE Contact preview status chip labels now expose stable keys.
+- Gate 0 LINE share cancelled status chip labels now expose stable keys.
+- Gate 0 Chat lock card status chip labels now expose stable keys.
+- Gate 0 LINE setup required status chip labels now expose stable keys.
+- Gate 0 LINE share receipt hidden-status label now exposes a stable key.
+- Gate 0 My screen frame title and subtitle now expose stable keys.
+- Gate 0 List screen frame title and subtitle now expose stable keys.
+- Gate 0 Chat screen frame title and subtitle now expose stable keys.
+- Gate 0 Swipe screen frame title and subtitle now expose stable keys.
+- Gate 0 Discover screen frame title and subtitle now expose stable keys.
+- Gate 0 Profile screen frame title and subtitle now expose stable keys.
+- Gate 0 Profile detail avatar and Public ID badge now expose stable trust keys.
+- Gate 0 Profile detail status chip labels now expose stable route-contract keys.
+- Gate 0 Profile detail trust copy now exposes stable name and location keys.
+- Gate 0 Discover profile card and visual copy now expose stable name/location/privacy keys.
+- Gate 0 Contact State Alert detail copy now exposes stable state-specific keys.
+- Gate 0 Contact State Alert reason titles now expose stable state-specific keys.
+- Gate 0 contact safety event rows now expose stable history and event title/detail keys.
+- Gate 0 archived Public ID rows now expose stable history and archive title/detail keys.
+- Gate 0 List shared Public ID rows now expose stable title/detail keys.
+- Gate 0 My/Public ID trust markers now include stable keys for the current ID value and LINE update privacy copy.
+- Gate 0 LINE update notice title now has a stable route-contract key.
+- Gate 0 Public ID privacy copy now has a stable route-contract key.
+- Gate 0 Public ID history title now has a stable route-contract key.
+- Gate 0 Public ID title now has a stable route-contract key.
+- Gate 0 Swipe empty privacy copy now has a stable route-contract key.
+- Gate 0 Profile visual LINE-off chip now has a stable route-contract key.
+- Gate 0 Public ID active chip now has a stable route-contract key.
+- Gate 0 Public ID LINE status chip now has a stable route-contract key.
+- Gate 0 LINE share receipt revoke copy now has a stable route-contract key.
+- Gate 0 LINE share receipt hidden chip now has a stable route-contract key.
+- Gate 0 LINE share receipt title now has a stable route-contract key.
+- Gate 0 Profile safety copy now has a stable route-contract key.
+- Gate 0 Profile LINE-hidden chip now has a stable route-contract key.
+- Gate 0 Profile Public ID-verified chip now has a stable route-contract key.
+- Gate 0 Profile trust title now has a stable route-contract key.
+- Gate 0 Swipe empty Public ID chip now has a stable route-contract key.
+- Gate 0 Swipe empty LINE-hidden chip now has a stable route-contract key.
+- Gate 0 Swipe empty queue title now has a stable route-contract key.
+- Gate 0 Swipe Public ID-first chip now has a stable route-contract key.
+- Gate 0 Swipe LINE-hidden chip now has a stable route-contract key.
+- Gate 0 Swipe queue count chip now has a stable route-contract key.
+- Gate 0 Swipe queue title now has a stable route-contract key.
+- Gate 0 older archived Public ID manage action label now has a stable route-contract key.
+- Gate 0 Contact Card block action label now has a stable route-contract key.
+- Gate 0 Contact Card report action label now has a stable route-contract key.
+- Gate 0 Contact Card retry action label now has a stable route-contract key.
+- Gate 0 revoked Contact Card review-share action label now has a stable route-contract key.
+- Gate 0 Contact Card revoke action label now has a stable route-contract key.
+- Gate 0 Contact Card view action label now has a stable route-contract key.
+- Gate 0 Discover profile detail action label now has a stable route-contract key.
+- Gate 0 cancelled LINE share review action label now has a stable route-contract key.
+
+## 2026-06-12
+
+- Gate 0 share LINE confirm action label now has a stable route-contract key.
+- Gate 0 share LINE cancel action label now has a stable route-contract key.
+- Gate 0 Chat LINE setup action label now has a stable route-contract key.
+- Gate 0 Chat view Contact Card action label now has a stable route-contract key.
+- Gate 0 Profile block action label now has a stable route-contract key.
+- Gate 0 Profile report action label now has a stable route-contract key.
+- Gate 0 Profile start chat action label now has a stable route-contract key.
+- Gate 0 Swipe return-to-Discover action label now has a stable route-contract key.
+- Gate 0 Swipe view profile action label now has a stable route-contract key.
+- Gate 0 Swipe skip action label now has a stable route-contract key.
+- Gate 0 Discover start chat action label now has a stable route-contract key.
+- Gate 0 latest archived Public ID manage action label now has a stable route-contract key.
+- Gate 0 shared Public ID manage action label now has a stable route-contract key.
+- Gate 0 blocked user unblock action label now has a stable route-contract key.
+- Gate 0 blocked user review action label now has a stable route-contract key.
+- Gate 0 shared Public ID history action label now has a stable route-contract key.
+- Gate 0 Public ID history action label now has a stable route-contract key.
+- Gate 0 LINE setup action label now has a stable route-contract key.
+- Gate 0 Public ID share action label now has a stable route-contract key.
+- Gate 0 Public ID regenerate action label now has a stable route-contract key.
+- Gate 0 Public IDs summary manage action label now has a stable route-contract key.
+- Gate 0 closed report reopen action label now has a stable route-contract key.
+- Gate 0 reported user close-review action label now has a stable route-contract key.
+- Gate 0 reported user block action label now has a stable route-contract key.
+- Gate 0 reported user review action label now has a stable route-contract key.
+- Gate 0 Blocks summary unblock action label now has a stable route-contract key.
+- Gate 0 Blocks summary review action label now has a stable route-contract key.
+- Gate 0 Reports summary reopen action label now has a stable route-contract key.
+- Gate 0 Reports summary close action label now has a stable route-contract key.
+- Gate 0 Reports summary review action label now has a stable route-contract key.
+- Gate 0 current Contact Card review action label now has a stable route-contract key.
+- Gate 0 current Contact Card start action label now has a stable route-contract key.
+- Gate 0 current Contact Card review-again action label now has a stable route-contract key.
+- Gate 0 current Contact Card retry action label now has a stable route-contract key.
+- Gate 0 Contact cards review-again action label now has a stable route-contract key.
+- Gate 0 Contact cards retry action label now has a stable route-contract key.
+- Gate 0 Contact cards block action label now has a stable route-contract key.
+- Gate 0 Contact cards report action label now has a stable route-contract key.
+- Gate 0 Contact cards review action label now has a stable route-contract key.
+- Gate 0 Contact cards start action label now has a stable route-contract key.
+- Gate 0 ledger review-share-again action label now has a stable route-contract key.
+- Gate 0 ledger retry Contact Card action label now has a stable route-contract key.
+- Gate 0 ledger open-share action label now has a stable route-contract key.
+- Gate 0 ledger report and block action labels now have stable route-contract keys.
+- Gate 0 ledger review Contact Card action label now has a stable route-contract key.
+- Gate 0 Blocks summary title and detail now have stable route-contract keys.
+- Gate 0 Reports summary title and detail now have stable route-contract keys.
+- Gate 0 Current Contact Card summary title and detail now have stable route-contract keys.
+
+## 2026-06-11
+
+- Gate 0 Public IDs summary title and detail now have stable route-contract keys.
+- Gate 0 Contact cards summary title and detail now have stable route-contract keys.
+- Gate 0 Safety Ledger icon now has a stable route-contract key.
+- Gate 0 Safety Ledger subtitle now has a stable route-contract key.
+- Gate 0 Safety Ledger title now has a stable route-contract key.
+- Gate 0 LINE Contact preview description now has a stable route-contract key.
+- Gate 0 LINE Contact preview chips now have stable route-contract keys.
+- Gate 0 LINE Contact preview subtitle now has a stable route-contract key.
+- Gate 0 LINE Contact preview title now has a stable route-contract key.
+- Gate 0 Contact state alert protection chips now have stable route-contract keys.
+- Gate 0 Contact state alert detail now has a stable route-contract key.
+- Gate 0 Contact state alert title now has a stable route-contract key.
+- Gate 0 LINE Contact Card view action now has a stable route-contract key.
+- Gate 0 LINE Contact Card panel body now has a stable route-contract key.
+- Gate 0 LINE Contact Card panel title now has a stable route-contract key.
+- Gate 0 LINE Contact Card panel now has a stable route-contract key.
+- Gate 0 Share LINE confirmation panel now has a stable route-contract key.
+- Gate 0 Share LINE confirmation body now has a stable route-contract key.
+- Gate 0 Share LINE confirmation title now has a stable route-contract key.
+- Gate 0 Chat lock card choice-state chip now has a stable route-contract key.
+- Gate 0 Chat lock card hidden-state chip now has a stable route-contract key.
+- Gate 0 Chat lock card title now has a stable route-contract key.
+- Gate 0 LINE share cancelled chat-state chip now has a stable route-contract key.
+- Gate 0 LINE share cancelled hidden-state chip now has a stable route-contract key.
+- Gate 0 LINE share cancelled detail now has a stable route-contract key.
+- Gate 0 LINE share cancelled title now has a stable route-contract key.
+- Gate 0 LINE setup required chat-state chip now has a stable route-contract key.
+- Gate 0 LINE setup required hidden-state chip now has a stable route-contract key.
+- Gate 0 LINE setup required detail now has a stable route-contract key.
+- Gate 0 LINE setup required title now has a stable route-contract key.
+- Gate 0 Profile Start Chat action now has a screen-specific route-contract key.
+- Gate 0 Chat View Contact Card action now has a stable route-contract key.
+- Gate 0 latest archived Public ID manage action now has a fixture-independent route-contract key.
+- Gate 0 Public ID archive notice title now has a stable route-contract key.
+- Gate 0 Public ID archive notice detail now has a stable route-contract key.
+- Gate 0 Public ID share notice privacy line now has a stable route-contract key.
+- Gate 0 Public ID share notice detail now has a stable route-contract key.
+- Gate 0 Public ID share notice title now has a stable route-contract key.
+- Gate 0 Safety Ledger older contact safety event row now has a fixture-independent route-contract key.
+- Gate 0 Safety Ledger latest contact safety event row now has a fixture-independent route-contract key.
+- Gate 0 Safety Ledger older archived Public ID row now has a fixture-independent route-contract key.
+- Gate 0 Safety Ledger latest archived Public ID row now has a fixture-independent route-contract key.
+- Gate 0 Safety Ledger blocked user row now has a fixture-independent route-contract key.
+- Gate 0 Safety Ledger reported user row now has a fixture-independent route-contract key.
+- Gate 0 Safety Ledger Closed report retained summary now has a stable route-contract key.
+- Gate 0 Safety Ledger Reported contacts summary now has a stable route-contract key.
+- Gate 0 Safety Ledger Contact event history summary now has a stable route-contract key.
+- Gate 0 Safety Ledger Public ID history summary now has a stable route-contract key.
+- Gate 0 Safety Ledger current shared Public ID value row now has a stable route-contract key.
+- Gate 0 Safety Ledger Current shared Public ID summary now has a stable route-contract key.
+- Gate 0 Safety Ledger Blocked users summary now has a stable route-contract key.
+- Gate 0 Safety Ledger Blocks summary now has a stable route-contract key.
+- Gate 0 Safety Ledger Reports summary now has a stable route-contract key.
+- Gate 0 Safety Ledger Contact cards summary now has a stable route-contract key.
+
+## 2026-06-07
+
+- Gate 0 Safety Ledger Contact cards summary now blocks shared Contact Cards directly from the summary.
+- Gate 0 Safety Ledger Contact cards summary now reports shared Contact Cards directly from the summary.
+- Gate 0 Safety Ledger Contact cards summary now restarts revoked Contact Card sharing review directly from the summary.
+- Gate 0 Safety Ledger Contact cards summary now retries delayed Contact Cards directly from the summary.
+- Gate 0 Safety Ledger Contact cards summary now starts locked Contact Card sharing directly from the summary.
+- Gate 0 Safety Ledger Contact cards summary now opens shared Contact Card review directly from the summary.
+- Gate 0 Safety Ledger Reports summary now reopens closed report reviews directly from the summary.
+- Gate 0 Safety Ledger Reports summary now closes active report reviews directly from the summary.
+- Gate 0 Safety Ledger Blocks summary now unblocks active Contact Card blocks directly from the summary.
+- Gate 0 Safety Ledger Blocks summary now opens active blocked Contact Card review directly from the summary.
+- Gate 0 Safety Ledger Reports summary now opens active reported Contact Card review directly from the summary.
+- Gate 0 Safety Ledger Current Contact Card summary now starts locked Contact Card sharing directly from the summary.
+- Gate 0 Safety Ledger Current Contact Card summary now restarts revoked card sharing review directly from the summary.
+- Gate 0 Safety Ledger Current Contact Card summary now retries delayed Contact Cards directly from the summary.
+- Gate 0 Safety Ledger Current Contact Card summary now links directly to shared card review.
+- Gate 0 Safety Ledger Public IDs summary now links back to the My tab Public ID manager when ID events exist.
+
+## 2026-06-06
+
+- Gate 0 Safety Ledger Public IDs summary now switches to an archive icon when only archived Public Meet IDs exist.
+- Gate 0 Safety Ledger Public IDs summary now switches to a share icon when Public Meet ID sharing exists.
+- Gate 0 List Public ID rows now label current shared and archived shared IDs distinctly.
+- Gate 0 Safety Ledger Public IDs summary now combines current shared and archived shared Public Meet ID counts.
+- Gate 0 Safety Ledger Public IDs summary now shows the current shared Public Meet ID state.
+- Gate 0 Safety Ledger now includes a Public IDs summary row with an explicit zero state.
+- Gate 0 List Public ID history summary now preserves both shared and total archived ID counts when the history is mixed.
+- Gate 0 List Public ID history summary now counts shared archived IDs separately from plain archived IDs.
+- Gate 0 List archived Public ID rows now link back to the My tab Public ID manager.
+- Gate 0 List shared Public ID row now links back to the My tab Public ID manager.
+- Gate 0 Public ID share notice now links directly to the List history entry for the shared ID.
+- Gate 0 My archive notice now marks previously shared Public Meet IDs as shared before archive after regeneration.
+- Gate 0 Public ID history now preserves shared-before-archive context after a shared ID is regenerated.
+- Gate 0 List tab now records when the current Public Meet ID was shared while keeping raw LINE separate.
+- Gate 0 My tab now lets testers mark the Public Meet ID as shared while confirming raw LINE remains separate.
+- `npm run mobile:device:result -- --field=-h` now fails with `TM_ANDROID_DEVICE_SMOKE_RESULT_FIELD_REQUIRED` instead of treating `-h` as a field name.
+- `npm run mobile:device:result -- --field -h` now fails with `TM_ANDROID_DEVICE_SMOKE_RESULT_FIELD_REQUIRED` instead of treating `-h` as a field name.
+- `npm run mobile:device:result -- apk` now suggests `--path apk` when reporting `TM_ANDROID_DEVICE_SMOKE_RESULT_UNEXPECTED_ARGUMENT`.
+- `npm run mobile:device:result -- -h` now fails with `TM_ANDROID_DEVICE_SMOKE_RESULT_UNKNOWN_OPTION` instead of treating the short option as a positional argument.
+- `npm run mobile:device:result -- status` now fails with `TM_ANDROID_DEVICE_SMOKE_RESULT_UNEXPECTED_ARGUMENT` instead of silently ignoring the positional argument.
+- `npm run mobile:device:result -- --help --path apk --path screenshot` now fails with `TM_ANDROID_DEVICE_SMOKE_RESULT_OPTION_CONFLICT` instead of hiding duplicate output options behind usage output.
+- `npm run mobile:device:result -- --path apk --path screenshot` now fails with `TM_ANDROID_DEVICE_SMOKE_RESULT_OPTION_CONFLICT` instead of silently using the first output target.
+- `npm run mobile:device:result -- --help --unknown` now fails with `TM_ANDROID_DEVICE_SMOKE_RESULT_UNKNOWN_OPTION` instead of hiding the typo behind usage output.
+- `npm run mobile:device:result -- --summary-json --strict` and the other result reader output modes now share the detailed strict failure stderr diagnostics.
+- `npm run mobile:device:result -- --strict` now prints failed stage, error code, error detail, and recovery hint on stderr when the latest Android device smoke result failed.
+- `npm run mobile:device:result` now prints failed stage, error code, and error detail in the default summary for failed Android device smoke runs.
+- `npm run mobile:device:result` now includes APK size, build time, and SHA-256 in the default summary.
+- `npm run mobile:device:result` now includes host platform, Node, Flutter, Dart, and ADB versions in the default summary.
+- `npm run mobile:device:result` now expands the default Run line with render wait, device selection mode, and authorized device count.
+- `npm run mobile:device:result` now includes screenshot dimensions, size, diversity, and SHA-256 in the default summary.
+- `npm run mobile:device:result` now includes total duration and stage timings in the default summary.
+- `npm run mobile:device:result` now includes foreground app package/activity and installed version in the default summary.
+- `npm run mobile:device:result` now expands the default Device line with model, Android/API, screen size, and density details.
+- `npm run mobile:device:result` now includes the APK path in the default human-readable summary.
+- `npm run mobile:device:result` now includes latest result and screenshot paths in the default human-readable summary.
+- `npm run mobile:device:result -- --summary-field <pathField> --require-existing` now verifies a single compact summary artifact path exists.
+- `npm run mobile:device:result -- --paths-field <name>` now prints one artifact path by the same key name returned from `--paths`.
+- `npm run mobile:device:result -- --summary-field <name>` now prints one compact summary field, including summary-only aliases such as `resultPath`.
+- `npm run mobile:device:result -- --paths-keys` now prints the artifact path field names as a JSON array for shell automation.
+- `npm run mobile:device:result -- --summary-keys` now prints the compact summary field names as a JSON array for shell automation.
+- `npm run mobile:device:result -- --paths` now includes per-run result and screenshot paths using explicit `runResult` and `runScreenshot` keys.
+- `npm run mobile:device:result -- --path run-result|run-screenshot` now prints per-run archive paths directly for shell automation.
+- `npm run mobile:device:result -- --paths` now includes current-run result and screenshot paths in its artifact path JSON.
+- `npm run mobile:device:result -- --path current-result|current-screenshot` now prints current-run artifact paths directly for shell automation.
+- `npm run mobile:device:result -- --paths` now includes the stable latest screenshot path in its artifact path JSON.
+- `npm run mobile:device:result -- --path latest-screenshot` now prints the stable `.thai-meet/device-smoke/latest.png` path for shell automation.
+- `npm run mobile:device:result -- --summary-json` now includes the raw `error` field beside structured failure diagnostics.
+- `npm run mobile:device:result -- --summary-json` now includes current-run result and screenshot archive statuses using their original field names.
+- `npm run mobile:device:result -- --summary-json` now includes current-run result and screenshot archive paths using their original field names.
+- `npm run mobile:device:result -- --summary-json` now includes per-run result and screenshot archive paths alongside current-run aliases.
+- `npm run mobile:device:result -- --summary-json` now includes the stable latest screenshot path separately from the current-run screenshot archive path.
+- `npm run mobile:device:result -- --summary-json` now includes result schema version and smoke command metadata.
+- `npm run mobile:device:result -- --summary-json` now includes the target package name beside foreground package checks.
+- `npm run mobile:device:result -- --summary-json` now includes the JSON result archive flag for direct artifact freshness checks.
+- `npm run mobile:device:result -- --summary-json` now includes screenshot capture time, current-run capture status, and screenshot archive status for freshness checks.
+- `npm run mobile:device:result -- --summary-json` now includes physical screen size and screen density for fast layout-device comparison.
+- `npm run mobile:device:result -- --summary-json` now includes APK install, package info probe, app launch, and screenshot capture durations for fast device-run timing triage.
+- `npm run mobile:device:result -- --summary-json` now includes device selection mode, requested serial, authorized device count, and device probe duration for quick multi-device diagnosis.
+- `npm run mobile:device:result -- --summary-json` now includes host platform, host architecture, Node version, Flutter/ADB commands, ADB version, toolchain probe duration, and render-wait settings.
+- `npm run mobile:device:result -- --summary-json` now includes Flutter, Dart, build duration, APK built time, APK size, and APK SHA-256 for quick build provenance checks.
+- `npm run mobile:device:result -- --summary-json` now includes screenshot dimensions, size, diversity, SHA-256, and stale-screenshot status for fast capture quality checks.
+- `npm run mobile:device:result -- --summary-json` now includes foreground package, foreground Activity, installed version name, and installed version code for fast app-launch confirmation.
+- `npm run mobile:device:result -- --summary-json` now includes device manufacturer, brand, model, Android release, and Android SDK for quick device-run comparison.
+- `npm run mobile:device:result -- --summary-json` now includes `startedAt`, `completedAt`, and `durationMs` so saved Android device smoke runs can be compared without opening the full result JSON.
+- `npm run mobile:device:result -- --summary-json` now includes `failedStage`, `errorCode`, `errorDetail`, `recoveryHintCode`, and `recoveryHint` for fast failed-run triage.
+- `npm run mobile:device:result -- --summary-json` now includes APK and latest result paths, and `--require-existing` validates those summary artifacts too.
+- `npm run mobile:device:result -- --summary-json --require-existing` now fails if the compact summary result or screenshot artifact path is missing on disk.
+- `npm run mobile:device:result -- --summary-json --absolute` now prints compact summary artifact paths as absolute filesystem paths.
+- `npm run mobile:device:result -- --summary-json` now prints a compact machine-readable Android device smoke status, run, artifact status, and recovery-code summary.
+- `npm run mobile:device:result -- --paths --require-existing` now fails if any saved Android device smoke artifact path is missing on disk.
+- `npm run mobile:device:result -- --paths --absolute` now prints all saved artifact paths as absolute filesystem paths.
+- `npm run mobile:device:result -- --paths` now prints the APK, latest result, per-run result, and screenshot paths as one JSON object.
+- `npm run mobile:device:result -- --path apk` now prints the APK path recorded by the latest Android device smoke result.
+- `npm run mobile:device:result` now treats saved result JSON without a string `runId` as `TM_ANDROID_DEVICE_SMOKE_RESULT_INVALID_SCHEMA`.
+- `npm run mobile:device:result -- --path latest` now prints `.thai-meet/device-smoke/latest.json`, distinct from the per-run archive returned by `--path result`.
+- `npm run mobile:device:result` now treats any saved result `status` other than `passed` or `failed` as `TM_ANDROID_DEVICE_SMOKE_RESULT_INVALID_SCHEMA`.
+- `npm run mobile:device:result` now reports `TM_ANDROID_DEVICE_SMOKE_RESULT_INVALID_SCHEMA` when `.thai-meet/device-smoke/latest.json` is valid JSON but lacks the required result shape.
+- `npm run mobile:device:result` now reports `TM_ANDROID_DEVICE_SMOKE_RESULT_INVALID_JSON` when `.thai-meet/device-smoke/latest.json` exists but cannot be parsed.
+- `npm run mobile:device:result` now validates output option conflicts and missing `--field`/`--path` values before requiring `.thai-meet/device-smoke/latest.json`.
+- `npm run mobile:device:result -- --field --strict` now fails with `TM_ANDROID_DEVICE_SMOKE_RESULT_FIELD_REQUIRED` instead of treating the next option as a field name.
+- Added `npm run mobile:device:result:test` so Android device smoke result reader behavior is covered by `npm test` without requiring a connected phone.
+- `npm run mobile:device:result -- --path screenshot|result --require-existing` now fails when the saved Android device smoke artifact path is missing on disk.
+- `npm run mobile:device:result -- --path screenshot|result --absolute` now prints saved Android device smoke artifact paths as full filesystem paths.
+- `npm run mobile:device:result -- --path screenshot|result` now prints saved Android device smoke artifact paths for shell automation.
+- `npm run mobile:device:result` now fails with `TM_ANDROID_DEVICE_SMOKE_RESULT_UNKNOWN_OPTION` when an unsupported option is passed.
+- `npm run mobile:device:result -- --help` now prints the result reader options without requiring a saved device smoke result.
+- `npm run mobile:device:result` now fails with `TM_ANDROID_DEVICE_SMOKE_RESULT_OPTION_CONFLICT` when `--json` and `--field` are used together.
+- `npm run mobile:device:result -- --field` now fails with `TM_ANDROID_DEVICE_SMOKE_RESULT_FIELD_REQUIRED` when no field name is provided.
+- `npm run mobile:device:result -- --field <name>` now prints one top-level saved Android device smoke result field for shell automation.
+- `npm run mobile:device:result -- --strict` now exits nonzero when the latest saved Android device smoke result is not `passed`.
+- `npm run mobile:device:result -- --json` now prints the saved Android device smoke JSON for automation without rerunning the smoke.
+- Added `npm run mobile:device:result` to print the latest Android device smoke status without rebuilding or reinstalling the app.
+- Android device smoke now prints `Failure Hint Code:` so copied failure logs include the stable recovery action code.
+- Android device smoke now records `recoveryHintCode` so automation can branch on stable recovery actions while humans read `recoveryHint`.
+- Android device smoke now records `recoveryHint` and prints `Failure Hint:` for common failure codes so USB/device/screenshot problems include the next local action.
+- Android device smoke now prints `Artifacts:` and `Failure Artifacts:` summaries so result and screenshot archive state is visible without opening `latest.json`.
+- Android device smoke now records `currentRunResultPath`, `currentRunResultStatus`, and `runResultArchived` so tooling can verify JSON result archive state directly.
+- Android device smoke now records `currentRunScreenshotStatus` so result readers can branch on screenshot evidence without combining multiple booleans.
+- Android device smoke now records `currentRunScreenshotPath` and `latestScreenshotMayBeStale` so failed JSON artifacts distinguish fresh screenshot evidence from older `latest.png` files.
+- Android device smoke now prints a failure screenshot summary so failed runs state whether a fresh screenshot was captured or no current-run screenshot exists.
+- Android device smoke now prints a failure capture summary so screenshot-stage failures show whether capture metadata was available or still pending.
+- Tightened Gate 0 Safety Ledger report/block transitions: unblocking a user who still has an active report now restores the reported Contact Card review instead of falling back to a locked card.
+- Closing a restored report review now clears stale unblock notices so `Report review closed` is the only current notice while past report/block events remain in history.
+- Added mobile route contract coverage for restored report review and stale unblock notices so future safety-sensitive UI changes must keep this behavior documented.
+- Extended privacy leak scanning to include `.log` files so smoke logs and local diagnostics cannot hide raw contact/provider values.
+- Extended privacy leak scanning to include wireframe HTML outputs so local UI artifacts cannot hide raw contact/provider values.
+- Extended privacy leak scanning to include Android Gradle, properties, manifest XML, Kotlin, and Java text files so native mobile config cannot hide raw contact/provider values.
+- Extended privacy leak scanning to include root design/product/TODO docs and package metadata so scripts and planning artifacts cannot hide raw contact/provider values.
+- Extended privacy leak scanning to include shell/Windows command scripts and IDE metadata so local executable wrappers cannot hide raw contact/provider values.
+- Extended privacy leak scanning to byte-scan root screenshot/image artifacts (`.png`, `.jpg`, `.jpeg`, `.webp`) so metadata cannot hide raw contact/provider values.
+- Extended privacy leak scanning to include SVG image assets so text-based UI artwork cannot hide raw contact/provider values.
+- Extended privacy leak scanning to include lock/config files (`.lock`, `.toml`, `.conf`, `.ini`) so generated dependency and local config metadata cannot hide raw contact/provider values.
+- Extended privacy leak scanning to include `infra` so Docker Compose and future infrastructure config cannot hide raw contact/provider values.
+- Added `npm run mobile:device:smoke` for Android debug APK build, authorized device install, and app launch outside the thin scaffold smoke.
+- Android device smoke now captures `.thai-meet/device-smoke/latest.png`, and privacy scanning covers that local screenshot artifact path.
+- Android device smoke now validates the captured PNG and fails on blank or single-color screenshots so locked-screen captures cannot look like a passing device smoke.
+- Android device smoke now writes `.thai-meet/device-smoke/latest.json` with package, device serial, screenshot path, timing, and status metadata.
+- Android device smoke now waits for screenshot file stream completion before validating the PNG, avoiding partial-read races on slower devices.
+- Android device smoke now records screenshot capture time in `latest.json`.
+- Android device smoke now prints the `latest.json` result path beside the screenshot path after a successful run.
+- Android device smoke now records screenshot width, height, and pixel diversity in `latest.json` so captured-screen quality is auditable per device.
+- Android device smoke now verifies the launched app is the foreground package before capturing the screen and records that package in `latest.json`.
+- Android device smoke now records the foreground Activity from `dumpsys window` in `latest.json`.
+- Android device smoke now records device model and Android SDK from `getprop` in `latest.json`.
+- Android device smoke now records device manufacturer and brand from `getprop` in `latest.json`.
+- Android device smoke now records Android release from `getprop` in `latest.json`.
+- Android device smoke now records physical screen size and density from `wm` in `latest.json`.
+- Android device smoke now records Flutter/ADB toolchain probe duration in `latest.json`.
+- Android device smoke now records device probe duration in `latest.json`.
+- Android device smoke now records authorized device count and selection mode in `latest.json`.
+- Android device smoke now records host platform, architecture, and Node version in `latest.json`.
+- Android device smoke now records the resolved Flutter and ADB command paths in `latest.json`.
+- Android device smoke now records whether render wait came from the default or `ANDROID_DEVICE_SMOKE_RENDER_WAIT_MS` in `latest.json`.
+- Android device smoke now records a timestamp-derived run ID in `latest.json` so repeated device runs can be distinguished.
+- Android device smoke now archives each run result under `.thai-meet/device-smoke/runs/<runId>.json` and records that path in `latest.json`.
+- Android device smoke now archives each run screenshot under `.thai-meet/device-smoke/runs/<runId>.png` and records that path in `latest.json`.
+- Android device smoke now verifies archived per-run JSON and PNG copies against the latest result files before reporting success.
+- Android device smoke now prints the archived per-run JSON and PNG paths after successful device runs.
+- Android device smoke now records completion time in `latest.json` and the per-run JSON archive.
+- Android device smoke now prints total run duration after successful device runs.
+- Android device smoke now prints a device summary with model, Android version, API level, screen size, and density after successful device runs.
+- Android device smoke now prints a foreground app summary with package, Activity, and installed version after successful device runs.
+- Android device smoke now prints a build summary with Flutter, Dart, APK size, and short APK SHA-256 after successful device runs.
+- Android device smoke now prints build, install, package-info, launch, and screenshot timings after successful device runs.
+- Android device smoke now prints screenshot dimensions, file size, pixel diversity, and short screenshot SHA-256 after successful device runs.
+- Android device smoke now prints run ID, render wait source, device selection mode, and authorized device count after successful device runs.
+- Android device smoke now prints host platform, architecture, Node version, resolved Flutter command, resolved ADB command, and ADB version after successful device runs.
+- Android device smoke now records Flutter APK build duration in `latest.json`.
+- Android device smoke now records Android APK install duration in `latest.json`.
+- Android device smoke now records installed package info probe duration in `latest.json`.
+- Android device smoke now records app launch and foreground-check duration in `latest.json`.
+- Android device smoke now records screenshot capture and PNG validation duration in `latest.json`.
+- Android device smoke now records debug APK build artifact time in `latest.json`.
+- Android device smoke now records debug APK size in `latest.json` so suspicious build artifact changes are visible during device smoke review.
+- Android device smoke now records debug APK SHA-256 in `latest.json` so the installed build artifact can be compared across smoke runs.
+- Android device smoke now records Flutter version, Flutter channel, and Dart version in `latest.json` so device smoke artifacts can be tied back to the local build toolchain.
+- Android device smoke now records ADB version in `latest.json` so device smoke artifacts can be tied back to the Android platform-tools install.
+- Android device smoke now records installed package `versionName` and `versionCode` from `dumpsys package` in `latest.json`.
+- Android device smoke now records screenshot file size in `latest.json` so truncated or unexpectedly tiny captures are visible during device smoke review.
+- Android device smoke now records screenshot SHA-256 in `latest.json` so captured artifacts can be compared across smoke runs.
+- Android device smoke now prints failure stage plus latest and archived JSON result paths when a device run fails.
+- Android device smoke now stores a structured failure `errorCode` in result JSON for easier local diagnostics and log aggregation.
+- Android device smoke now prints the structured failure code beside the failure stage before result paths.
+- Android device smoke now keeps `failedStage`, `errorCode`, and `error` present as `null` on successful result JSON for a stable schema.
+- Android device smoke now verifies failed-run JSON archives against `latest.json` so diagnostic result drift is caught even without a screenshot.
+- Android device smoke now prints failure duration in the failure log so slow build, device, or install failures are visible without opening JSON.
+- Android device smoke now prints the failure run ID so logs can be matched to per-run archive files immediately.
+- Android device smoke now records device selection mode and authorized device count on failed result JSON when device probing reaches `adb devices`.
+- Android device smoke now records the requested `ANDROID_SERIAL` value as `requestedDeviceSerial` in result JSON for faster device-selection diagnosis.
+- Android device smoke now keeps `deviceSerial` present as `null` on failures before device selection so result JSON has a stable selected-device field.
+- Android device smoke now prints a failure device summary with selection mode, requested serial, selected device, and authorized count.
+- Android device smoke now tracks selected device serial in run context so install, launch, or screenshot failures can still report the selected device.
+- Android device smoke now stores `errorDetail` separately from `errorCode` and prints `Failure Detail:` for faster failure diagnosis.
+- Android device smoke now carries Flutter, Dart, ADB version, and toolchain probe duration into failed result JSON when the probe completed.
+- Android device smoke now carries debug APK build duration, timestamp, size, and SHA-256 into failed result JSON when the APK build completed.
+- Android device smoke now prints a failure build summary with Flutter, Dart, APK size, and APK SHA-256 when the APK build completed.
+- Android device smoke now prints a failure host summary with OS, Node, Flutter command, ADB command, and ADB version.
+- Android device smoke now records elapsed device probe duration on failed result JSON once `adb devices` has returned.
+- Android device smoke now prints failure timing summary for toolchain, build, and device probe phases.
+- Android device smoke now prints failure config summary with render wait source, device selection mode, and authorized device count.
+
 ## 2026-06-04
 
 - Added executable wireframe QA contract and wired it into `npm test` and scaffold smoke.

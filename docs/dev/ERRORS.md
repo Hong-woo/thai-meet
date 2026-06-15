@@ -23,6 +23,8 @@ API error codes:
 - `TM_API_CONTACT_EXCHANGE_ROOM_MEMBERSHIP_REQUIRED` - actor is not allowed to create a contact exchange in the room.
 - `TM_API_CONTACT_EXCHANGE_DUPLICATE_IDEMPOTENCY_KEY` - request was already processed.
 - `TM_API_CONTACT_EXCHANGE_REVOKED` - contact exchange is no longer available.
+- `TM_API_CONTACT_EXCHANGE_REPORTED` - contact exchange has already been reported.
+- `TM_API_CONTACT_EXCHANGE_BLOCKED` - contact exchange is blocked.
 - `TM_API_CONTACT_PROVIDER_UNAVAILABLE` - provider is temporarily unavailable.
 
 Smoke doctor codes:
@@ -30,9 +32,7 @@ Smoke doctor codes:
 - `TM_SMOKE_DOCTOR_NODE_UNSUPPORTED`
 - `TM_SMOKE_DOCTOR_PNPM_UNAVAILABLE`
 - `TM_SMOKE_DOCTOR_FLUTTER_UNAVAILABLE`
-- `TM_SMOKE_DOCTOR_CHROME_UNAVAILABLE`
 - `TM_SMOKE_DOCTOR_DOCKER_UNAVAILABLE`
-- `TM_SMOKE_DOCTOR_DOCKER_NOT_RUNNING`
 - `TM_SMOKE_DOCTOR_PORT_CONFLICT`
 
 Contract and safety check codes:
@@ -43,6 +43,15 @@ Contract and safety check codes:
 - `TM_TRUST_LOOP_CONTRACT_DRIFT`
 - `TM_PRIVACY_LEAK_TEST_FAILED`
 - `TM_ERROR_ENVELOPE_CONTRACT_DRIFT`
+
+Local service/runtime codes:
+
+- `TM_GATE0_FIXTURE_STORE_INVALID_JSON` - Gate 0 fixture store found invalid JSON in a required local fixture or contract file.
+- `TM_GATE0_FIXTURE_STORE_READ_FAILED` - Gate 0 fixture store could not read a required local fixture or contract file.
+- `TM_GATE0_FIXTURE_STORE_ROOT_INVALID` - Gate 0 fixture store was created without a valid project root.
+- `TM_GATE0_PERSISTENCE_MODE_UNSUPPORTED` - Gate 0 API was started with a persistence mode that is not available yet.
+- `TM_GATE0_SERVICE_STORE_INVALID` - Gate 0 service was created without the required fixture store methods.
+- `TM_GATE1_DATABASE_STORE_NOT_SCAFFOLDED` - Gate 1 database persistence mode was selected before persisted reads were scaffolded.
 
 Route Not Found
 
@@ -76,8 +85,36 @@ Contact Exchange Revoked
 
 Flutter should render an unavailable card and keep report/block visible.
 
+Contact Exchange Reported
+
+Flutter should keep the card unavailable and preserve block controls without exposing contact values.
+
+Contact Exchange Blocked
+
+Flutter should hide contact access and return the user to a safe chat/list state.
+
 Contact Provider Unavailable
 
 Flutter should show a retry path without asking the user for real provider credentials.
+
+Gate 0 Service Store Invalid
+
+Local API boot or service tests should fail fast. Provide a store with `readOpenApi()` and `readFixture()` methods before creating the Gate 0 service.
+
+Gate 0 Fixture Store Root Invalid
+
+Local API boot or fixture-store tests should fail fast. Pass the project root into `createGate0FixtureStore(root)` before reading OpenAPI or smoke fixture JSON.
+
+Gate 0 Fixture Store Read Failed
+
+Local API boot or fixture-store tests should fail fast. Check that `packages/api-contracts/openapi/gate0.openapi.json` and `packages/api-contracts/fixtures/gate0-smoke.json` exist.
+
+Gate 0 Fixture Store Invalid JSON
+
+Local API boot or fixture-store tests should fail fast. Check that `packages/api-contracts/openapi/gate0.openapi.json` and `packages/api-contracts/fixtures/gate0-smoke.json` contain valid JSON.
+
+Gate 0 Persistence Mode Unsupported
+
+Local API boot should fail fast. `PERSISTENCE_MODE` is trimmed before selection, and unsupported errors include the supported mode list. Use `PERSISTENCE_MODE=fixture` until the Gate 1 database-backed store and Prisma migration checks are implemented.
 
 Privacy rule: do not include raw LINE, Facebook, QR, provider token, push token, or contact values in API errors, smoke output, logs, or generated fixtures.

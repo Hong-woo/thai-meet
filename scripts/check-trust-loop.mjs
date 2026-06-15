@@ -24,6 +24,15 @@ const requiredPaths = [
   "/api/v1/safety/blocks"
 ];
 
+const requiredContactCardStates = [
+  "locked",
+  "available",
+  "revoked",
+  "reported",
+  "blocked",
+  "provider_unavailable"
+];
+
 const failures = [];
 
 for (const step of requiredSteps) {
@@ -52,6 +61,27 @@ if (fixture.contactExchange?.provider !== "LINE" || !fixture.contactExchange?.pe
 
 if (fixture.contactCard?.provider !== "LINE" || fixture.contactCard?.copyRawValue !== false || fixture.contactCard?.valueRedacted !== true) {
   failures.push("LINE contact card must be redacted and prevent raw-value copy in Gate 0");
+}
+
+const contactCardStates = new Map((fixture.contactCardStates || []).map((entry) => [entry.state, entry]));
+for (const state of requiredContactCardStates) {
+  const entry = contactCardStates.get(state);
+  if (!entry) {
+    failures.push(`missing LINE Contact Card lifecycle state: ${state}`);
+    continue;
+  }
+
+  if (entry.contactExchange?.provider !== "LINE" || entry.contactCard?.provider !== "LINE") {
+    failures.push(`LINE Contact Card lifecycle state ${state} must keep provider LINE on exchange and card`);
+  }
+
+  if (entry.contactCard?.copyRawValue !== false || entry.contactCard?.valueRedacted !== true) {
+    failures.push(`LINE Contact Card lifecycle state ${state} must stay redacted and block raw-value copy`);
+  }
+
+  if (entry.contactExchange?.permission?.canCopyRawValue !== false) {
+    failures.push(`LINE Contact Card lifecycle state ${state} must deny raw contact copy permission`);
+  }
 }
 
 const eventTypes = new Set((fixture.safetyEvents || []).map((event) => event.type));
@@ -98,6 +128,16 @@ async function checkApiEndpoints(failures) {
     const contactExchange = await fetchJson(port, `/api/v1/chats/rooms/${fixture.chatRoom?.id || "room_gate0_local"}/contact-exchanges/line`, "POST");
     if (contactExchange.contactExchange?.id !== fixture.contactExchange?.id || contactExchange.contactCard?.copyRawValue !== false) {
       failures.push("LINE contact exchange endpoint must return the permission object and redacted card");
+    }
+
+    for (const state of requiredContactCardStates) {
+      const lifecycle = await fetchJson(port, `/api/v1/chats/rooms/${fixture.chatRoom?.id || "room_gate0_local"}/contact-exchanges/line?state=${state}`, "POST");
+      if (lifecycle.contactExchange?.status !== state || lifecycle.contactCard?.state !== state) {
+        failures.push(`LINE contact exchange endpoint must return lifecycle state ${state}`);
+      }
+      if (lifecycle.contactCard?.copyRawValue !== false || lifecycle.contactCard?.valueRedacted !== true) {
+        failures.push(`LINE contact exchange endpoint must keep lifecycle state ${state} redacted`);
+      }
     }
 
     const report = await fetchJson(port, "/api/v1/safety/reports", "POST");

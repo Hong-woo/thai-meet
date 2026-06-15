@@ -6,7 +6,31 @@ Run the scaffold check:
 
 ```powershell
 npm run db:check
+npm run db:check -- --json
+npm run db:check -- --field migrationStatus
+npm run db:check -- --field notScaffoldedGuard.errorCode
+npm run db:check -- --field prismaSchemaPresent
+npm run db:check -- --field prismaScaffoldStatus.summary
+npm run db:check -- --field databaseUrlPresent
+npm run db:check -- --field databaseUrlStatus
+npm run db:check -- --field databaseUrlProtocol
+$env:DATABASE_URL="postgresql://gate1.local/thai_meet"; npm run db:check -- --field databaseUrlStatus; Remove-Item Env:DATABASE_URL
 ```
+
+`npm run db:check -- --json` exposes `status`, `migrationStatus`, `persistenceGate`, `constraintsDoc`, `persistenceDoc`, `reviewChecklist`, `requiredModels`, `requiredModes`, `notScaffoldedGuard`, `prismaSchemaPath`, `prismaMigrationsPath`, `prismaSchemaPresent`, `prismaMigrationsPresent`, `prismaScaffoldStatus`, `requiredEnvKeys`, `databaseUrlPresent`, `databaseUrlStatus`, and `databaseUrlProtocol` for CI handoff checks. Gate 0 reports `migrationStatus=not_scaffolded` until Prisma migrations exist.
+
+The `notScaffoldedGuard` field reports the command guard that keeps `npm run db:migrate` fail-closed with `TM_COMMAND_NOT_SCAFFOLDED` until Gate 1 migration work starts. Nested fields such as `notScaffoldedGuard.errorCode` can be printed directly with `--field`.
+
+Prisma scaffold fields are path checks only. Gate 0 should report `prismaSchemaPresent=false`, `prismaMigrationsPresent=false`, and `prismaScaffoldStatus.summary=schema=false, migrations=false, migrationStatus=not_scaffolded`; Gate 1 should turn those true only with schema and migration contract checks.
+
+Gate 0 does not require `DATABASE_URL`. Gate 1 should provide it only when database-backed mode and migration checks are ready. `databaseUrlPresent` reports `false` by default and `true` when `DATABASE_URL` is set in the current shell. `databaseUrlStatus` reports `missing`, `valid`, or `invalid`; `databaseUrlProtocol` reports only the URL protocol, never the full secret-bearing URL.
+
+Stable command error codes:
+
+- `TM_DB_MATRIX_UNKNOWN_OPTION`
+- `TM_DB_MATRIX_OPTION_CONFLICT`
+- `TM_DB_MATRIX_FIELD_REQUIRED`
+- `TM_DB_MATRIX_UNKNOWN_FIELD`
 
 ## Matrix
 

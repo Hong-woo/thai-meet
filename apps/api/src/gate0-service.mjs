@@ -1,27 +1,17 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-
-export function createGate0Service(root) {
-  async function readJson(relativePath) {
-    const data = await readFile(path.join(root, relativePath), "utf8");
-    return JSON.parse(data);
-  }
-
-  async function readFixture() {
-    return await readJson("packages/api-contracts/fixtures/gate0-smoke.json");
-  }
+export function createGate0Service(store) {
+  validateGate0Store(store);
 
   return {
     async getOpenApi() {
-      return await readJson("packages/api-contracts/openapi/gate0.openapi.json");
+      return await store.readOpenApi();
     },
 
     async getFixture() {
-      return await readFixture();
+      return await store.readFixture();
     },
 
     async getMyPublicIdentity() {
-      const fixture = await readFixture();
+      const fixture = await store.readFixture();
       return {
         userId: fixture.mockUser.userId,
         publicIdentityId: fixture.mockUser.publicIdentityId,
@@ -32,12 +22,12 @@ export function createGate0Service(root) {
     },
 
     async listDiscoverProfiles() {
-      const fixture = await readFixture();
+      const fixture = await store.readFixture();
       return { profiles: [fixture.discoverProfile] };
     },
 
     async getChatRoom(roomId) {
-      const fixture = await readFixture();
+      const fixture = await store.readFixture();
       if (roomId !== fixture.chatRoom.id) return null;
       return {
         ...fixture.chatRoom,
@@ -45,34 +35,44 @@ export function createGate0Service(root) {
       };
     },
 
-    async createLineContactExchange(roomId, errorCase) {
+    async createLineContactExchange(roomId, errorCase, state) {
       if (errorCase && contactExchangeErrors[errorCase]) {
         const { status, error } = contactExchangeErrors[errorCase];
         return { status, payload: apiError(error) };
       }
 
-      const fixture = await readFixture();
+      const fixture = await store.readFixture();
       if (roomId !== fixture.chatRoom.id) return null;
+      const lifecycle = state ? fixture.contactCardStates?.find((entry) => entry.state === state) : null;
+      if (state && !lifecycle) return null;
 
       return {
         status: 201,
         payload: {
-          contactExchange: fixture.contactExchange,
-          contactCard: fixture.contactCard
+          contactExchange: lifecycle?.contactExchange || fixture.contactExchange,
+          contactCard: lifecycle?.contactCard || fixture.contactCard
         }
       };
     },
 
     async createSafetyReport() {
-      const fixture = await readFixture();
+      const fixture = await store.readFixture();
       return { event: fixture.safetyEvents.find((event) => event.type === "report") };
     },
 
     async createSafetyBlock() {
-      const fixture = await readFixture();
+      const fixture = await store.readFixture();
       return { event: fixture.safetyEvents.find((event) => event.type === "block") };
     }
   };
+}
+
+function validateGate0Store(store) {
+  for (const method of ["readOpenApi", "readFixture"]) {
+    if (typeof store?.[method] !== "function") {
+      throw new Error(`TM_GATE0_SERVICE_STORE_INVALID: store.${method} must be a function`);
+    }
+  }
 }
 
 export function notFound(param) {
@@ -92,6 +92,16 @@ export function scaffoldFailure() {
     message: "The local scaffold could not read its fixture or contract file.",
     param: "fixture",
     docRef: "docs/dev/ERRORS.md#scaffold-failure"
+  });
+}
+
+export function databaseStoreNotScaffolded() {
+  return apiError({
+    type: "system_error",
+    code: "TM_GATE1_DATABASE_STORE_NOT_SCAFFOLDED",
+    message: "Database persistence mode is present but persisted reads are not scaffolded yet.",
+    param: "PERSISTENCE_MODE",
+    docRef: "docs/dev/GATE1_PERSISTENCE.md#local-modes"
   });
 }
 
@@ -147,6 +157,26 @@ const contactExchangeErrors = {
       message: "This contact exchange is no longer available.",
       param: "contactExchangeId",
       docRef: "docs/dev/ERRORS.md#contact-exchange-revoked"
+    }
+  },
+  "contact-reported": {
+    status: 409,
+    error: {
+      type: "conflict_error",
+      code: "TM_API_CONTACT_EXCHANGE_REPORTED",
+      message: "This contact exchange has already been reported.",
+      param: "contactExchangeId",
+      docRef: "docs/dev/ERRORS.md#contact-exchange-reported"
+    }
+  },
+  "contact-blocked": {
+    status: 403,
+    error: {
+      type: "permission_error",
+      code: "TM_API_CONTACT_EXCHANGE_BLOCKED",
+      message: "This contact exchange is blocked.",
+      param: "contactExchangeId",
+      docRef: "docs/dev/ERRORS.md#contact-exchange-blocked"
     }
   },
   "provider-unavailable": {

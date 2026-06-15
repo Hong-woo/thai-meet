@@ -1,0 +1,69 @@
+name: AWS CI Deploy
+
+# AWS CI/deploy pipeline is configured for Gate 0 production readiness.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+  ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}
+  ECS_SERVICE: ${{ secrets.ECS_SERVICE }}
+
+jobs:
+  deploy:
+    name: Build and deploy API
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Verify Gate 0 production readiness
+        run: npm run production:check
+
+      - name: Verify contract drift
+        run: npm test
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build API image
+        run: |
+          docker build -t "$ECR_REPOSITORY:${{ github.sha }}" -f apps/api/Dockerfile .
+          docker tag "$ECR_REPOSITORY:${{ github.sha }}" "${{ steps.ecr.outputs.registry }}/$ECR_REPOSITORY:${{ github.sha }}"
+
+      - name: Push API image
+        run: docker push "${{ steps.ecr.outputs.registry }}/$ECR_REPOSITORY:${{ github.sha }}"
+
+      - name: Force ECS deployment
+        run: aws ecs update-service --cluster "$ECS_CLUSTER" --service "$ECS_SERVICE" --force-new-deployment
+
+      - name: Wait for ECS stability
+        run: aws ecs wait services-stable --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE"

@@ -14,8 +14,8 @@ Pinned toolchain:
 Node: >=22
 pnpm: 10.0.0
 Flutter: stable for full smoke
-Docker: Docker Desktop running for full smoke
-Browser: Chrome or Edge on PATH for Flutter web smoke
+Docker: CLI installed for scaffold doctor; daemon required later when infra boot is enabled
+Browser: optional until Flutter web smoke is enabled
 ```
 
 Local defaults in `.env.example`:
@@ -30,6 +30,8 @@ Local defaults in `.env.example`:
 | `ADMOB_MODE` | `mock` | No ad key required for smoke. |
 | `FCM_MODE` | `mock` | No push credential required for smoke. |
 | `OBJECT_STORAGE_MODE` | `local` | Local/mock upload path for smoke. |
+| `PERSISTENCE_MODE` | `fixture` | Trimmed before selection. Fixture-backed storage remains the only supported local mode until Gate 1 database checks pass. |
+| `DATABASE_URL` | unset | Required for Gate 1 database persistence only. `npm run db:check -- --field databaseUrlPresent` reports whether it is set. |
 
 Rules:
 
@@ -37,3 +39,4 @@ Rules:
 - Do not require real provider credentials for `npm test`, `npm run smoke:doctor`, or the first prepared-machine `pnpm smoke`.
 - Keep `.env.example` safe to paste into local `.env`.
 - Add new provider, ad, push, or storage defaults here before adding real integration code.
+- Keep fixture persistence available so prepared-machine smoke can run without a database.

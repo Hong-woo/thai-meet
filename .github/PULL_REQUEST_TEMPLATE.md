@@ -14,7 +14,7 @@
 - [ ] `npm run privacy:test`
 - [ ] Generated contract artifacts are fresh
 - [ ] Smoke metrics reviewed, or not relevant
-- [ ] `pnpm smoke` or noted why full smoke was not run
+- [ ] `corepack pnpm smoke` or noted why full smoke was not run
 
 ## Contract And Safety
 

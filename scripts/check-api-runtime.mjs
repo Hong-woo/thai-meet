@@ -2,20 +2,95 @@ import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { createGate0StoreFromEnv } from "../apps/api/src/gate0-store-factory.mjs";
 
 const root = process.cwd();
 const failures = [];
 
 const serverSource = await readFile(path.join(root, "apps/api/src/server.mjs"), "utf8");
 const gate0ServiceSource = await readFile(path.join(root, "apps/api/src/gate0-service.mjs"), "utf8");
+const gate0StoreSource = await readFile(path.join(root, "apps/api/src/gate0-fixture-store.mjs"), "utf8").catch(() => "");
+const gate1DatabaseStoreSource = await readFile(path.join(root, "apps/api/src/gate1-database-store.mjs"), "utf8").catch(() => "");
+const gate0StoreFactorySource = await readFile(path.join(root, "apps/api/src/gate0-store-factory.mjs"), "utf8").catch(() => "");
 if (!serverSource.includes("createGate0Service")) {
   failures.push("API server must route through the Gate 0 service boundary");
+}
+const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
+const gate0ServiceTestSource = await readFile(path.join(root, "scripts/check-gate0-service.mjs"), "utf8").catch(() => "");
+const gate0FixtureStoreTestSource = await readFile(path.join(root, "scripts/check-gate0-fixture-store.mjs"), "utf8").catch(() => "");
+if (packageJson.scripts?.["api:service:test"] !== "node scripts/check-gate0-service.mjs") {
+  failures.push("package.json must expose api:service:test");
+}
+if (packageJson.scripts?.["api:fixture-store:test"] !== "node scripts/check-gate0-fixture-store.mjs") {
+  failures.push("package.json must expose api:fixture-store:test");
+}
+for (const marker of ["Gate 0 service boundary OK", "TM_GATE0_SERVICE_CHECK_FAILED", "createGate0Service(store)", "readFixture"]) {
+  if (!gate0ServiceTestSource.includes(marker)) {
+    failures.push(`Gate 0 service test must include ${marker}`);
+  }
+}
+for (const marker of ["Gate 0 fixture store OK", "TM_GATE0_FIXTURE_STORE_CHECK_FAILED", "TM_GATE0_FIXTURE_STORE_ROOT_INVALID", "TM_GATE0_FIXTURE_STORE_READ_FAILED", "TM_GATE0_FIXTURE_STORE_INVALID_JSON"]) {
+  if (!gate0FixtureStoreTestSource.includes(marker)) {
+    failures.push(`Gate 0 fixture store test must include ${marker}`);
+  }
+}
+if (!serverSource.includes("createGate0StoreFromEnv")) {
+  failures.push("API server must create the Gate 0 store through the persistence mode factory");
+}
+if (!gate0ServiceSource.includes("store.readFixture")) {
+  failures.push("Gate 0 service must read fixtures through an injected store");
+}
+for (const member of ["createGate0FixtureStore", "readOpenApi", "readFixture"]) {
+  if (!gate0StoreSource.includes(member)) {
+    failures.push(`Gate 0 fixture store must expose ${member}`);
+  }
+}
+for (const marker of ["createGate0StoreFromEnv", "PERSISTENCE_MODE", "fixture", "database", "TM_GATE0_PERSISTENCE_MODE_UNSUPPORTED"]) {
+  if (!gate0StoreFactorySource.includes(marker)) {
+    failures.push(`Gate 0 store factory must include ${marker}`);
+  }
+}
+for (const marker of ["createGate1DatabaseStore", "TM_GATE1_DATABASE_STORE_NOT_SCAFFOLDED", "readOpenApi", "readFixture"]) {
+  if (!gate1DatabaseStoreSource.includes(marker)) {
+    failures.push(`Gate 1 database store stub must include ${marker}`);
+  }
 }
 for (const member of ["getMyPublicIdentity", "listDiscoverProfiles", "createLineContactExchange", "createSafetyReport", "createSafetyBlock"]) {
   if (!gate0ServiceSource.includes(member)) {
     failures.push(`Gate 0 service must expose ${member}`);
   }
 }
+
+const defaultStore = createGate0StoreFromEnv(root, {});
+if (defaultStore.mode !== "fixture" || typeof defaultStore.store?.readFixture !== "function") {
+  failures.push("Gate 0 store factory must default to fixture mode");
+}
+
+const fixtureStore = createGate0StoreFromEnv(root, { PERSISTENCE_MODE: "fixture" });
+if (fixtureStore.mode !== "fixture" || typeof fixtureStore.store?.readOpenApi !== "function") {
+  failures.push("Gate 0 store factory must return the fixture store for PERSISTENCE_MODE=fixture");
+}
+
+const spacedFixtureStore = createGate0StoreFromEnv(root, { PERSISTENCE_MODE: " fixture " });
+if (spacedFixtureStore.mode !== "fixture" || typeof spacedFixtureStore.store?.readFixture !== "function") {
+  failures.push("Gate 0 store factory must trim PERSISTENCE_MODE before selecting the store");
+}
+
+const databaseStore = createGate0StoreFromEnv(root, { PERSISTENCE_MODE: "database" });
+if (databaseStore.mode !== "database" || typeof databaseStore.store?.readFixture !== "function") {
+  failures.push("Gate 0 store factory must return a fail-closed database store for PERSISTENCE_MODE=database");
+}
+await assertRejects(
+  () => databaseStore.store.readFixture(),
+  "TM_GATE1_DATABASE_STORE_NOT_SCAFFOLDED",
+  "Gate 1 database store must fail closed until persisted reads are implemented"
+);
+
+assertThrows(
+  () => createGate0StoreFromEnv(root, { PERSISTENCE_MODE: "wat" }),
+  "TM_GATE0_PERSISTENCE_MODE_UNSUPPORTED",
+  "Gate 0 store factory must fail closed for unknown persistence modes"
+);
 
 const child = spawn(process.execPath, ["apps/api/src/server.mjs"], {
   cwd: root,
@@ -29,6 +104,9 @@ try {
   const health = await fetchJson(port, "/health");
   if (health.status !== "ok" || health.service !== "thai-meet-api") {
     failures.push("health endpoint must expose the Thai Meet API scaffold");
+  }
+  if (health.persistenceMode !== "fixture") {
+    failures.push(`health endpoint must expose persistenceMode=fixture, got ${health.persistenceMode}`);
   }
 
   const openApi = await fetchJson(port, "/openapi.json");
@@ -44,6 +122,33 @@ try {
   failures.push(`API runtime check failed: ${error.message}`);
 } finally {
   await stopChild(child);
+}
+
+const databaseChild = spawn(process.execPath, ["apps/api/src/server.mjs"], {
+  cwd: root,
+  env: { ...process.env, API_PORT: "0", PERSISTENCE_MODE: "database" },
+  stdio: ["ignore", "pipe", "pipe"]
+});
+
+try {
+  const port = await waitForServerPort(databaseChild);
+
+  const health = await fetchJson(port, "/health");
+  if (health.persistenceMode !== "database") {
+    failures.push(`database mode health endpoint must expose persistenceMode=database, got ${health.persistenceMode}`);
+  }
+
+  const scaffoldedRoute = await fetchAnyJson(port, "/fixtures/gate0");
+  if (scaffoldedRoute.status !== 500) {
+    failures.push(`database mode fixture route must fail closed with 500, got ${scaffoldedRoute.status}`);
+  }
+  if (scaffoldedRoute.payload?.error?.code !== "TM_GATE1_DATABASE_STORE_NOT_SCAFFOLDED") {
+    failures.push("database mode fixture route must expose TM_GATE1_DATABASE_STORE_NOT_SCAFFOLDED error envelope");
+  }
+} catch (error) {
+  failures.push(`API database-mode runtime check failed: ${error.message}`);
+} finally {
+  await stopChild(databaseChild);
 }
 
 if (failures.length > 0) {
@@ -100,6 +205,36 @@ async function fetchJson(port, route) {
     throw new Error(`GET ${route} returned ${response.status}`);
   }
   return payload;
+}
+
+async function fetchAnyJson(port, route) {
+  const response = await fetch(`http://127.0.0.1:${port}${route}`);
+  return {
+    status: response.status,
+    payload: await response.json()
+  };
+}
+
+function assertThrows(fn, expectedCode, message) {
+  try {
+    fn();
+    failures.push(message);
+  } catch (error) {
+    if (!String(error.message).includes(expectedCode)) {
+      failures.push(`${message}: expected ${expectedCode}, got ${error.message}`);
+    }
+  }
+}
+
+async function assertRejects(fn, expectedCode, message) {
+  try {
+    await fn();
+    failures.push(message);
+  } catch (error) {
+    if (!String(error.message).includes(expectedCode)) {
+      failures.push(`${message}: expected ${expectedCode}, got ${error.message}`);
+    }
+  }
 }
 
 async function stopChild(child) {

@@ -23,9 +23,25 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
+const healthSchema = openApi.paths?.["/health"]?.get?.responses?.["200"]?.content?.["application/json"]?.schema;
+const healthPersistenceMode = healthSchema?.properties?.persistenceMode;
+if (!healthSchema?.required?.includes("persistenceMode") || !healthPersistenceMode?.enum?.includes("fixture") || !healthPersistenceMode?.enum?.includes("database")) {
+  console.error("TM_CONTRACT_OPENAPI_STALE");
+  console.error("- health OpenAPI response must require persistenceMode enum fixture/database");
+  process.exit(1);
+}
+
 if (!dartClient.includes("lineContactExchangePath")) {
   console.error("TM_CONTRACT_DART_CLIENT_STALE");
   console.error("- generated Dart client placeholder does not expose lineContactExchangePath");
+  process.exit(1);
+}
+
+const lineExchangeParameters = openApi.paths?.["/api/v1/chats/rooms/{roomId}/contact-exchanges/line"]?.post?.parameters || [];
+const stateParameter = lineExchangeParameters.find((parameter) => parameter.name === "state" && parameter.in === "query");
+if (!stateParameter?.schema?.enum?.includes("provider_unavailable")) {
+  console.error("TM_CONTRACT_OPENAPI_STALE");
+  console.error("- line ContactExchange OpenAPI must expose state query enum including provider_unavailable");
   process.exit(1);
 }
 
@@ -41,6 +57,14 @@ if (!dartClient.includes("Uri.encodeComponent(roomId)")) {
   console.error("TM_CONTRACT_DART_CLIENT_STALE");
   console.error("- generated Dart client must encode roomId path segments");
   process.exit(1);
+}
+
+for (const fragment of ["String? state", "Uri.encodeQueryComponent(state)", "?state=$encodedState", "provider_unavailable"]) {
+  if (!dartClient.includes(fragment)) {
+    console.error("TM_CONTRACT_DART_CLIENT_STALE");
+    console.error(`- generated Dart client must expose lifecycle state query support: ${fragment}`);
+    process.exit(1);
+  }
 }
 
 console.log("Gate 0 API contract scaffold OK");

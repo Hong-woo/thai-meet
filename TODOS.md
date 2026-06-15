@@ -20,12 +20,16 @@ Done in scaffold:
 - DESIGN.md, PRODUCT.md, and static Gate 0 wireframes.
 - Executable wireframe QA contract wired into `npm test`.
 - Gate 0 5-tab route/nav contract aligned across wireframes, Flutter route shell, developer docs, and tests.
+- Gate 0 local vertical slice is executable on Flutter web, Windows, and Android device.
+- OPPO CPH2695 Android 16 smoke passed.
+- Full `npm test` baseline passed with 89 Flutter widget tests.
 
 Partial:
 
 - Cross-platform smoke parity: Windows/Ubuntu CI and Windows local checks exist; full Flutter/Docker prepared-machine smoke still depends on installed prerequisites.
 - Design system: source-of-truth docs and wireframes exist; Figma screen set and Public ID image templates remain.
 - Trust Loop implementation: API routes now call a fixture-backed Gate 0 service boundary; real Prisma/NestJS storage and Flutter screens remain.
+- Production gates now move in this order: persistence -> AWS CI/deploy -> Figma source -> release signing.
 
 Remaining:
 

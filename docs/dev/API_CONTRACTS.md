@@ -31,9 +31,11 @@ Current Gate 0 paths:
 - `POST /api/v1/safety/reports`
 - `POST /api/v1/safety/blocks`
 
+`GET /health` returns the local scaffold status, service name, Node environment mode, and required `persistenceMode` enum (`fixture` or `database`) so Gate 1 work can verify whether the API is running against fixture or database storage.
+
 Drift checks:
 
-- `scripts/check-contracts.mjs` validates required OpenAPI paths and Dart client members.
+- `scripts/check-contracts.mjs` validates required OpenAPI paths, the `GET /health` persistence mode response contract, and Dart client members.
 - `scripts/check-mobile-routes.mjs` validates Gate 0 mobile route names, paths, and reduced tabs.
 - `scripts/check-trust-loop.mjs` validates the executable Trust Loop fixture and API endpoints.
 - `.github/workflows/contract-drift.yml` runs the fast Gate 0 checks on Ubuntu and Windows, regenerates contract artifacts, and fails if generated files are stale.

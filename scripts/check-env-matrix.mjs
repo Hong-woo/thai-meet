@@ -20,6 +20,15 @@ if (!packageJson.engines?.node?.includes(">=22")) {
 await requireFile("docs/dev/ENVIRONMENT.md");
 
 const envExample = await readFile(path.join(root, ".env.example"), "utf8");
+const smokeSource = await readFile(path.join(root, "scripts/smoke.mjs"), "utf8");
+const readme = await readFile(path.join(root, "README.md"), "utf8");
+const environmentDocs = await readFile(path.join(root, "docs/dev/ENVIRONMENT.md"), "utf8");
+const gettingStarted = await readFile(path.join(root, "docs/dev/GETTING_STARTED.md"), "utf8");
+const smokeDocs = await readFile(path.join(root, "docs/dev/SMOKE.md"), "utf8");
+const errorDocs = await readFile(path.join(root, "docs/dev/ERRORS.md"), "utf8");
+const reviewChecklist = await readFile(path.join(root, "docs/dev/REVIEW_CHECKLIST.md"), "utf8");
+const pullRequestTemplate = await readFile(path.join(root, ".github/PULL_REQUEST_TEMPLATE.md"), "utf8");
+const bugReportTemplate = await readFile(path.join(root, ".github/ISSUE_TEMPLATE/bug_report.md"), "utf8");
 const expectedDefaults = new Map([
   ["AUTH_MODE", "mock"],
   ["LINE_PROVIDER_MODE", "mock"],
@@ -27,6 +36,7 @@ const expectedDefaults = new Map([
   ["ADMOB_MODE", "mock"],
   ["FCM_MODE", "mock"],
   ["OBJECT_STORAGE_MODE", "local"],
+  ["PERSISTENCE_MODE", "fixture"],
   ["CONTACT_PROVIDER_LINE_ENABLED", "true"],
   ["CONTACT_PROVIDER_FACEBOOK_ENABLED", "false"]
 ]);
@@ -51,6 +61,38 @@ for (const pattern of suspiciousPatterns) {
   if (pattern.test(envExample)) {
     failures.push(`.env.example contains suspicious real credential pattern: ${pattern}`);
   }
+}
+
+if (smokeSource.includes("TM_SMOKE_DOCTOR_CHROME_UNAVAILABLE") || smokeSource.includes("TM_SMOKE_DOCTOR_DOCKER_NOT_RUNNING")) {
+  failures.push("scaffold smoke doctor must not hard-fail Chrome or Docker while web and infra boot are skipped");
+}
+
+for (const [label, source] of [
+  ["README", readme],
+  ["Environment docs", environmentDocs],
+  ["Getting Started docs", gettingStarted],
+  ["Smoke docs", smokeDocs]
+]) {
+  if (source.includes("Chrome or Edge") || source.includes("Docker Desktop running for full smoke") || source.includes("Docker Desktop, and Chrome")) {
+    failures.push(`${label} must not list Chrome or Docker daemon as scaffold smoke prerequisites`);
+  }
+}
+
+for (const [label, source] of [
+  ["README", readme],
+  ["Getting Started docs", gettingStarted],
+  ["Smoke docs", smokeDocs],
+  ["Review checklist", reviewChecklist],
+  ["Pull request template", pullRequestTemplate],
+  ["Bug report template", bugReportTemplate]
+]) {
+  if (!source.includes("corepack pnpm smoke")) {
+    failures.push(`${label} must document corepack pnpm smoke for Windows PATH-safe pnpm execution`);
+  }
+}
+
+if (errorDocs.includes("TM_SMOKE_DOCTOR_CHROME_UNAVAILABLE") || errorDocs.includes("TM_SMOKE_DOCTOR_DOCKER_NOT_RUNNING")) {
+  failures.push("Errors docs must not list removed Chrome/Docker hard-fail smoke doctor codes");
 }
 
 if (failures.length > 0) {

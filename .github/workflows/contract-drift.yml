@@ -32,6 +32,11 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
       - name: Verify fast Gate 0 checks
         run: npm test
 

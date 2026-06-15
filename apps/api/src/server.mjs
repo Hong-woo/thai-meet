@@ -1,11 +1,13 @@
 import http from "node:http";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { createGate0Service, notFound, scaffoldFailure } from "./gate0-service.mjs";
+import { createGate0Service, databaseStoreNotScaffolded, notFound, scaffoldFailure } from "./gate0-service.mjs";
+import { createGate0StoreFromEnv } from "./gate0-store-factory.mjs";
 
 const port = Number(process.env.API_PORT || 3000);
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
-const gate0 = createGate0Service(root);
+const gate0Store = createGate0StoreFromEnv(root);
+const gate0 = createGate0Service(gate0Store.store);
 
 const server = http.createServer(async (req, res) => {
   try {
@@ -15,7 +17,8 @@ const server = http.createServer(async (req, res) => {
       sendJson(res, 200, {
         status: "ok",
         service: "thai-meet-api",
-        mode: process.env.NODE_ENV || "development"
+        mode: process.env.NODE_ENV || "development",
+        persistenceMode: gate0Store.mode
       });
       return;
     }
@@ -54,7 +57,7 @@ const server = http.createServer(async (req, res) => {
 
     const lineExchangeMatch = url.pathname.match(/^\/api\/v1\/chats\/rooms\/([^/]+)\/contact-exchanges\/line$/);
     if (req.method === "POST" && lineExchangeMatch) {
-      const result = await gate0.createLineContactExchange(lineExchangeMatch[1], url.searchParams.get("case"));
+      const result = await gate0.createLineContactExchange(lineExchangeMatch[1], url.searchParams.get("case"), url.searchParams.get("state"));
       if (!result) {
         sendJson(res, 404, notFound("roomId"));
         return;
@@ -75,7 +78,12 @@ const server = http.createServer(async (req, res) => {
     }
 
     sendJson(res, 404, notFound("url"));
-  } catch {
+  } catch (error) {
+    if (String(error?.message ?? error).includes("TM_GATE1_DATABASE_STORE_NOT_SCAFFOLDED")) {
+      sendJson(res, 500, databaseStoreNotScaffolded());
+      return;
+    }
+
     sendJson(res, 500, scaffoldFailure());
   }
 });
