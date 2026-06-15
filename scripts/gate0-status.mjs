@@ -19,6 +19,7 @@ validateArgs(process.argv);
 
 if (shouldPrintHelp) {
   printHelp();
+  await flushStdout();
   process.exit(0);
 }
 
@@ -1147,11 +1148,13 @@ if (requestedField) {
     process.exit(1);
   }
   console.log(typeof value === "object" ? JSON.stringify(value, null, 2) : String(value));
+  await flushStdout();
   process.exit(0);
 }
 
 if (shouldPrintJson) {
   console.log(JSON.stringify(summary, null, 2));
+  await flushStdout();
   process.exit(0);
 }
 
@@ -3224,4 +3227,8 @@ function formatRequiredCheckGroups(groups) {
   return Object.entries(groups)
     .map(([type, group]) => `${type}=${group.count}`)
     .join(", ");
+}
+
+function flushStdout() {
+  return new Promise((resolve) => process.stdout.write("", resolve));
 }
