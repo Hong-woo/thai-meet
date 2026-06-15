@@ -30,7 +30,7 @@ assignees: ""
 
 - [ ] `npm test`
 - [ ] `npm run smoke:doctor`
-- [ ] `pnpm smoke`
+- [ ] `corepack pnpm smoke`
 
 ## Logs or error codes
 

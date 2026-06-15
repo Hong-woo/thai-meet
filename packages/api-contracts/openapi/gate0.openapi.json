@@ -10,7 +10,41 @@
         "operationId": "getHealth",
         "responses": {
           "200": {
-            "description": "Local API scaffold is healthy"
+            "description": "Local API scaffold is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "service",
+                    "mode",
+                    "persistenceMode"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok"
+                      ]
+                    },
+                    "service": {
+                      "type": "string"
+                    },
+                    "mode": {
+                      "type": "string"
+                    },
+                    "persistenceMode": {
+                      "type": "string",
+                      "enum": [
+                        "fixture",
+                        "database"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -63,6 +97,8 @@
           "TM_API_CONTACT_EXCHANGE_ROOM_MEMBERSHIP_REQUIRED",
           "TM_API_CONTACT_EXCHANGE_DUPLICATE_IDEMPOTENCY_KEY",
           "TM_API_CONTACT_EXCHANGE_REVOKED",
+          "TM_API_CONTACT_EXCHANGE_REPORTED",
+          "TM_API_CONTACT_EXCHANGE_BLOCKED",
           "TM_API_CONTACT_PROVIDER_UNAVAILABLE"
         ],
         "parameters": [
@@ -72,6 +108,22 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "locked",
+                "available",
+                "revoked",
+                "reported",
+                "blocked",
+                "provider_unavailable"
+              ]
             }
           }
         ],
@@ -90,7 +142,7 @@
             }
           },
           "403": {
-            "description": "Room membership is required",
+            "description": "Room membership is required or ContactExchange is blocked",
             "content": {
               "application/json": {
                 "schema": {
@@ -100,7 +152,7 @@
             }
           },
           "409": {
-            "description": "Duplicate or revoked ContactExchange",
+            "description": "Duplicate, revoked, or reported ContactExchange",
             "content": {
               "application/json": {
                 "schema": {

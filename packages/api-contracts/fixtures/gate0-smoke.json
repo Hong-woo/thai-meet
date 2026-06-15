@@ -78,10 +78,175 @@
     "id": "card_gate0_line_001",
     "contactExchangeId": "cex_gate0_line_001",
     "provider": "LINE",
+    "state": "available",
     "displayLabel": "LINE contact available",
     "valueRedacted": true,
     "copyRawValue": false
   },
+  "contactCardStates": [
+    {
+      "state": "locked",
+      "contactExchange": {
+        "id": "cex_gate0_line_locked",
+        "provider": "LINE",
+        "status": "locked",
+        "roomId": "room_gate0_local",
+        "requestedByPublicIdentityId": "pub_bkk_local_001",
+        "targetPublicIdentityId": "pub_pattaya_tourist_001",
+        "permission": {
+          "canViewContactCard": false,
+          "canCopyRawValue": false,
+          "canReport": true,
+          "canBlock": true,
+          "scope": "gate0_contact_card"
+        }
+      },
+      "contactCard": {
+        "id": "card_gate0_line_locked",
+        "contactExchangeId": "cex_gate0_line_locked",
+        "provider": "LINE",
+        "state": "locked",
+        "displayLabel": "LINE contact locked",
+        "valueRedacted": true,
+        "copyRawValue": false
+      }
+    },
+    {
+      "state": "available",
+      "contactExchange": {
+        "id": "cex_gate0_line_001",
+        "provider": "LINE",
+        "status": "available",
+        "roomId": "room_gate0_local",
+        "requestedByPublicIdentityId": "pub_bkk_local_001",
+        "targetPublicIdentityId": "pub_pattaya_tourist_001",
+        "permission": {
+          "canViewContactCard": true,
+          "canCopyRawValue": false,
+          "canReport": true,
+          "canBlock": true,
+          "scope": "gate0_contact_card"
+        }
+      },
+      "contactCard": {
+        "id": "card_gate0_line_001",
+        "contactExchangeId": "cex_gate0_line_001",
+        "provider": "LINE",
+        "state": "available",
+        "displayLabel": "LINE contact available",
+        "valueRedacted": true,
+        "copyRawValue": false
+      }
+    },
+    {
+      "state": "revoked",
+      "contactExchange": {
+        "id": "cex_gate0_line_revoked",
+        "provider": "LINE",
+        "status": "revoked",
+        "roomId": "room_gate0_local",
+        "requestedByPublicIdentityId": "pub_bkk_local_001",
+        "targetPublicIdentityId": "pub_pattaya_tourist_001",
+        "permission": {
+          "canViewContactCard": false,
+          "canCopyRawValue": false,
+          "canReport": true,
+          "canBlock": true,
+          "scope": "gate0_contact_card"
+        }
+      },
+      "contactCard": {
+        "id": "card_gate0_line_revoked",
+        "contactExchangeId": "cex_gate0_line_revoked",
+        "provider": "LINE",
+        "state": "revoked",
+        "displayLabel": "LINE contact revoked",
+        "valueRedacted": true,
+        "copyRawValue": false
+      }
+    },
+    {
+      "state": "reported",
+      "contactExchange": {
+        "id": "cex_gate0_line_reported",
+        "provider": "LINE",
+        "status": "reported",
+        "roomId": "room_gate0_local",
+        "requestedByPublicIdentityId": "pub_bkk_local_001",
+        "targetPublicIdentityId": "pub_pattaya_tourist_001",
+        "permission": {
+          "canViewContactCard": false,
+          "canCopyRawValue": false,
+          "canReport": true,
+          "canBlock": true,
+          "scope": "gate0_contact_card"
+        }
+      },
+      "contactCard": {
+        "id": "card_gate0_line_reported",
+        "contactExchangeId": "cex_gate0_line_reported",
+        "provider": "LINE",
+        "state": "reported",
+        "displayLabel": "LINE contact reported",
+        "valueRedacted": true,
+        "copyRawValue": false
+      }
+    },
+    {
+      "state": "blocked",
+      "contactExchange": {
+        "id": "cex_gate0_line_blocked",
+        "provider": "LINE",
+        "status": "blocked",
+        "roomId": "room_gate0_local",
+        "requestedByPublicIdentityId": "pub_bkk_local_001",
+        "targetPublicIdentityId": "pub_pattaya_tourist_001",
+        "permission": {
+          "canViewContactCard": false,
+          "canCopyRawValue": false,
+          "canReport": false,
+          "canBlock": false,
+          "scope": "gate0_contact_card"
+        }
+      },
+      "contactCard": {
+        "id": "card_gate0_line_blocked",
+        "contactExchangeId": "cex_gate0_line_blocked",
+        "provider": "LINE",
+        "state": "blocked",
+        "displayLabel": "LINE contact blocked",
+        "valueRedacted": true,
+        "copyRawValue": false
+      }
+    },
+    {
+      "state": "provider_unavailable",
+      "contactExchange": {
+        "id": "cex_gate0_line_provider_unavailable",
+        "provider": "LINE",
+        "status": "provider_unavailable",
+        "roomId": "room_gate0_local",
+        "requestedByPublicIdentityId": "pub_bkk_local_001",
+        "targetPublicIdentityId": "pub_pattaya_tourist_001",
+        "permission": {
+          "canViewContactCard": false,
+          "canCopyRawValue": false,
+          "canReport": true,
+          "canBlock": true,
+          "scope": "gate0_contact_card"
+        }
+      },
+      "contactCard": {
+        "id": "card_gate0_line_provider_unavailable",
+        "contactExchangeId": "cex_gate0_line_provider_unavailable",
+        "provider": "LINE",
+        "state": "provider_unavailable",
+        "displayLabel": "LINE provider unavailable",
+        "valueRedacted": true,
+        "copyRawValue": false
+      }
+    }
+  ],
   "safetyEvents": [
     {
       "id": "safe_gate0_report_001",

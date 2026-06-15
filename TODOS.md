@@ -17,30 +17,39 @@ Done in scaffold:
 - DB constraints/index matrix.
 - Feature flag matrix and rollout sequence.
 - Reward ledger scaffold contract.
+- DESIGN.md, PRODUCT.md, and static Gate 0 wireframes.
+- Executable wireframe QA contract wired into `npm test`.
+- Gate 0 5-tab route/nav contract aligned across wireframes, Flutter route shell, developer docs, and tests.
+- Gate 0 local vertical slice is executable on Flutter web, Windows, and Android device.
+- OPPO CPH2695 Android 16 smoke passed.
+- Full `npm test` baseline passed with 89 Flutter widget tests.
 
 Partial:
 
 - Cross-platform smoke parity: Windows/Ubuntu CI and Windows local checks exist; full Flutter/Docker prepared-machine smoke still depends on installed prerequisites.
+- Design system: source-of-truth docs and wireframes exist; Figma screen set and Public ID image templates remain.
+- Trust Loop implementation: API routes now call a fixture-backed Gate 0 service boundary; real Prisma/NestJS storage and Flutter screens remain.
+- Production gates now move in this order: persistence -> AWS CI/deploy -> Figma source -> release signing.
 
 Remaining:
 
-- Design system, Figma Gate 0 screen set, and Public ID image templates.
+- Figma Gate 0 screen set and Public ID image templates.
 - Real Prisma/NestJS/Flutter feature implementation beyond the fixture-backed Gate 0 scaffold.
 - Full mobile build/device smoke after Flutter toolchain is installed.
 
 ## Sprint 0 Design System And Gate 0 Screens
 
-What: Create `DESIGN.md`, Figma Gate 0 screen set, and six Public ID image templates.
+What: Complete the Figma Gate 0 screen set and six Public ID image templates now that `DESIGN.md`, `PRODUCT.md`, and static wireframes exist.
 
-Why: Gate 0 currently has a design-system stub in the plan, but no formal source of truth for colors, typography, components, screen layouts, or Public ID visual assets.
+Why: Gate 0 now has source-of-truth docs and HTML wireframes, but Figma handoff assets and reusable Public ID visual templates are still needed for production mobile implementation.
 
 Pros: Prevents Flutter implementation from drifting screen by screen; gives designers, developers, and QA one reference for Trust Loop UI decisions.
 
-Cons: Adds Sprint 0 design work before implementation can be considered design-complete.
+Cons: Adds final design handoff work before implementation can be considered design-complete.
 
-Context: `/plan-design-review` fixed Gate 0 UX structure in the plan, including Trust Loop IA, state matrix, Thai local woman storyboard, anti-slop rules, design stub, responsive/a11y matrix, Public ID regeneration UX, non-ID badge templates, and Discover-only Native Ad policy.
+Context: `/plan-design-review`, UI UX Pro Max, Impeccable, interface-design, and Emil design review work fixed the 5-tab Gate 0 UX structure, Bangkok Rose Trust visual system, wireframe QA contract, localization/accessibility contracts, and Contact Card lifecycle states.
 
-Depends on / blocked by: Final brand direction, Figma access, and confirmation of initial launch language priority.
+Depends on / blocked by: Figma access and confirmation of initial launch language priority.
 
 ## Sprint 0 Minimal Executable Monorepo Scaffold
 
@@ -100,7 +109,7 @@ Depends on / blocked by: `pnpm smoke`, `.gitignore` update for `.thai-meet/`, CI
 
 ## Sprint 0 Trust Loop Vertical Slice
 
-What: Implement the first Gate 0 vertical slice: mock login -> Public ID generation -> seeded Discover profile -> Start Chat -> LINE ContactExchange -> Contact Card render -> report/block event.
+What: Implement the first real Gate 0 vertical slice beyond fixtures: mock login -> Public ID generation -> seeded Discover profile -> Start Chat -> LINE ContactExchange -> Contact Card render -> revoke/report/block event.
 
 Why: The first real usage path should prove the Thai local woman trust loop end to end before the team expands into broad sprint modules.
 
@@ -108,9 +117,9 @@ Pros: Keeps Flutter, NestJS, OpenAPI, seeded data, and ContactExchange behavior 
 
 Cons: Requires touching mobile, API, contracts, seed data, and tests in one slice instead of completing backend or mobile in isolation.
 
-Context: `/plan-devex-review` selected YC-style MVP full-stack/mobile developer, Gate 0 Local Smoke TTHW target of 10-15 minutes, one-command local smoke, mock-first env matrix, and Contract + Trust Loop smoke.
+Context: `/plan-devex-review` selected YC-style MVP full-stack/mobile developer, Gate 0 Local Smoke TTHW target of 10-15 minutes, one-command local smoke, mock-first env matrix, and Contract + Trust Loop smoke. `/plan-eng-review` later fixed the implementation-start rule: Gate 0 route/nav must stay `Discover`, `Swipe`, `Chat`, `List`, `My`.
 
-Depends on / blocked by: Monorepo scaffold, toolchain/env matrix, mock provider defaults, OpenAPI generation, local DB/Redis, and Gate 0 placeholder screens. Full Figma/DESIGN.md polish should improve alpha quality but must not block the first runnable local DX smoke.
+Depends on / blocked by: Existing monorepo scaffold, toolchain/env matrix, mock provider defaults, OpenAPI generation, local DB/Redis, and Gate 0 5-tab Flutter shell. Full Figma polish should improve alpha quality but must not block the first runnable local DX smoke.
 
 ## Sprint 0 Developer Quickstart And Smoke Contract
 

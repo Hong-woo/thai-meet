@@ -4,17 +4,26 @@ import path from "node:path";
 const root = process.cwd();
 const valuesPath = path.join(root, "packages/api-contracts/fixtures/privacy-leak-values.json");
 const leakValues = JSON.parse(await readFile(valuesPath, "utf8")).values;
+const scanRootFiles = true;
 
 const scanRoots = [
   "apps",
   "packages",
   "scripts",
   "docs",
+  "wireframes",
+  "infra",
   ".github",
   ".thai-meet/smoke-runs",
+  ".thai-meet/device-smoke",
   ".env.example",
   "README.md",
-  "CONTRIBUTING.md"
+  "CONTRIBUTING.md",
+  "DESIGN.md",
+  "PRODUCT.md",
+  "TODOS.md",
+  "package.json",
+  "pnpm-workspace.yaml"
 ];
 
 const allowedFiles = new Set([
@@ -28,11 +37,19 @@ const requiredScanRoots = [
   "packages",
   "scripts",
   "docs",
+  "wireframes",
+  "infra",
   ".github",
   ".thai-meet/smoke-runs",
+  ".thai-meet/device-smoke",
   ".env.example",
   "README.md",
-  "CONTRIBUTING.md"
+  "CONTRIBUTING.md",
+  "DESIGN.md",
+  "PRODUCT.md",
+  "TODOS.md",
+  "package.json",
+  "pnpm-workspace.yaml"
 ];
 
 for (const requiredRoot of requiredScanRoots) {
@@ -41,8 +58,45 @@ for (const requiredRoot of requiredScanRoots) {
   }
 }
 
+if (!scanRootFiles) {
+  findings.push({ file: "scripts/check-privacy-leaks.mjs", value: "missing root artifact scan" });
+}
+
+for (const requiredTextFile of [
+  "privacy-regression.log",
+  "privacy-regression.html",
+  "privacy-regression.kts",
+  "privacy-regression.properties",
+  "privacy-regression.xml",
+  "privacy-regression.kt",
+  "privacy-regression.java",
+  "privacy-regression.bat",
+  "privacy-regression.cmd",
+  "privacy-regression.ps1",
+  "privacy-regression.sh",
+  "privacy-regression.iml",
+  "privacy-regression.png",
+  "privacy-regression.jpg",
+  "privacy-regression.jpeg",
+  "privacy-regression.webp",
+  "privacy-regression.svg",
+  "privacy-regression.lock",
+  "privacy-regression.toml",
+  "privacy-regression.conf",
+  "privacy-regression.ini",
+  "privacy-regression.json"
+]) {
+  if (!isScannableFile(requiredTextFile)) {
+    findings.push({ file: "scripts/check-privacy-leaks.mjs", value: `missing scan extension ${requiredTextFile}` });
+  }
+}
+
 for (const scanRoot of scanRoots) {
   await scanPath(path.join(root, scanRoot));
+}
+
+if (scanRootFiles) {
+  await scanRootScannableFiles();
 }
 
 if (findings.length > 0) {
@@ -75,12 +129,23 @@ async function scanPath(target) {
   if (!info.isFile()) return;
   const relative = normalize(path.relative(root, target));
   if (allowedFiles.has(relative)) return;
-  if (!isTextFile(relative)) return;
+  if (!isScannableFile(relative)) return;
 
-  const content = await readFile(target, "utf8");
+  const content = await readFile(target);
   for (const value of leakValues) {
     if (content.includes(value)) {
       findings.push({ file: relative, value });
+    }
+  }
+}
+
+async function scanRootScannableFiles() {
+  const entries = await readdir(root);
+  for (const entry of entries) {
+    const target = path.join(root, entry);
+    const info = await stat(target);
+    if (info.isFile()) {
+      await scanPath(target);
     }
   }
 }
@@ -89,6 +154,6 @@ function normalize(value) {
   return value.replace(/\\/g, "/");
 }
 
-function isTextFile(file) {
-  return /\.(dart|json|md|mjs|js|ts|yaml|yml|txt|env|example)$/.test(file) || !path.extname(file);
+function isScannableFile(file) {
+  return /\.(dart|json|html|md|mjs|js|ts|yaml|yml|txt|log|kts|properties|xml|kt|java|bat|cmd|ps1|sh|iml|png|jpg|jpeg|webp|svg|lock|toml|conf|ini|env|example)$/.test(file) || !path.extname(file);
 }

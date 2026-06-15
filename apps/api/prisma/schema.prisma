@@ -1,0 +1,278 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ContactProvider {
+  LINE
+  FACEBOOK
+}
+
+enum PublicIdentityStatus {
+  ACTIVE
+  ROTATED
+  HIDDEN
+  SUSPENDED
+}
+
+enum ContactExchangeStatus {
+  LOCKED
+  AVAILABLE
+  REVOKED
+  REPORTED
+  BLOCKED
+  PROVIDER_UNAVAILABLE
+}
+
+enum ChatMessageKind {
+  TEXT
+  CONTACT_CARD
+  SYSTEM
+}
+
+enum SafetyEventType {
+  REPORT
+  BLOCK
+  UNBLOCK
+  REVIEW_CLOSED
+}
+
+enum RewardLedgerType {
+  MANUAL_GRANT
+  CONTACT_SHARE
+  ADMIN_ADJUSTMENT
+}
+
+model User {
+  id                     String                @id @default(cuid())
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  activePublicIdentityId String?
+  status                 String                @default("active")
+  identities             UserIdentity[]
+  publicIdentities       PublicIdentity[]
+  externalContacts       ExternalContact[]
+  roomParticipants       ChatRoomParticipant[]
+  sentMessages           ChatMessage[]         @relation("sentMessages")
+  sentContactExchanges   ContactExchange[]     @relation("sentContactExchanges")
+  receivedExchanges      ContactExchange[]     @relation("receivedContactExchanges")
+  blocksCreated          Block[]               @relation("blocksCreated")
+  blocksReceived         Block[]               @relation("blocksReceived")
+  reportsCreated         Report[]              @relation("reportsCreated")
+  reportsReceived        Report[]              @relation("reportsReceived")
+  rewards                RewardLedger[]
+  auditEventsActed       AuditEvent[]          @relation("auditActor")
+  auditEventsTargeted    AuditEvent[]          @relation("auditTarget")
+}
+
+model UserIdentity {
+  id             String          @id @default(cuid())
+  userId         String
+  provider       ContactProvider
+  providerUserId String
+  createdAt      DateTime        @default(now())
+  user           User            @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerUserId])
+  @@index([userId])
+}
+
+model PublicIdentity {
+  id                String                @id @default(cuid())
+  userId            String
+  publicId          String                @unique
+  handle            String?
+  displayName       String
+  age               Int?
+  city              String?
+  status            PublicIdentityStatus  @default(ACTIVE)
+  createdAt         DateTime              @default(now())
+  rotatedAt         DateTime?
+  user              User                  @relation(fields: [userId], references: [id])
+  externalContacts  ExternalContact[]
+  roomParticipants  ChatRoomParticipant[]
+  sentMessages      ChatMessage[]
+  requestedContacts ContactExchange[]     @relation("requestedPublicIdentity")
+  targetContacts    ContactExchange[]     @relation("targetPublicIdentity")
+  reportsReceived   Report[]
+  rewards           RewardLedger[]
+
+  @@unique([handle])
+  @@index([userId, status])
+  @@index([status, createdAt])
+}
+
+model ExternalContact {
+  id               String          @id @default(cuid())
+  userId           String
+  publicIdentityId String?
+  provider         ContactProvider
+  label            String
+  encryptedValue   String
+  valueFingerprint String
+  isActive         Boolean         @default(true)
+  createdAt        DateTime        @default(now())
+  revokedAt        DateTime?
+  user             User            @relation(fields: [userId], references: [id])
+  publicIdentity   PublicIdentity? @relation(fields: [publicIdentityId], references: [id])
+  exchanges        ContactExchange[]
+
+  @@index([userId, provider])
+  @@index([publicIdentityId])
+}
+
+model ChatRoom {
+  id           String                @id @default(cuid())
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  participants ChatRoomParticipant[]
+  messages     ChatMessage[]
+  exchanges    ContactExchange[]
+}
+
+model ChatRoomParticipant {
+  id                         String         @id @default(cuid())
+  roomId                     String
+  userId                     String
+  publicIdentityIdAtCreation String
+  joinedAt                   DateTime       @default(now())
+  room                       ChatRoom       @relation(fields: [roomId], references: [id])
+  user                       User           @relation(fields: [userId], references: [id])
+  publicIdentity             PublicIdentity @relation(fields: [publicIdentityIdAtCreation], references: [id])
+
+  @@unique([roomId, userId, publicIdentityIdAtCreation])
+  @@index([userId, publicIdentityIdAtCreation])
+  @@index([roomId])
+}
+
+model ChatMessage {
+  id                     String           @id @default(cuid())
+  roomId                 String
+  senderUserId           String
+  senderPublicIdentityId String
+  kind                   ChatMessageKind  @default(TEXT)
+  body                   String?
+  contactExchangeId      String?
+  createdAt              DateTime         @default(now())
+  room                   ChatRoom         @relation(fields: [roomId], references: [id])
+  sender                 User             @relation("sentMessages", fields: [senderUserId], references: [id])
+  senderPublicIdentity   PublicIdentity   @relation(fields: [senderPublicIdentityId], references: [id])
+  contactExchange        ContactExchange? @relation(fields: [contactExchangeId], references: [id])
+
+  @@index([roomId, createdAt])
+  @@index([senderUserId, createdAt])
+  @@index([senderPublicIdentityId])
+}
+
+model ContactExchange {
+  id                        String                @id @default(cuid())
+  roomId                    String
+  senderUserId              String
+  receiverUserId            String
+  requestedByPublicIdentityId String
+  targetPublicIdentityId    String
+  contactId                 String
+  provider                  ContactProvider
+  status                    ContactExchangeStatus @default(LOCKED)
+  idempotencyKey            String?
+  permissionScope           String
+  canViewContactCard        Boolean               @default(false)
+  canCopyRawValue           Boolean               @default(false)
+  canReport                 Boolean               @default(true)
+  canBlock                  Boolean               @default(true)
+  createdAt                 DateTime              @default(now())
+  updatedAt                 DateTime              @updatedAt
+  revokedAt                 DateTime?
+  room                      ChatRoom              @relation(fields: [roomId], references: [id])
+  sender                    User                  @relation("sentContactExchanges", fields: [senderUserId], references: [id])
+  receiver                  User                  @relation("receivedContactExchanges", fields: [receiverUserId], references: [id])
+  requestedByPublicIdentity PublicIdentity         @relation("requestedPublicIdentity", fields: [requestedByPublicIdentityId], references: [id])
+  targetPublicIdentity      PublicIdentity         @relation("targetPublicIdentity", fields: [targetPublicIdentityId], references: [id])
+  contact                   ExternalContact       @relation(fields: [contactId], references: [id])
+  messages                  ChatMessage[]
+
+  @@index([roomId, createdAt])
+  @@index([senderUserId, receiverUserId])
+  @@index([contactId])
+  @@index([status, createdAt])
+}
+
+model Block {
+  id                      String          @id @default(cuid())
+  blockerUserId           String
+  blockedUserId           String
+  visiblePublicIdentityId String?
+  createdAt               DateTime        @default(now())
+  blocker                 User            @relation("blocksCreated", fields: [blockerUserId], references: [id])
+  blocked                 User            @relation("blocksReceived", fields: [blockedUserId], references: [id])
+
+  @@unique([blockerUserId, blockedUserId])
+  @@index([blockedUserId])
+}
+
+model Report {
+  id                       String          @id @default(cuid())
+  reporterUserId           String
+  reportedUserId           String
+  reportedPublicIdentityId String
+  targetType               String
+  targetId                 String
+  reason                   String?
+  createdAt                DateTime        @default(now())
+  reporter                 User            @relation("reportsCreated", fields: [reporterUserId], references: [id])
+  reported                 User            @relation("reportsReceived", fields: [reportedUserId], references: [id])
+  reportedPublicIdentity   PublicIdentity  @relation(fields: [reportedPublicIdentityId], references: [id])
+
+  @@index([reportedUserId, createdAt])
+  @@index([reportedPublicIdentityId, createdAt])
+  @@index([reporterUserId, createdAt])
+}
+
+model RewardLedger {
+  id               String              @id @default(cuid())
+  userId           String
+  publicIdentityId String?
+  type             RewardLedgerType
+  amount           Int
+  idempotencyKey   String?
+  expiresAt        DateTime?
+  createdAt        DateTime            @default(now())
+  user             User                @relation(fields: [userId], references: [id])
+  publicIdentity   PublicIdentity?     @relation(fields: [publicIdentityId], references: [id])
+  consumptions     RewardConsumption[]
+
+  @@index([userId, type, expiresAt])
+  @@index([publicIdentityId])
+}
+
+model RewardConsumption {
+  id             String       @id @default(cuid())
+  rewardLedgerId String
+  actionType     String
+  actionId       String
+  createdAt      DateTime     @default(now())
+  rewardLedger   RewardLedger @relation(fields: [rewardLedgerId], references: [id])
+
+  @@index([rewardLedgerId])
+  @@index([actionType, actionId])
+}
+
+model AuditEvent {
+  id           String          @id @default(cuid())
+  actorUserId  String?
+  targetUserId String?
+  eventType    SafetyEventType
+  entityType   String
+  entityId     String
+  createdAt    DateTime        @default(now())
+  metadata     Json?
+  actor        User?           @relation("auditActor", fields: [actorUserId], references: [id])
+  target       User?           @relation("auditTarget", fields: [targetUserId], references: [id])
+
+  @@index([actorUserId, createdAt])
+  @@index([targetUserId, createdAt])
+  @@index([eventType, createdAt])
+}

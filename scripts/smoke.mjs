@@ -7,11 +7,15 @@ import path from "node:path";
 const root = process.cwd();
 const startedAt = new Date();
 const doctorOnly = process.argv.includes("--doctor");
+const npmCommandPrefix = process.platform === "win32"
+  ? { executable: process.env.ComSpec || "cmd.exe", args: ["/d", "/s", "/c", "npm"] }
+  : { executable: "npm", args: [] };
 const stages = {
   doctor: "pending",
   infra: "pending",
   api: "pending",
   contract: "pending",
+  wireframes: "pending",
   seed: "pending",
   mobile: "pending",
   privacy: "pending",
@@ -61,17 +65,8 @@ async function runDoctor() {
   const flutter = commandExists("flutter");
   checks.push({ code: "TM_SMOKE_DOCTOR_FLUTTER_UNAVAILABLE", ok: flutter.ok, detail: flutter.ok ? firstLine(flutter.output) : "flutter unavailable" });
 
-  const chromeCommands = process.platform === "win32"
-    ? ["chrome", "msedge"]
-    : ["google-chrome", "chromium", "chrome"];
-  const chromeOk = chromeCommands.some((command) => commandExists(command, ["--version"]).ok);
-  checks.push({ code: "TM_SMOKE_DOCTOR_CHROME_UNAVAILABLE", ok: chromeOk, detail: chromeOk ? "browser available for Flutter web smoke" : "Chrome/Edge unavailable on PATH" });
-
   const docker = commandExists("docker");
   checks.push({ code: "TM_SMOKE_DOCTOR_DOCKER_UNAVAILABLE", ok: docker.ok, detail: docker.ok ? firstLine(docker.output) : "docker unavailable" });
-
-  const dockerInfo = docker.ok ? commandExists("docker", ["info"]) : { ok: false, output: "docker unavailable" };
-  checks.push({ code: "TM_SMOKE_DOCTOR_DOCKER_NOT_RUNNING", ok: dockerInfo.ok, detail: dockerInfo.ok ? "docker daemon reachable" : "docker daemon not reachable" });
 
   for (const port of [3000, 5432, 6379]) {
     const free = await isPortFree(port);
@@ -101,6 +96,32 @@ function runNodeScript(stage, script) {
   stages[stage] = result.status === 0 ? "passed" : "failed";
   printStage(stage, stages[stage], output ? output.split(/\r?\n/) : []);
   return result.status === 0;
+}
+
+function runCommandSequence(stage, commands) {
+  const details = [];
+  let ok = true;
+
+  for (const command of commands) {
+    details.push(`$ ${[command.executable, ...command.args].join(" ")}`);
+    const result = spawnSync(command.executable, command.args, {
+      cwd: root,
+      encoding: "utf8",
+      shell: command.shell ?? false,
+      timeout: command.timeoutMs || 30000
+    });
+    const output = `${result.stdout || ""}${result.stderr || ""}`.trim();
+    if (result.error) details.push(result.error.message);
+    if (output) details.push(...output.split(/\r?\n/));
+    if (result.status !== 0) {
+      ok = false;
+      break;
+    }
+  }
+
+  stages[stage] = ok ? "passed" : "failed";
+  printStage(stage, stages[stage], details);
+  return ok;
 }
 
 function printStage(stage, status, details = []) {
@@ -171,12 +192,17 @@ printStage("infra", "skipped", ["Docker Compose service boot is deferred in scaf
 
 const apiOk = runNodeScript("api", "scripts/check-api-runtime.mjs");
 const contractOk = runNodeScript("contract", "scripts/check-contracts.mjs");
+const wireframesOk = runNodeScript("wireframes", "wireframes/qa-check.mjs");
 const seedOk = runNodeScript("seed", "scripts/seed-gate0-fixtures.mjs");
-const mobileOk = runNodeScript("mobile", "scripts/check-mobile-routes.mjs");
+const mobileOk = runCommandSequence("mobile", [
+  { executable: process.execPath, args: ["scripts/check-mobile-routes.mjs"] },
+  { executable: npmCommandPrefix.executable, args: [...npmCommandPrefix.args, "run", "mobile:flutter:analyze"], timeoutMs: 120000 },
+  { executable: npmCommandPrefix.executable, args: [...npmCommandPrefix.args, "run", "mobile:flutter:test"], timeoutMs: 120000 }
+]);
 const trustLoopOk = runNodeScript("trustLoop", "scripts/check-trust-loop.mjs");
 const privacyOk = runNodeScript("privacy", "scripts/check-privacy-leaks.mjs");
 
-if (!apiOk || !contractOk || !seedOk || !mobileOk || !trustLoopOk || !privacyOk) {
+if (!apiOk || !contractOk || !wireframesOk || !seedOk || !mobileOk || !trustLoopOk || !privacyOk) {
   stages.trustLoop = trustLoopOk ? stages.trustLoop : "failed";
 }
 

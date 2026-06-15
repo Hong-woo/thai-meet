@@ -9,6 +9,8 @@ const openApi = JSON.parse(await readFile(openApiPath, "utf8"));
 
 const paths = Object.keys(openApi.paths || {});
 const hasLineExchange = paths.includes("/api/v1/chats/rooms/{roomId}/contact-exchanges/line");
+const lineExchangeParameters = openApi.paths?.["/api/v1/chats/rooms/{roomId}/contact-exchanges/line"]?.post?.parameters || [];
+const lineExchangeStateEnum = lineExchangeParameters.find((parameter) => parameter.name === "state")?.schema?.enum || [];
 
 const client = `// Placeholder generated client for the Gate 0 scaffold.
 // Generated from packages/api-contracts/openapi/gate0.openapi.json.
@@ -25,9 +27,12 @@ class ThaiMeetApiClient {
     return '/api/v1/chats/rooms/$encodedRoomId';
   }
 
-  String lineContactExchangePath(String roomId) {
+  String lineContactExchangePath(String roomId, {String? state}) {
     final encodedRoomId = Uri.encodeComponent(roomId);
-    return '/api/v1/chats/rooms/$encodedRoomId/contact-exchanges/line';
+    final path = '/api/v1/chats/rooms/$encodedRoomId/contact-exchanges/line';
+    if (state == null) return path;
+    final encodedState = Uri.encodeQueryComponent(state);
+    return '$path?state=$encodedState';
   }
 
   String get createSafetyReportPath => '/api/v1/safety/reports';
@@ -35,8 +40,13 @@ class ThaiMeetApiClient {
 }
 
 const bool gate0LineContactExchangeInContract = ${hasLineExchange ? "true" : "false"};
+const List<String> gate0LineContactExchangeStates = ${dartStringList(lineExchangeStateEnum)};
 `;
 
 await mkdir(outDir, { recursive: true });
 await writeFile(outPath, client);
 console.log(`Dart client scaffold generated: ${path.relative(root, outPath)}`);
+
+function dartStringList(values) {
+  return `[${values.map((value) => `'${String(value).replaceAll("'", "\\'")}'`).join(", ")}]`;
+}

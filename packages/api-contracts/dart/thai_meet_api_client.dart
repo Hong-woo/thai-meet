@@ -13,9 +13,12 @@ class ThaiMeetApiClient {
     return '/api/v1/chats/rooms/$encodedRoomId';
   }
 
-  String lineContactExchangePath(String roomId) {
+  String lineContactExchangePath(String roomId, {String? state}) {
     final encodedRoomId = Uri.encodeComponent(roomId);
-    return '/api/v1/chats/rooms/$encodedRoomId/contact-exchanges/line';
+    final path = '/api/v1/chats/rooms/$encodedRoomId/contact-exchanges/line';
+    if (state == null) return path;
+    final encodedState = Uri.encodeQueryComponent(state);
+    return '$path?state=$encodedState';
   }
 
   String get createSafetyReportPath => '/api/v1/safety/reports';
@@ -23,3 +26,4 @@ class ThaiMeetApiClient {
 }
 
 const bool gate0LineContactExchangeInContract = true;
+const List<String> gate0LineContactExchangeStates = ['locked', 'available', 'revoked', 'reported', 'blocked', 'provider_unavailable'];

@@ -21,9 +21,12 @@ Run when relevant:
 
 ```powershell
 npm run privacy:test
+node wireframes/qa-check.mjs
 npm run smoke:metrics
 npm run smoke:doctor
-pnpm smoke
+corepack pnpm smoke
+npm run mobile:device:smoke
+npm run mobile:device:result -- --strict
 ```
 
 API and contracts:
@@ -37,12 +40,15 @@ API and contracts:
 
 Mobile and routes:
 
-- Gate 0 nav remains Discover, Chats, My ID, Safety.
+- Gate 0 nav remains Discover, Swipe, Chat, List, My.
+- Safety remains reachable from profile, Chat, Contact Card, List, and My surfaces without becoming a top-level tab.
+- Wireframe route IDs and component primitives remain aligned with `wireframes/qa-check.mjs`.
 - Gate 0 feature flags keep LINE visible and Facebook/rewards/ads/admin hidden by default.
 - Reward ledger remains append-only and idempotent even while reward UI is hidden.
 - Flutter route names and paths stay aligned with `scripts/check-mobile-routes.mjs`.
 - Contact cards do not expose raw LINE/Facebook values in chat messages.
 - Mobile UI changes consider small mobile viewports and accessibility labels.
+- Android device smoke result is captured and checked with `npm run mobile:device:result -- --strict` when a physical device is available.
 
 Trust Loop:
 
@@ -60,7 +66,10 @@ Privacy and safety:
 DB and migrations:
 
 - Prisma migration status is checked when database schema exists.
+- Gate 1 persistence changes follow `GATE1_PERSISTENCE.md`.
+- The fixture store replacement boundary is preserved until persisted reads and writes pass contract checks.
 - DB constraints and indexes remain aligned with `docs/dev/DB_CONSTRAINTS.md`.
+- rollback notes cover safety, identity, contact exchange, report, block, and reward data.
 - Future DB changes are backward-compatible during Gate 0 alpha unless there are no live testers.
 - Safety-sensitive persisted changes have a note under `docs/dev/migrations/`.
 

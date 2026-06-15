@@ -1,0 +1,974 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Thai Meet Gate 0 Wireframes</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23BE123C'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-family='Arial,sans-serif' font-size='20' font-weight='700' fill='white'%3ETM%3C/text%3E%3C/svg%3E" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Manrope:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            daylight: "#FFF8FA",
+            ink: "#151215",
+            muted: "#6F5660",
+            line: "#F2D4DC",
+            trust: "#BE123C",
+            trustSoft: "#FFE4EC",
+            coral: "#C2410C",
+            coralSoft: "#FFE6DC",
+            honey: "#D97706",
+            honeySoft: "#FFF7CC",
+            lineGreen: "#06C755",
+            safety: "#9F1239",
+            sky: "#2F80ED",
+            warm: "#FFF1F5"
+          },
+          fontFamily: {
+            display: ["Manrope", "Satoshi", "Source Sans 3", "sans-serif"],
+            sans: ["Source Sans 3", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"]
+          },
+          boxShadow: {
+            phone: "0 18px 46px rgba(23, 23, 23, .14)"
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    :root {
+      --motion-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+      --motion-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+      --motion-press: 140ms;
+      --motion-ui: 160ms;
+      --motion-reveal: 220ms;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; max-width: 100%; overflow-x: hidden; }
+    body { background: #fff8fa; color: #151215; touch-action: manipulation; max-width: 100%; overflow-x: hidden; font-family: "Source Sans 3", sans-serif; }
+    h1, h2, h3, h4, h5, b, button, .nav-item { font-family: "Manrope", "Satoshi", "Source Sans 3", sans-serif; }
+    main, section, article { min-width: 0; }
+    p, b, h1, h2, h3, h4, h5, button, input, .nav-item, .app-chip, .state-pill {
+      overflow-wrap: anywhere;
+    }
+    .locale-sample {
+      line-height: 1.35;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+    .single-line-safe {
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .phone {
+      width: min(100%, 390px);
+      height: 812px;
+      border-radius: 34px;
+      border: 1px solid rgba(21,18,21,.12);
+      overflow: hidden;
+      background: #fff8fa;
+      box-shadow: 0 18px 46px rgba(23, 18, 21, .12), 0 2px 0 rgba(255,255,255,.7) inset;
+      position: relative;
+    }
+    .screen {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: #fff8fa;
+    }
+    .safe-top { padding-top: 18px; }
+    .safe-bottom { padding-bottom: 18px; }
+    button, a, .tap, .nav-item, .app-chip {
+      transition:
+        transform var(--motion-press) var(--motion-ease-out),
+        background-color var(--motion-ui) var(--motion-ease-out),
+        border-color var(--motion-ui) var(--motion-ease-out),
+        opacity var(--motion-ui) var(--motion-ease-out);
+    }
+    button:active, a:active, .tap:active, .nav-item:active, .app-chip:active { transform: scale(0.97); }
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    label:focus-within {
+      outline: 3px solid rgba(190, 18, 60, .44);
+      outline-offset: 3px;
+    }
+    .screen.bg-\[\#111\] button:focus-visible,
+    .screen.bg-\[\#111\] a:focus-visible,
+    .screen.bg-\[\#111\] input:focus-visible {
+      outline-color: rgba(255, 228, 236, .78);
+    }
+    .tap { min-height: 44px; min-width: 44px; }
+    .bottom-nav {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 2px;
+      border-top: 1px solid #f2d4dc;
+      background: rgba(255,248,250,.96);
+      backdrop-filter: blur(14px);
+    }
+    .nav-item {
+      min-height: 58px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      color: #6f5660;
+      font-size: 11px;
+      font-weight: 800;
+      border-radius: 14px;
+      margin: 4px 3px;
+    }
+    .nav-item.active {
+      color: #be123c;
+      background: rgba(190, 18, 60, .1);
+    }
+    .bg-\[\#171113\]\/95 .nav-item.active {
+      background: rgba(190, 18, 60, .18);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+    }
+    .id-badge {
+      font-family: "JetBrains Mono", monospace;
+      background: #be123c;
+      color: white;
+      border-radius: 6px;
+      padding: 5px 7px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .profile-photo {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 18% 14%, rgba(255,255,255,.34) 0 7%, transparent 8%),
+        linear-gradient(106deg, #c8dfe5 0 31%, #f4c4a5 32% 53%, #964b54 54% 72%, #181219 73% 100%);
+      isolation: isolate;
+    }
+    .profile-photo.alt {
+      background:
+        radial-gradient(circle at 74% 13%, rgba(255,255,255,.28) 0 8%, transparent 9%),
+        linear-gradient(112deg, #efe1d3 0 30%, #f1b48f 31% 52%, #b94f56 53% 70%, #21161d 71% 100%);
+    }
+    .profile-photo::before {
+      content: "";
+      position: absolute;
+      left: 48%;
+      top: 23%;
+      width: 28%;
+      height: 26%;
+      border-radius: 48% 48% 44% 44%;
+      background: linear-gradient(180deg, #4e3029 0 46%, #d78d6c 47% 100%);
+      box-shadow:
+        0 22px 0 18px rgba(215, 141, 108, .92),
+        -12px 18px 0 20px rgba(70, 42, 36, .92);
+      transform: translateX(-50%);
+      z-index: 0;
+    }
+    .profile-photo::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(112deg, transparent 0 38%, rgba(255,255,255,.16) 39% 44%, transparent 45% 100%),
+        linear-gradient(180deg, rgba(10,8,10,0) 0 48%, rgba(8,6,8,.78) 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+    .profile-photo > * { z-index: 2; }
+    .swipe-back-card {
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: 0 18px 34px rgba(0,0,0,.22);
+    }
+    .trust-strip {
+      border: 1px solid rgba(255,255,255,.09);
+      background: rgba(255,255,255,.075);
+      color: rgba(255,255,255,.88);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+    }
+    .contact-lock {
+      border: 1px solid rgba(255,255,255,.1);
+      background: linear-gradient(180deg, rgba(255,255,255,.11), rgba(255,255,255,.07));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .contact-card-state {
+      border: 1px solid rgba(242, 212, 220, .95);
+      background: linear-gradient(180deg, #ffffff, #fff8fa);
+      box-shadow: 0 8px 18px rgba(190, 18, 60, .06);
+      transition:
+        border-color var(--motion-ui) var(--motion-ease-out),
+        box-shadow var(--motion-ui) var(--motion-ease-out),
+        transform var(--motion-press) var(--motion-ease-out);
+    }
+    .surface-card {
+      border: 1px solid rgba(242, 212, 220, .95);
+      background: linear-gradient(180deg, #ffffff 0%, #fff8fa 100%);
+      box-shadow: 0 8px 20px rgba(190, 18, 60, .055);
+      transition:
+        border-color var(--motion-ui) var(--motion-ease-out),
+        box-shadow var(--motion-ui) var(--motion-ease-out),
+        transform var(--motion-press) var(--motion-ease-out);
+    }
+    .sheet-panel {
+      border-top: 1px solid rgba(242, 212, 220, .96);
+      background: linear-gradient(180deg, #ffffff 0%, #fff8fa 100%);
+      box-shadow: 0 -18px 46px rgba(21, 18, 21, .16);
+    }
+    .sheet-handle {
+      width: 40px;
+      height: 4px;
+      border-radius: 999px;
+      background: #f2d4dc;
+    }
+    .state-pill {
+      border: 1px solid rgba(242, 212, 220, .85);
+      background: rgba(255, 255, 255, .74);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+    }
+    .swipe-depth {
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.16);
+      overflow: hidden;
+    }
+    .swipe-depth > span {
+      display: block;
+      height: 100%;
+      width: 42%;
+      border-radius: inherit;
+      background: #ffe4ec;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .tap:hover, button:hover, .app-chip:hover { transform: translateY(-1px); }
+      .nav-item:hover { background: rgba(190, 18, 60, .08); }
+      .bg-\[\#171113\]\/95 .nav-item:hover { background: rgba(255,255,255,.08); }
+      .surface-card:hover, .contact-card-state:hover { border-color: rgba(190, 18, 60, .24); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+    .mono { font-family: "JetBrains Mono", monospace; }
+    .wire-note { box-shadow: inset 0 0 0 1px rgba(190, 18, 60, .18); }
+    .hero-phone { height: 640px; }
+    .hero-swipe-card { height: 390px; }
+    @media (max-width: 640px) {
+      .phone { width: min(100%, 360px); height: 760px; border-radius: 24px; }
+      .hero-phone { height: 620px; }
+      .hero-swipe-card { height: 330px; }
+      .bottom-nav { gap: 2px; }
+      .nav-item { font-size: 9px; }
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <header class="sticky top-0 z-50 border-b border-line bg-daylight/95 backdrop-blur">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
+      <div class="flex items-center gap-3">
+        <div class="grid h-10 w-10 place-items-center rounded-lg bg-trust text-sm font-black text-white mono">TM</div>
+        <div>
+          <h1 class="text-lg font-black leading-tight">Thai Meet Gate 0 Wireframes</h1>
+          <p class="text-xs font-semibold text-muted">HTML + Tailwind CSS + Lucide icons</p>
+        </div>
+      </div>
+      <nav class="hidden items-center gap-2 text-sm font-bold text-muted md:flex">
+        <a class="rounded-md px-3 py-2 hover:bg-warm" href="#benchmark">Benchmark</a>
+        <a class="rounded-md px-3 py-2 hover:bg-warm" href="#flow">Flow</a>
+        <a class="rounded-md px-3 py-2 hover:bg-warm" href="#screens">Screens</a>
+        <a class="rounded-md px-3 py-2 hover:bg-warm" href="#rules">Rules</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 py-8">
+    <section class="mb-10 grid gap-8 lg:grid-cols-[0.9fr_390px] lg:items-center">
+      <div class="lg:pr-8">
+        <p class="mb-3 inline-flex rounded-full border border-line bg-white px-3 py-1 text-xs font-black text-trust">PRD v3.0 + DESIGN.md aligned</p>
+        <h2 class="max-w-4xl text-4xl font-black leading-[1.04] tracking-normal md:text-6xl">Swipe first. Share LINE only by choice.</h2>
+        <p class="mt-5 max-w-2xl text-lg font-semibold leading-8 text-muted">Thai Meet opens as a mobile dating app, not a planning dashboard: Discover, Swipe, Chat, List, and My keep Public Meet ID and Contact Cards close to every decision.</p>
+        <div class="mt-6 flex flex-wrap gap-2">
+          <span class="app-chip inline-flex items-center gap-2 rounded-full border border-line bg-white px-3 py-2 text-sm font-black"><i data-lucide="badge-check" class="h-4 w-4 text-trust"></i>Public ID on cards</span>
+          <span class="app-chip inline-flex items-center gap-2 rounded-full border border-line bg-white px-3 py-2 text-sm font-black"><i data-lucide="lock-keyhole" class="h-4 w-4 text-trust"></i>Contact Card locked</span>
+          <span class="app-chip inline-flex items-center gap-2 rounded-full border border-line bg-white px-3 py-2 text-sm font-black"><i data-lucide="rotate-ccw" class="h-4 w-4 text-safety"></i>Revoke after share</span>
+        </div>
+      </div>
+      <div class="order-first lg:order-last">
+        <div class="phone hero-phone mx-auto">
+          <div class="screen bg-[#111] text-white">
+            <div class="safe-top px-4">
+              <div class="flex items-center justify-between">
+                <button class="tap rounded-full" aria-label="Undo"><i data-lucide="undo-2" class="mx-auto h-6 w-6"></i></button>
+                <div class="flex gap-2">
+                  <button class="tap relative rounded-full" aria-label="Likes"><i data-lucide="heart" class="mx-auto h-6 w-6"></i><span class="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-coral text-xs font-black">1</span></button>
+                  <button class="tap rounded-full" aria-label="Filters"><i data-lucide="sliders-horizontal" class="mx-auto h-6 w-6"></i></button>
+                </div>
+              </div>
+              <div class="trust-strip mt-2 rounded-full px-3 py-2 text-center text-[11px] font-black tracking-normal">Swipe first · LINE stays locked</div>
+            </div>
+            <div class="relative mx-4 mt-3 hero-swipe-card">
+              <div class="profile-photo alt swipe-back-card absolute inset-y-6 left-12 right-[-34px] rotate-3 opacity-75"></div>
+              <div class="profile-photo swipe-back-card absolute inset-y-3 left-6 right-[-18px] rotate-1 opacity-90"></div>
+              <div class="profile-photo relative h-full w-full -rotate-2 overflow-hidden rounded-[18px] shadow-2xl">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/15"></div>
+                <span class="id-badge absolute left-4 top-4">TM-BKK-001</span>
+                <span class="absolute right-4 top-4 rounded-md bg-black/55 px-3 py-1 text-lg font-black">1km</span>
+                <div class="absolute bottom-5 left-5 right-5">
+                  <h3 class="text-3xl font-black">Mai, 27</h3>
+                  <p class="font-black">Bangkok · Public ID active</p>
+                </div>
+              </div>
+            </div>
+            <div class="mx-4 mt-3 grid grid-cols-[52px_1fr_52px] items-center gap-3">
+              <button class="tap rounded-full border border-white/15 bg-white/10" aria-label="Pass"><i data-lucide="x" class="mx-auto h-7 w-7"></i></button>
+              <div class="swipe-depth" role="progressbar" aria-label="Swipe stack progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="42"><span></span></div>
+              <button class="tap rounded-full bg-trust" aria-label="Like"><i data-lucide="heart" class="mx-auto h-7 w-7"></i></button>
+            </div>
+            <div class="contact-lock mx-4 mt-3 rounded-lg p-3">
+              <div class="flex items-center justify-between gap-3">
+                <div class="flex min-w-0 items-center gap-2"><span class="grid h-8 w-8 place-items-center rounded-md bg-white/15"><i data-lucide="lock-keyhole" class="h-5 w-5"></i></span><b>LINE card locked</b></div>
+                <span class="rounded bg-white/10 px-2 py-1 text-xs font-black text-white/80">Chat first</span>
+              </div>
+            </div>
+            <nav aria-label="Primary app navigation" class="bottom-nav safe-bottom mt-auto bg-[#171113]/95 text-white">
+              <a class="nav-item text-white/70" href="#"><i data-lucide="search" class="h-5 w-5"></i><span class="single-line-safe">Discover</span></a>
+              <a aria-current="page" class="nav-item active text-trustSoft" href="#"><i data-lucide="zap" class="h-5 w-5"></i><span class="single-line-safe">Swipe</span></a>
+              <a class="nav-item text-white/70" href="#"><i data-lucide="message-circle" class="h-5 w-5"></i><span class="single-line-safe">Chat</span></a>
+              <a class="nav-item text-white/70" href="#"><i data-lucide="list" class="h-5 w-5"></i><span class="single-line-safe">List</span></a>
+              <a class="nav-item text-white/70" href="#"><i data-lucide="user-round" class="h-5 w-5"></i><span class="single-line-safe">My</span></a>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="flow" class="mb-10 rounded-lg border border-line bg-white p-5">
+      <div class="mb-4 flex items-center gap-2">
+        <i data-lucide="route" class="h-5 w-5 text-trust"></i>
+        <h2 class="text-xl font-black">Trust Loop Flow</h2>
+      </div>
+      <div class="grid gap-3 md:grid-cols-8">
+        <div class="rounded-lg bg-warm p-3"><b>1. Login</b><p class="mt-1 text-sm text-muted">mock/social</p></div>
+        <div class="rounded-lg bg-trustSoft p-3"><b>2. Public ID</b><p class="mt-1 text-sm text-muted">ID image select</p></div>
+        <div class="rounded-lg bg-warm p-3"><b>3. Discover</b><p class="mt-1 text-sm text-muted">nearby + filters</p></div>
+        <div class="rounded-lg bg-coralSoft p-3"><b>4. Swipe</b><p class="mt-1 text-sm text-muted">fast match path</p></div>
+        <div class="rounded-lg bg-warm p-3"><b>5. Profile</b><p class="mt-1 text-sm text-muted">start chat</p></div>
+        <div class="rounded-lg bg-warm p-3"><b>6. Chat</b><p class="mt-1 text-sm text-muted">message first</p></div>
+        <div class="rounded-lg bg-lineGreen/10 p-3"><b>7. LINE Card</b><p class="mt-1 text-sm text-muted">explicit share</p></div>
+        <div class="rounded-lg bg-honeySoft p-3"><b>8. List / My</b><p class="mt-1 text-sm text-muted">saved + account</p></div>
+      </div>
+    </section>
+
+    <section id="lifecycle" class="mb-10 rounded-lg border border-line bg-white p-5">
+      <div class="mb-4 flex items-center gap-2">
+        <i data-lucide="lock-keyhole" class="h-5 w-5 text-trust"></i>
+        <h2 class="text-xl font-black">LINE Contact Card Lifecycle</h2>
+      </div>
+      <div class="grid gap-3 md:grid-cols-7">
+        <div class="rounded-lg bg-warm p-3"><b>Locked</b><p class="mt-1 text-sm text-muted">chat first</p></div>
+        <div class="rounded-lg bg-trustSoft p-3"><b>Confirm</b><p class="mt-1 text-sm text-muted">one-time warning</p></div>
+        <div class="rounded-lg bg-lineGreen/10 p-3"><b>Available</b><p class="mt-1 text-sm text-muted">view card</p></div>
+        <div class="rounded-lg bg-honeySoft p-3"><b>Revoked</b><p class="mt-1 text-sm text-muted">stop access</p></div>
+        <div class="rounded-lg bg-coralSoft p-3"><b>Reported</b><p class="mt-1 text-sm text-muted">safety review</p></div>
+        <div class="rounded-lg bg-coralSoft p-3"><b>Blocked</b><p class="mt-1 text-sm text-muted">no re-open</p></div>
+        <div class="rounded-lg bg-warm p-3"><b>Unavailable</b><p class="mt-1 text-sm text-muted">provider issue</p></div>
+      </div>
+    </section>
+
+    <section id="benchmark" class="mb-10 rounded-lg border border-line bg-white p-5">
+      <div class="mb-4 flex items-center gap-2">
+        <i data-lucide="scan-eye" class="h-5 w-5 text-trust"></i>
+        <h2 class="text-xl font-black">Dating App Benchmark Notes</h2>
+      </div>
+      <div class="grid gap-3 md:grid-cols-4">
+        <div class="rounded-lg bg-trustSoft p-3"><b>Tinder</b><p class="mt-1 text-sm text-muted">Warm action color, image-first swipe, fast binary decisions.</p></div>
+        <div class="rounded-lg bg-honeySoft p-3"><b>Bumble</b><p class="mt-1 text-sm text-muted">Female-first confidence, bright surfaces, friendly safety tone.</p></div>
+        <div class="rounded-lg bg-warm p-3"><b>ThaiFriendly</b><p class="mt-1 text-sm text-muted">Swipe plus practical search/list behavior for local discovery.</p></div>
+        <div class="rounded-lg bg-coralSoft p-3"><b>MEEFF</b><p class="mt-1 text-sm text-muted">Global chat/list utility, language cues, visible moderation affordances.</p></div>
+      </div>
+    </section>
+
+    <section id="screens" class="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+      <!-- Onboarding / Public ID -->
+      <article class="space-y-3" data-route="PublicMeetIdSetup">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-black">Public Meet ID Setup</h3>
+          <span class="rounded-full bg-trustSoft px-2 py-1 text-xs font-black text-trust">Required before Discover</span>
+        </div>
+        <div class="phone">
+          <div class="screen">
+            <div class="safe-top px-5">
+              <div class="flex items-center justify-between">
+                <button class="tap rounded-full text-muted" aria-label="Back"><i data-lucide="chevron-left" class="mx-auto h-6 w-6"></i></button>
+                <span class="text-sm font-black text-muted">1 / 3</span>
+              </div>
+              <div class="mt-5">
+                <p class="text-sm font-black text-trust">Thai Meet</p>
+                <h4 class="mt-2 text-3xl font-black leading-tight">Start fresh with a Public Meet ID.</h4>
+                <p class="mt-3 text-base font-semibold leading-6 text-muted">Your login account stays private. This ID is what others see in Discover and Chat.</p>
+              </div>
+            </div>
+            <div class="flex-1 px-5 py-5">
+              <div class="surface-card rounded-lg p-4">
+                <div class="aspect-[1.25] rounded-lg border border-line bg-[radial-gradient(circle_at_20%_18%,#FFE4EC_0_0.75rem,transparent_0.8rem),linear-gradient(135deg,#FFF8FA_0%,#FFE4EC_58%,#FFF7CC_100%)] p-4">
+                  <div class="flex h-full flex-col justify-between">
+                    <div class="flex justify-between">
+                      <span class="id-badge">TM-BKK-001</span>
+                      <i data-lucide="sparkles" class="h-6 w-6 text-coral"></i>
+                    </div>
+                    <div>
+                      <p class="mono text-3xl font-black text-trust">MAI</p>
+                      <p class="text-sm font-bold text-muted">Bangkok · Public ID active</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-4 grid grid-cols-3 gap-2">
+                  <button class="min-h-[44px] rounded-md border-2 border-trust bg-trustSoft text-sm font-black text-trust">Use</button>
+                  <button class="min-h-[44px] rounded-md border border-line bg-white text-sm font-bold">Option</button>
+                  <button class="min-h-[44px] rounded-md border border-line bg-white text-sm font-bold">Option</button>
+                </div>
+              </div>
+              <button class="mt-4 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border border-line bg-white font-black">
+                <i data-lucide="refresh-cw" class="h-5 w-5"></i>
+                Regenerate options
+              </button>
+            </div>
+            <div class="safe-bottom px-5">
+              <button class="min-h-[52px] w-full rounded-lg bg-trust text-base font-black text-white">Continue to profile</button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Discover Swipe -->
+      <article class="space-y-3" data-route="DiscoverSwipe">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-black">Discover Swipe</h3>
+          <span class="rounded-full bg-warm px-2 py-1 text-xs font-black text-muted">Default screen</span>
+        </div>
+        <div class="phone">
+          <div class="screen bg-[#111] text-white">
+            <div class="safe-top px-4">
+              <div class="flex items-center justify-between">
+                <button class="tap rounded-full" aria-label="Undo"><i data-lucide="undo-2" class="mx-auto h-6 w-6"></i></button>
+                <div class="flex gap-2">
+                  <button class="tap relative rounded-full" aria-label="Likes"><i data-lucide="heart" class="mx-auto h-6 w-6"></i><span class="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-coral text-xs font-black">1</span></button>
+                  <button class="tap rounded-full" aria-label="Focus city"><i data-lucide="crosshair" class="mx-auto h-6 w-6"></i></button>
+                  <button class="tap rounded-full" aria-label="Filters"><i data-lucide="sliders-horizontal" class="mx-auto h-6 w-6"></i></button>
+                </div>
+              </div>
+            </div>
+            <div class="relative mx-4 mt-3 h-[540px] flex-1 overflow-hidden">
+              <div class="profile-photo alt swipe-back-card absolute inset-y-8 left-20 right-[-82px] rotate-3 opacity-65"></div>
+              <div class="profile-photo swipe-back-card absolute inset-y-4 left-12 right-[-54px] rotate-2 opacity-80"></div>
+              <div class="profile-photo absolute inset-0 -rotate-3 overflow-hidden rounded-[18px] shadow-2xl">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/20"></div>
+                <div class="absolute left-4 top-4 flex items-center gap-2">
+                  <span class="id-badge">TM-BKK-001</span>
+                </div>
+                <span class="absolute right-4 top-4 rounded-md bg-black/55 px-3 py-1 text-xl font-black">1km</span>
+                <div class="absolute left-1/2 top-[44%] grid h-28 w-28 -translate-x-1/2 place-items-center rounded-full bg-black/35">
+                  <i data-lucide="x" class="h-20 w-20 text-white"></i>
+                </div>
+                <div class="absolute bottom-24 left-5 right-5 grid grid-cols-[56px_1fr_56px] items-center gap-3">
+                  <button class="tap rounded-full border border-white/20 bg-black/25" aria-label="Pass Mai"><i data-lucide="x" class="mx-auto h-7 w-7"></i></button>
+                  <div class="swipe-depth" role="progressbar" aria-label="Swipe stack progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="42"><span></span></div>
+                  <button class="tap rounded-full bg-trust" aria-label="Like Mai"><i data-lucide="heart" class="mx-auto h-7 w-7"></i></button>
+                </div>
+                <div class="absolute bottom-5 left-5 right-5">
+                  <h4 class="text-3xl font-black">Mai, 27</h4>
+                  <p class="text-base font-black">Bangkok · TH · Public ID active</p>
+                </div>
+              </div>
+            </div>
+            <div class="px-4 pb-3">
+              <label class="sr-only" for="quick-message">Quick message</label>
+              <div class="grid grid-cols-[52px_1fr_74px] gap-2">
+                <div class="profile-photo h-[52px] rounded-md"></div>
+                <input id="quick-message" class="min-h-[52px] rounded-md border border-white/10 bg-white/15 px-3 text-base text-white placeholder:text-white/60" placeholder="Send Mai a message" />
+                <button class="min-h-[52px] rounded-md bg-[#292746] font-black text-white">Send</button>
+              </div>
+            </div>
+            <nav aria-label="Primary app navigation" class="bottom-nav safe-bottom bg-[#171113]/95 text-white">
+              <a class="nav-item text-white/70" href="#"><i data-lucide="search" class="h-5 w-5"></i><span class="single-line-safe">Discover</span></a>
+              <a aria-current="page" class="nav-item active text-trustSoft" href="#"><i data-lucide="zap" class="h-5 w-5"></i><span class="single-line-safe">Swipe</span></a>
+              <a class="nav-item text-white/70" href="#"><i data-lucide="message-circle" class="h-5 w-5"></i><span class="single-line-safe">Chat</span></a>
+              <a class="nav-item text-white/70" href="#"><i data-lucide="list" class="h-5 w-5"></i><span class="single-line-safe">List</span></a>
+              <a class="nav-item text-white/70" href="#"><i data-lucide="user-round" class="h-5 w-5"></i><span class="single-line-safe">My</span></a>
+            </nav>
+          </div>
+        </div>
+      </article>
+
+      <!-- Discover Search Filters -->
+      <article class="space-y-3" data-route="DiscoverNearby">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-black">Discover Nearby</h3>
+          <span class="rounded-full bg-warm px-2 py-1 text-xs font-black text-muted">Secondary path</span>
+        </div>
+        <div class="phone">
+          <div class="screen">
+            <div class="safe-top px-5">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-black text-trust">Discover</p>
+                  <h4 class="text-2xl font-black">Bangkok nearby</h4>
+                </div>
+                <button class="tap rounded-lg border border-line bg-white" aria-label="Open filters"><i data-lucide="sliders-horizontal" class="mx-auto h-5 w-5"></i></button>
+              </div>
+              <label class="mt-4 block text-sm font-black" for="search-profile">Search by city or Public ID</label>
+              <div class="mt-2 flex min-h-[48px] items-center gap-2 rounded-lg border border-line bg-white px-3">
+                <i data-lucide="search" class="h-5 w-5 text-muted"></i>
+                <input id="search-profile" class="w-full bg-transparent text-base outline-none" value="Pattaya" />
+              </div>
+            </div>
+            <div class="flex-1 space-y-3 overflow-hidden px-5 py-4">
+              <div class="rounded-lg border border-line bg-white p-3">
+                <div class="flex gap-3">
+                  <div class="profile-photo h-24 w-20 flex-none rounded-md"></div>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center justify-between gap-2"><b>Mai, 27</b><span class="rounded bg-warm px-2 py-1 text-xs font-black">1km</span></div>
+                    <span class="mt-1 inline-flex id-badge">TM-BKK-001</span>
+                    <p class="mt-2 text-sm font-semibold text-muted">Bangkok · Open to chat first</p>
+                  </div>
+                </div>
+              </div>
+              <div class="rounded-lg border border-line bg-white p-3">
+                <div class="flex gap-3">
+                  <div class="profile-photo alt h-24 w-20 flex-none rounded-md"></div>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center justify-between gap-2"><b>Nok, 25</b><span class="rounded bg-warm px-2 py-1 text-xs font-black">4km</span></div>
+                    <span class="mt-1 inline-flex id-badge">TM-BKK-044</span>
+                    <p class="mt-2 text-sm font-semibold text-muted">Bangkok · Thai / English</p>
+                  </div>
+                </div>
+              </div>
+              <div class="rounded-lg border border-dashed border-line bg-warm p-3">
+                <div class="flex items-start gap-3">
+                  <i data-lucide="megaphone" class="mt-1 h-5 w-5 text-muted"></i>
+                  <div>
+                    <b class="text-sm">Muted Discover Native Ad slot</b>
+                    <p class="text-sm font-semibold text-muted">Default off locally. Never appears inside chat or Contact Card flows.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="sheet-panel rounded-t-[24px] px-5 py-4">
+              <div class="sheet-handle mx-auto mb-4"></div>
+              <div class="flex items-center justify-between"><b>Search Settings</b><button class="tap rounded-md text-trust">Apply</button></div>
+              <div class="mt-4 grid grid-cols-2 gap-3">
+                <button class="min-h-[44px] rounded-lg border-2 border-trust bg-trustSoft font-black text-trust">City / Place</button>
+                <button class="min-h-[44px] rounded-lg border border-line font-bold">Recently active</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Profile Detail -->
+      <article class="space-y-3" data-route="ProfileDetail">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-black">Profile Detail</h3>
+          <span class="rounded-full bg-trustSoft px-2 py-1 text-xs font-black text-trust">Start Chat</span>
+        </div>
+        <div class="phone">
+          <div class="screen">
+            <div class="relative h-[360px]">
+              <div class="profile-photo h-full w-full"></div>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/20"></div>
+              <div class="safe-top absolute left-4 right-4 top-0 flex items-center justify-between">
+                <button class="tap rounded-full bg-black/25 text-white" aria-label="Back"><i data-lucide="chevron-left" class="mx-auto h-6 w-6"></i></button>
+                <button class="tap rounded-full bg-black/25 text-white" aria-label="More"><i data-lucide="more-horizontal" class="mx-auto h-6 w-6"></i></button>
+              </div>
+              <div class="absolute bottom-5 left-5 right-5 text-white">
+                <span class="id-badge">TM-BKK-001</span>
+                <h4 class="mt-3 text-3xl font-black">Mai, 27</h4>
+                <p class="font-black">Bangkok · 1km away · Thai / English</p>
+              </div>
+            </div>
+            <div class="flex-1 overflow-hidden px-5 py-5">
+              <div class="grid grid-cols-2 gap-3">
+                <button class="min-h-[52px] rounded-lg bg-trust font-black text-white">Start Chat</button>
+                <button class="min-h-[52px] rounded-lg border border-line bg-white font-black text-safety">Report</button>
+              </div>
+              <div class="surface-card mt-5 rounded-lg p-4">
+                <h5 class="font-black">Trust context</h5>
+                <p class="mt-2 text-sm font-semibold leading-6 text-muted">This profile is shown through a Public Meet ID. Blocking and reports still apply to the internal user account.</p>
+              </div>
+              <div class="surface-card mt-4 rounded-lg p-4">
+                <h5 class="font-black">About</h5>
+                <p class="mt-2 text-sm font-semibold leading-6 text-muted">Likes coffee, beach walks, and meeting visitors who can chat respectfully before exchanging LINE.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Chat and Contact Card -->
+      <article class="space-y-3" data-route="ChatContactCard">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-black">Chat + LINE Contact Card</h3>
+          <span class="rounded-full bg-lineGreen/10 px-2 py-1 text-xs font-black text-trust">No raw LINE in chat</span>
+        </div>
+        <div class="phone">
+          <div class="screen">
+            <header class="safe-top border-b border-line bg-white px-4 pb-3">
+              <div class="flex items-center gap-3">
+                <button class="tap rounded-full" aria-label="Back"><i data-lucide="chevron-left" class="mx-auto h-6 w-6"></i></button>
+                <div class="profile-photo h-11 w-11 rounded-full"></div>
+                <div class="min-w-0 flex-1">
+                  <b>Mai</b>
+                  <div class="flex items-center gap-2"><span class="id-badge !py-1 text-[10px]">TM-BKK-001</span><span class="text-xs font-bold text-muted">active ID</span></div>
+                </div>
+                <button class="tap rounded-full" aria-label="Safety"><i data-lucide="shield" class="mx-auto h-5 w-5 text-trust"></i></button>
+              </div>
+            </header>
+            <div class="flex-1 space-y-3 overflow-hidden px-4 py-4">
+              <div class="max-w-[78%] rounded-2xl rounded-bl-md bg-white p-3 shadow-sm"><p class="text-sm font-semibold">Hi Mai, nice to meet you.</p></div>
+              <div class="ml-auto max-w-[82%] rounded-2xl rounded-br-md bg-trustSoft p-3"><p class="text-sm font-semibold">Let's use a Contact Card if we share LINE.</p></div>
+              <div class="contact-card-state max-w-[92%] rounded-lg p-4">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="flex min-w-0 items-center gap-2"><span class="grid h-8 w-8 place-items-center rounded-md bg-warm text-trust"><i data-lucide="lock-keyhole" class="h-5 w-5"></i></span><b>LINE card locked</b></div>
+                  <span class="rounded bg-warm px-2 py-1 text-xs font-black text-muted">Chat first</span>
+                </div>
+                <p class="mt-3 text-sm font-semibold leading-6 text-muted">No LINE value is visible until both sides choose the Contact Card flow.</p>
+              </div>
+              <div class="contact-card-state ml-auto max-w-[92%] rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2"><span class="grid h-8 w-8 place-items-center rounded-md bg-lineGreen text-white"><i data-lucide="message-circle" class="h-5 w-5"></i></span><b>LINE contact available</b></div>
+                  <span class="rounded bg-warm px-2 py-1 text-xs font-black text-muted">Redacted</span>
+                </div>
+                <p class="mt-3 text-sm font-semibold leading-6 text-muted">Contact card is shared. Raw LINE ID is still not copied into chat history.</p>
+                <div class="mt-3 grid grid-cols-4 gap-2">
+                  <button class="min-h-[44px] rounded-md bg-trust text-sm font-black text-white">View</button>
+                  <button class="min-h-[44px] rounded-md border border-line text-sm font-bold">Revoke</button>
+                  <button class="min-h-[44px] rounded-md border border-line text-sm font-bold">Report</button>
+                  <button class="min-h-[44px] rounded-md border border-line text-sm font-bold text-safety">Block</button>
+                </div>
+              </div>
+            </div>
+            <div class="border-t border-line bg-white px-4 py-3 safe-bottom">
+              <div class="grid grid-cols-[44px_1fr_44px_44px] gap-2">
+                <button class="tap rounded-lg bg-warm" aria-label="Add"><i data-lucide="plus" class="mx-auto h-5 w-5"></i></button>
+                <label class="sr-only" for="chat-message">Message</label>
+                <input id="chat-message" class="min-h-[44px] rounded-lg border border-line px-3" placeholder="Message" />
+                <button class="tap rounded-lg bg-lineGreen text-white" aria-label="LINE Contact Card"><i data-lucide="send" class="mx-auto h-5 w-5"></i></button>
+                <button class="tap rounded-lg bg-trust text-white" aria-label="Send message"><i data-lucide="arrow-up" class="mx-auto h-5 w-5"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- First Share / LINE Setup -->
+      <article class="space-y-3" data-route="FirstShareConfirmation">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-black">First Share Confirmation</h3>
+          <span class="rounded-full bg-coralSoft px-2 py-1 text-xs font-black text-ink">Warning once</span>
+        </div>
+        <div class="phone">
+          <div class="screen">
+            <div class="safe-top px-5">
+              <h4 class="text-2xl font-black">LINE setup</h4>
+              <p class="mt-2 text-sm font-semibold leading-6 text-muted">Register once, then control each share. Chat messages store only ContactExchange references.</p>
+            </div>
+            <div class="flex-1 px-5 py-5">
+              <div class="mb-4 grid grid-cols-3 gap-2">
+                <span class="state-pill rounded-lg px-2 py-2 text-center text-xs font-black text-muted">Locked</span>
+                <span class="state-pill rounded-lg bg-trustSoft px-2 py-2 text-center text-xs font-black text-trust">Confirm</span>
+                <span class="state-pill rounded-lg bg-lineGreen/10 px-2 py-2 text-center text-xs font-black text-muted">Shared</span>
+              </div>
+              <label class="text-sm font-black" for="line-label">LINE display label</label>
+              <input id="line-label" class="mt-2 min-h-[48px] w-full rounded-lg border border-line bg-white px-3 text-base" value="Mai on LINE" />
+              <label class="mt-4 block text-sm font-black" for="line-link">LINE link or QR payload</label>
+              <input id="line-link" class="mt-2 min-h-[48px] w-full rounded-lg border border-line bg-white px-3 text-base" value="Stored privately, never shown in chat" />
+              <div class="surface-card mt-5 rounded-lg p-4">
+                <div class="flex items-start gap-3">
+                  <i data-lucide="lock-keyhole" class="mt-1 h-5 w-5 text-trust"></i>
+                  <div>
+                    <b>Privacy behavior</b>
+                    <p class="mt-1 text-sm font-semibold leading-6 text-muted">Contact values are decrypted only when the Contact Card is opened and membership is valid.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="absolute inset-0 flex items-end bg-black/45 p-4">
+              <div class="sheet-panel w-full rounded-[24px] p-5">
+                <div class="sheet-handle mx-auto mb-4"></div>
+                <div class="flex items-center gap-3">
+                  <span class="grid h-11 w-11 place-items-center rounded-lg bg-lineGreen text-white"><i data-lucide="message-circle" class="h-6 w-6"></i></span>
+                  <div>
+                    <h5 class="text-lg font-black">Share LINE with Mai?</h5>
+                    <p class="text-sm font-semibold text-muted">Shown as a Contact Card. Not pasted as chat text.</p>
+                  </div>
+                </div>
+                <div class="mt-5 grid grid-cols-2 gap-3">
+                  <button class="min-h-[50px] rounded-lg border border-line font-black">Cancel</button>
+                  <button class="min-h-[50px] rounded-lg bg-trust font-black text-white">Share card</button>
+                </div>
+                <button class="mt-3 min-h-[44px] w-full rounded-lg border border-line font-black text-safety">Revoke after sharing</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- My -->
+      <article class="space-y-3" data-route="MyPublicMeetId">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-black">My</h3>
+          <span class="rounded-full bg-trustSoft px-2 py-1 text-xs font-black text-trust">Fresh start</span>
+        </div>
+        <div class="phone">
+          <div class="screen">
+            <div class="safe-top px-5">
+              <h4 class="text-2xl font-black">My Public Meet ID</h4>
+              <p class="mt-2 text-sm font-semibold text-muted">Your public identity can change. Your safety history stays attached to your account.</p>
+            </div>
+            <div class="flex-1 space-y-4 overflow-hidden px-5 py-5">
+              <div class="surface-card rounded-lg p-4">
+                <div class="aspect-[1.35] rounded-lg bg-[radial-gradient(circle_at_20%_18%,#FFE4EC_0_0.75rem,transparent_0.8rem),linear-gradient(135deg,#FFF8FA_0%,#FFE4EC_58%,#FFF7CC_100%)] p-4">
+                  <div class="flex h-full flex-col justify-between">
+                    <span class="id-badge w-fit">TM-BKK-001</span>
+                    <div><p class="mono text-3xl font-black text-trust">MAI</p><p class="font-bold text-muted">Active in Discover</p></div>
+                  </div>
+                </div>
+                <div class="mt-4 grid grid-cols-2 gap-3">
+                  <button class="min-h-[48px] rounded-lg bg-trust font-black text-white">Regenerate</button>
+                  <button class="min-h-[48px] rounded-lg border border-line font-black">Archive</button>
+                </div>
+              </div>
+              <div class="contact-card-state rounded-lg p-4">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-3"><i data-lucide="message-circle" class="h-5 w-5 text-lineGreen"></i><b>LINE contact</b></div>
+                    <p class="mt-1 text-sm font-semibold text-muted">Ready for Contact Cards</p>
+                  </div>
+                  <span class="rounded-full bg-trustSoft px-2 py-1 text-xs font-black text-trust">Ready</span>
+                </div>
+                <div class="mt-3 grid grid-cols-2 gap-2">
+                  <button class="min-h-[44px] rounded-lg border border-line font-black">Manage</button>
+                  <button class="min-h-[44px] rounded-lg border border-line font-black text-safety">Revoke all</button>
+                </div>
+              </div>
+              <div class="surface-card rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3"><i data-lucide="languages" class="h-5 w-5 text-trust"></i><b>Language</b></div>
+                  <span class="font-bold text-muted">English</span>
+                </div>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <span class="rounded-full bg-trustSoft px-3 py-1 text-sm font-black text-trust">EN</span>
+                  <span class="rounded-full bg-warm px-3 py-1 text-sm font-bold">TH</span>
+                  <span class="rounded-full bg-warm px-3 py-1 text-sm font-bold">KO</span>
+                  <span class="rounded-full bg-warm px-3 py-1 text-sm font-bold">ZH</span>
+                  <span class="rounded-full bg-warm px-3 py-1 text-sm font-bold">JA</span>
+                </div>
+              </div>
+            </div>
+            <nav aria-label="Primary app navigation" class="bottom-nav safe-bottom">
+              <a class="nav-item" href="#"><i data-lucide="search" class="h-5 w-5"></i><span class="single-line-safe">Discover</span></a>
+              <a class="nav-item" href="#"><i data-lucide="zap" class="h-5 w-5"></i><span class="single-line-safe">Swipe</span></a>
+              <a class="nav-item" href="#"><i data-lucide="message-circle" class="h-5 w-5"></i><span class="single-line-safe">Chat</span></a>
+              <a class="nav-item" href="#"><i data-lucide="list" class="h-5 w-5"></i><span class="single-line-safe">List</span></a>
+              <a aria-current="page" class="nav-item active" href="#"><i data-lucide="user-round" class="h-5 w-5"></i><span class="single-line-safe">My</span></a>
+            </nav>
+          </div>
+        </div>
+      </article>
+
+      <!-- List / Safety -->
+      <article class="space-y-3" data-route="ListSafetyActions">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-black">List + Safety Actions</h3>
+          <span class="rounded-full bg-coralSoft px-2 py-1 text-xs font-black text-safety">Saved / Report / Block</span>
+        </div>
+        <div class="phone">
+          <div class="screen">
+            <div class="safe-top px-5">
+              <h4 class="text-2xl font-black">List</h4>
+              <p class="mt-2 text-sm font-semibold leading-6 text-muted">Saved people, recent Contact Cards, and quick safety actions stay in one practical place.</p>
+            </div>
+            <div class="flex-1 space-y-3 overflow-y-auto px-5 py-5">
+              <div class="grid grid-cols-3 gap-2">
+                <button class="min-h-[44px] rounded-lg border-2 border-trust bg-trustSoft text-sm font-black text-trust">Saved</button>
+                <button class="min-h-[44px] rounded-lg border border-line bg-white text-sm font-bold">Shared</button>
+                <button class="min-h-[44px] rounded-lg border border-line bg-white text-sm font-bold">Revoked</button>
+              </div>
+              <div class="surface-card rounded-lg p-4">
+                <div class="flex items-center gap-3">
+                  <div class="profile-photo h-14 w-14 rounded-lg"></div>
+                  <div class="min-w-0 flex-1">
+                    <b>Mai, 27</b>
+                    <p class="text-sm font-semibold text-muted">Bangkok · LINE card shared</p>
+                  </div>
+                  <button class="tap rounded-lg border border-line" aria-label="Open Mai"><i data-lucide="chevron-right" class="mx-auto h-5 w-5"></i></button>
+                </div>
+              </div>
+              <div class="contact-card-state rounded-lg p-4">
+                <div class="flex items-center gap-3">
+                  <span class="grid h-11 w-11 place-items-center rounded-lg bg-lineGreen text-white"><i data-lucide="message-circle" class="h-6 w-6"></i></span>
+                  <div>
+                    <b>LINE Contact Card</b>
+                    <p class="text-sm font-semibold text-muted">Shared · cex_gate0_line_001</p>
+                  </div>
+                </div>
+                <div class="mt-3 grid grid-cols-2 gap-2">
+                  <button class="min-h-[44px] rounded-lg border border-line font-black">View card</button>
+                  <button class="min-h-[44px] rounded-lg border border-line font-black text-safety">Revoke</button>
+                </div>
+              </div>
+              <div class="contact-card-state rounded-lg p-4">
+                <div class="flex items-center gap-3">
+                  <span class="grid h-11 w-11 place-items-center rounded-lg bg-honeySoft text-safety"><i data-lucide="rotate-ccw" class="h-6 w-6"></i></span>
+                  <div>
+                    <b>Contact Card revoked</b>
+                    <p class="text-sm font-semibold text-muted">Access stopped. Chat stays, card does not reopen.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="surface-card rounded-lg p-4">
+                <div class="flex items-center gap-3">
+                  <span class="grid h-11 w-11 place-items-center rounded-lg bg-coralSoft text-safety"><i data-lucide="shield-alert" class="h-6 w-6"></i></span>
+                  <div>
+                    <b>Reported card</b>
+                    <p class="text-sm font-semibold text-muted">Safety review started. Raw LINE remains hidden.</p>
+                  </div>
+                </div>
+                <div class="mt-3 grid grid-cols-2 gap-2">
+                  <button class="min-h-[44px] rounded-lg border border-line font-black">Undo report</button>
+                  <button class="min-h-[44px] rounded-lg bg-safety font-black text-white">Block user</button>
+                </div>
+              </div>
+              <div class="rounded-lg border border-dashed border-line bg-warm p-4">
+                <div class="flex items-center gap-3">
+                  <span class="grid h-11 w-11 place-items-center rounded-lg bg-white text-muted"><i data-lucide="wifi-off" class="h-6 w-6"></i></span>
+                  <div>
+                    <b>Provider unavailable</b>
+                    <p class="text-sm font-semibold text-muted">Keep the chat open. Try Contact Card again later.</p>
+                  </div>
+                </div>
+              </div>
+              <fieldset class="space-y-2 rounded-lg bg-coralSoft p-3">
+                <legend class="text-sm font-black">Reason</legend>
+                <label class="flex min-h-[48px] items-center gap-3 rounded-lg border-2 border-trust bg-trustSoft px-3 font-bold"><input type="radio" checked /> Contact feels unsafe</label>
+                <label class="flex min-h-[48px] items-center gap-3 rounded-lg border border-line bg-white px-3 font-bold"><input type="radio" /> Spam or scam</label>
+                <label class="flex min-h-[48px] items-center gap-3 rounded-lg border border-line bg-white px-3 font-bold"><input type="radio" /> Harassment</label>
+              </fieldset>
+              <div class="rounded-lg bg-warm p-3 text-sm font-semibold leading-6 text-muted">
+                Raw LINE ID, Facebook URL, or QR payload is never shown in this report preview.
+              </div>
+            </div>
+            <nav aria-label="Primary app navigation" class="bottom-nav safe-bottom">
+              <a class="nav-item" href="#"><i data-lucide="search" class="h-5 w-5"></i><span class="single-line-safe">Discover</span></a>
+              <a class="nav-item" href="#"><i data-lucide="zap" class="h-5 w-5"></i><span class="single-line-safe">Swipe</span></a>
+              <a class="nav-item" href="#"><i data-lucide="message-circle" class="h-5 w-5"></i><span class="single-line-safe">Chat</span></a>
+              <a aria-current="page" class="nav-item active" href="#"><i data-lucide="list" class="h-5 w-5"></i><span class="single-line-safe">List</span></a>
+              <a class="nav-item" href="#"><i data-lucide="user-round" class="h-5 w-5"></i><span class="single-line-safe">My</span></a>
+            </nav>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="interaction-contract" class="mt-10 rounded-lg border border-line bg-white p-5">
+      <div class="mb-4 flex items-center gap-2">
+        <i data-lucide="mouse-pointer-click" class="h-5 w-5 text-trust"></i>
+        <h2 class="text-xl font-black">Interaction Contract</h2>
+      </div>
+      <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+        <div class="surface-card rounded-lg p-3"><b>Press</b><p class="mt-1 text-sm text-muted">Scale to 0.97 for 140ms on buttons, chips, nav, and icon taps.</p></div>
+        <div class="surface-card rounded-lg p-3"><b>Swipe</b><p class="mt-1 text-sm text-muted">Gesture cards should use interruptible spring motion; no keyframe restart.</p></div>
+        <div class="contact-card-state rounded-lg p-3"><b>Contact Card</b><p class="mt-1 text-sm text-muted">Reveal with 220ms ease-out; never animate raw contact text into chat.</p></div>
+        <div class="surface-card rounded-lg p-3"><b>Sheet</b><p class="mt-1 text-sm text-muted">Open from trigger context, use short ease-out, and keep handle visible.</p></div>
+      </div>
+    </section>
+
+    <section id="accessibility-contract" class="mt-10 rounded-lg border border-line bg-white p-5">
+      <div class="mb-4 flex items-center gap-2">
+        <i data-lucide="accessibility" class="h-5 w-5 text-trust"></i>
+        <h2 class="text-xl font-black">Accessibility Contract</h2>
+      </div>
+      <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+        <div class="surface-card rounded-lg p-3"><b>Focus</b><p class="mt-1 text-sm text-muted">Keyboard focus uses a visible rose ring; dark swipe screens use a pale ring.</p></div>
+        <div class="surface-card rounded-lg p-3"><b>Current Tab</b><p class="mt-1 text-sm text-muted">Active bottom nav items expose `aria-current="page"`.</p></div>
+        <div class="surface-card rounded-lg p-3"><b>Progress</b><p class="mt-1 text-sm text-muted">Swipe stack progress uses `role="progressbar"` with numeric values.</p></div>
+        <div class="surface-card rounded-lg p-3"><b>Motion</b><p class="mt-1 text-sm text-muted">Reduced-motion users keep layout changes without visible animation.</p></div>
+      </div>
+    </section>
+
+    <section id="localization-contract" class="mt-10 rounded-lg border border-line bg-white p-5">
+      <div class="mb-4 flex items-center gap-2">
+        <i data-lucide="languages" class="h-5 w-5 text-trust"></i>
+        <h2 class="text-xl font-black">Localization Contract</h2>
+      </div>
+      <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-5">
+        <div class="surface-card rounded-lg p-3"><b>English</b><p class="locale-sample mt-1 text-sm text-muted">Share LINE only after both people choose the Contact Card.</p></div>
+        <div class="surface-card rounded-lg p-3"><b>ไทย</b><p class="locale-sample mt-1 text-sm text-muted">แชร์ LINE เมื่อทั้งสองฝ่ายเลือกการ์ดติดต่อเท่านั้น</p></div>
+        <div class="surface-card rounded-lg p-3"><b>한국어</b><p class="locale-sample mt-1 text-sm text-muted">상대와 내가 선택할 때만 LINE 연락처를 공유합니다.</p></div>
+        <div class="surface-card rounded-lg p-3"><b>中文</b><p class="locale-sample mt-1 text-sm text-muted">仅在双方选择联系卡后分享 LINE。</p></div>
+        <div class="surface-card rounded-lg p-3"><b>日本語</b><p class="locale-sample mt-1 text-sm text-muted">双方が選んだ時だけLINE連絡先を共有します。</p></div>
+      </div>
+    </section>
+
+    <section id="component-contract" class="mt-10 rounded-lg border border-line bg-white p-5">
+      <div class="mb-4 flex items-center gap-2">
+        <i data-lucide="blocks" class="h-5 w-5 text-trust"></i>
+        <h2 class="text-xl font-black">Component Contract</h2>
+      </div>
+      <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+        <div class="surface-card rounded-lg p-3"><b>Route IDs</b><p class="mt-1 text-sm text-muted">Every phone screen has `data-route` for QA, screenshots, and implementation mapping.</p></div>
+        <div class="surface-card rounded-lg p-3"><b>Primitives</b><p class="mt-1 text-sm text-muted">Use `surface-card`, `contact-card-state`, `sheet-panel`, `state-pill`, and `id-badge` as named primitives.</p></div>
+        <div class="contact-card-state rounded-lg p-3"><b>Contact State</b><p class="mt-1 text-sm text-muted">Locked, available, revoked, reported, blocked, and unavailable states share one visual family.</p></div>
+        <div class="surface-card rounded-lg p-3"><b>Test Hooks</b><p class="mt-1 text-sm text-muted">QA should snapshot routes and assert nav, progress, contact state, focus, and locale contracts.</p></div>
+      </div>
+    </section>
+
+    <section id="qa-contract" class="mt-10 rounded-lg border border-line bg-white p-5">
+      <div class="mb-4 flex items-center gap-2">
+        <i data-lucide="clipboard-check" class="h-5 w-5 text-trust"></i>
+        <h2 class="text-xl font-black">QA Contract</h2>
+      </div>
+      <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+        <div class="surface-card rounded-lg p-3"><b>Command</b><p class="mt-1 text-sm text-muted">Run `pnpm wireframes:check` before changing this board.</p></div>
+        <div class="surface-card rounded-lg p-3"><b>Viewports</b><p class="mt-1 text-sm text-muted">Screenshot 320, 390, and desktop widths; no horizontal overflow.</p></div>
+        <div class="surface-card rounded-lg p-3"><b>Contracts</b><p class="mt-1 text-sm text-muted">Assert route, component, interaction, accessibility, and localization sections.</p></div>
+        <div class="contact-card-state rounded-lg p-3"><b>Privacy</b><p class="mt-1 text-sm text-muted">Raw LINE IDs, Facebook URLs, and QR payloads must not appear in chat UI.</p></div>
+      </div>
+    </section>
+
+    <section id="rules" class="mt-10 rounded-lg border border-line bg-white p-5">
+      <div class="mb-4 flex items-center gap-2">
+        <i data-lucide="check-circle-2" class="h-5 w-5 text-trust"></i>
+        <h2 class="text-xl font-black">UI/UX Pro Max Validation Rules Applied</h2>
+      </div>
+      <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-lg bg-warm p-3"><b>Touch</b><p class="text-sm text-muted">Primary controls use 44px+ hit areas and 8px+ spacing.</p></div>
+        <div class="rounded-lg bg-warm p-3"><b>Accessibility</b><p class="text-sm text-muted">Inputs use labels, icon buttons include aria-labels.</p></div>
+        <div class="rounded-lg bg-warm p-3"><b>Navigation</b><p class="text-sm text-muted">Bottom nav uses Discover, Swipe, Chat, List, My with clear active states.</p></div>
+        <div class="rounded-lg bg-warm p-3"><b>Privacy</b><p class="text-sm text-muted">Raw contact values never appear in chat or safety UI.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
