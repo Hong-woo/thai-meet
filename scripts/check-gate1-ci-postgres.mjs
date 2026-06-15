@@ -15,6 +15,7 @@ const requiredTerms = [
   "pg_isready",
   "DATABASE_URL: postgresql://thai_meet:thai_meet@localhost:5432/thai_meet",
   "PERSISTENCE_MODE: database",
+  "pnpm exec prisma generate --config prisma.config.ts",
   "npm run db:migrate",
   "npm run gate1:seed:database",
   "npm run gate1:live-smoke"

@@ -106,6 +106,7 @@ jobs:
 
       - name: Run Gate 1 Postgres smoke
         run: |
+          pnpm exec prisma generate --config prisma.config.ts
           npm run db:migrate
           npm run gate1:seed:database
           npm run gate1:live-smoke
