@@ -61,6 +61,14 @@ for (const marker of [
 }
 
 for (const marker of [
+  "id: aws-deploy-preflight",
+  "AWS deploy skipped: missing AWS deployment secrets",
+  "steps.aws-deploy-preflight.outputs.deploy_ready == 'true'"
+]) {
+  assertIncludes(awsWorkflow, marker, `AWS workflow must guard deploy with ${marker}`);
+}
+
+for (const marker of [
   "Gate 0 production readiness blockers are closed",
   "Real auth/provider/storage integrations: closed by `apps/api/src/production-integrations.mjs`",
   "Production backend persistence: closed by database mode contract",
