@@ -48,6 +48,14 @@ if (field.stdout.trim() !== "6") {
   failures.push("gate1 database seed --field counts.contactExchanges must print 6");
 }
 
+const missingFieldValue = await runNode(["scripts/gate1-seed-database.mjs", "--field"]);
+if (missingFieldValue.code !== 1 || !missingFieldValue.stderr.includes("TM_GATE1_DATABASE_SEED_FIELD_REQUIRED")) {
+  failures.push("gate1 database seed --field without a field name must fail with TM_GATE1_DATABASE_SEED_FIELD_REQUIRED");
+}
+if (missingFieldValue.stderr.includes("TM_GATE1_DATABASE_URL_REQUIRED")) {
+  failures.push("gate1 database seed missing --field value must fail before DATABASE_URL checks");
+}
+
 const unknown = await runNode(["scripts/gate1-seed-database.mjs", "--wat"]);
 if (unknown.code !== 1 || !unknown.stderr.includes("TM_GATE1_DATABASE_SEED_UNKNOWN_OPTION")) {
   failures.push("gate1 database seed must reject unknown options");
