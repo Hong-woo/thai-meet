@@ -6,6 +6,7 @@ const args = process.argv.slice(2);
 if (args.includes("--help")) {
   console.log("Usage: node scripts/gate1-deploy-rehearsal.mjs [--json] [--field <name>] [--plan]");
   console.log("Fields: status, blocker, workflow, workflowFile, branch, environment, dispatchCommand, watchCommand");
+  console.log("Use only one output mode: --json, --field, or --plan.");
   process.exit(0);
 }
 
@@ -13,6 +14,12 @@ const inventoryJsonFile = readOption("--inventory-json-file");
 const fieldName = readOption("--field");
 const jsonMode = args.includes("--json");
 const planMode = args.includes("--plan");
+const outputModeCount = [jsonMode, Boolean(fieldName), planMode].filter(Boolean).length;
+
+if (outputModeCount > 1) {
+  console.error("TM_GATE1_DEPLOY_REHEARSAL_OPTION_CONFLICT: use only one of --json, --field, or --plan");
+  process.exit(1);
+}
 
 const inventory = inventoryJsonFile
   ? await readJsonFile(inventoryJsonFile)

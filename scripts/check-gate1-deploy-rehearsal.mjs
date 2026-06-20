@@ -83,6 +83,24 @@ try {
     failures.push("deploy rehearsal --field dispatchCommand must print dispatch command");
   }
 
+  const jsonPlanConflict = runRehearsal(["--json", "--plan", "--inventory-json-file", blockedInventoryPath]);
+  if (jsonPlanConflict.status === 0) failures.push("deploy rehearsal must fail when --json and --plan are combined");
+  if (!jsonPlanConflict.stderr.includes("TM_GATE1_DEPLOY_REHEARSAL_OPTION_CONFLICT")) {
+    failures.push("deploy rehearsal --json --plan must fail with TM_GATE1_DEPLOY_REHEARSAL_OPTION_CONFLICT");
+  }
+
+  const jsonFieldConflict = runRehearsal(["--json", "--field", "status", "--inventory-json-file", readyInventoryPath]);
+  if (jsonFieldConflict.status === 0) failures.push("deploy rehearsal must fail when --json and --field are combined");
+  if (!jsonFieldConflict.stderr.includes("TM_GATE1_DEPLOY_REHEARSAL_OPTION_CONFLICT")) {
+    failures.push("deploy rehearsal --json --field must fail with TM_GATE1_DEPLOY_REHEARSAL_OPTION_CONFLICT");
+  }
+
+  const fieldPlanConflict = runRehearsal(["--field", "status", "--plan", "--inventory-json-file", readyInventoryPath]);
+  if (fieldPlanConflict.status === 0) failures.push("deploy rehearsal must fail when --field and --plan are combined");
+  if (!fieldPlanConflict.stderr.includes("TM_GATE1_DEPLOY_REHEARSAL_OPTION_CONFLICT")) {
+    failures.push("deploy rehearsal --field --plan must fail with TM_GATE1_DEPLOY_REHEARSAL_OPTION_CONFLICT");
+  }
+
   const planResult = runRehearsal(["--plan", "--inventory-json-file", blockedInventoryPath]);
   if (planResult.status === 0) failures.push("blocked deploy rehearsal plan must fail closed");
   if (!planResult.stdout.includes("Run first: npm run gate1:github-env -- --json")) {
