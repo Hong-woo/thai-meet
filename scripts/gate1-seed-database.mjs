@@ -238,7 +238,14 @@ function parseFieldArg(argv) {
   const equalsArg = argv.find((arg) => arg.startsWith("--field="));
   if (equalsArg) return equalsArg.slice("--field=".length);
   const index = argv.indexOf("--field");
-  return index === -1 ? null : argv[index + 1];
+  if (index === -1) return null;
+
+  const value = argv[index + 1];
+  if (!value || value.startsWith("--")) {
+    console.error("TM_GATE1_DATABASE_SEED_FIELD_REQUIRED");
+    process.exit(1);
+  }
+  return value;
 }
 
 function validateArgs(argv) {
