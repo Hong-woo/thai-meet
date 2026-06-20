@@ -8,6 +8,14 @@ Check the local environment matrix:
 npm run env:check
 ```
 
+Check Gate 1 production environment provisioning before live deploy rehearsal:
+
+```powershell
+npm run gate1:env -- --json
+```
+
+This preflight reports required key names and group status only. It must not print `DATABASE_URL`, provider secrets, keystore passwords, raw contact values, or provider tokens.
+
 Pinned toolchain:
 
 ```text
@@ -40,3 +48,4 @@ Rules:
 - Keep `.env.example` safe to paste into local `.env`.
 - Add new provider, ad, push, or storage defaults here before adding real integration code.
 - Keep fixture persistence available so prepared-machine smoke can run without a database.
+- Use `npm run gate1:env:test` when changing production secret requirements so the preflight remains keys-only.

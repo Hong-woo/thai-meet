@@ -28,7 +28,7 @@ Gate 1 production backend persistence replaces the Gate 0 fixture-backed storage
 
 Do not remove fixture mode when adding the database path. Gate 1 should add the persisted store behind the same service boundary, then switch environments by mode only after contract parity is proven.
 
-Current local `PERSISTENCE_MODE=database` has a Gate 0-compatible persisted read store in `apps/api/src/gate1-database-store.mjs`. Without `DATABASE_URL` and a generated Prisma client, database mode still fails closed with `TM_GATE1_DATABASE_CLIENT_UNAVAILABLE` without printing the URL. Prisma schema and the first migration scaffold now exist, and `db:migrate` runs through a Gate 1 preflight wrapper. Without `DATABASE_URL`, migration preflight fails fast with `TM_GATE1_DATABASE_URL_REQUIRED` without printing the URL. Seed parity is planned by `npm run gate1:seed:plan` and checked by `npm run gate1:seed:test`; migration preflight is checked by `npm run gate1:migrate:test`; the database seed writer is `npm run gate1:seed:database` and checked by `npm run gate1:seed:database:test`; store mapping is checked by `npm run gate1:database-store:test`; fixture-vs-database read parity is checked by `npm run gate1:read-parity:test`; persisted write delegation is checked by `npm run gate1:write-path:test`; rollback preflight is checked by `npm run gate1:rollback:test`; live DB smoke is run by `npm run gate1:live-smoke` and preflight-checked by `npm run gate1:live-smoke:test`; CI Postgres smoke is checked by `npm run gate1:ci-postgres:test` and runs migrate, seed, and live smoke in `.github/workflows/contract-drift.yml`. Production rollout checks still gate switching production API reads to the database store.
+Current local `PERSISTENCE_MODE=database` has a Gate 0-compatible persisted read store in `apps/api/src/gate1-database-store.mjs`. Without `DATABASE_URL` and a generated Prisma client, database mode still fails closed with `TM_GATE1_DATABASE_CLIENT_UNAVAILABLE` without printing the URL. Prisma schema and the first migration scaffold now exist, and `db:migrate` runs through a Gate 1 preflight wrapper. Without `DATABASE_URL`, migration preflight fails fast with `TM_GATE1_DATABASE_URL_REQUIRED` without printing the URL. Seed parity is planned by `npm run gate1:seed:plan` and checked by `npm run gate1:seed:test`; migration preflight is checked by `npm run gate1:migrate:test`; the database seed writer is `npm run gate1:seed:database` and checked by `npm run gate1:seed:database:test`; store mapping is checked by `npm run gate1:database-store:test`; fixture-vs-database read parity is checked by `npm run gate1:read-parity:test`; persisted write delegation is checked by `npm run gate1:write-path:test`; rollback preflight is checked by `npm run gate1:rollback:test`; live DB smoke is run by `npm run gate1:live-smoke` and preflight-checked by `npm run gate1:live-smoke:test`; CI Postgres smoke is checked by `npm run gate1:ci-postgres:test` and runs migrate, seed, and live smoke in `.github/workflows/contract-drift.yml`. Secret injection and environment provisioning is checked by `npm run gate1:env` and `npm run gate1:env:test`; the preflight reports key presence and group status only, with a `keys-only` secret output policy. Production rollout checks still gate switching production API reads to the database store.
 
 ## Required Checks
 
@@ -52,6 +52,8 @@ npm run gate1:write-path:test
 npm run gate1:rollback:test
 npm run gate1:live-smoke:test
 npm run gate1:ci-postgres:test
+npm run gate1:env:test
+npm run gate1:env -- --json
 npm run gate1:live-smoke
 npm run not-scaffolded:test
 node scripts/not-scaffolded.mjs --help
@@ -60,7 +62,17 @@ npm run privacy:test
 npm run errors:check
 ```
 
-Gate 1 cannot close until `db:check` verifies Prisma migration status and the migration set implements the DB constraints matrix. With the database read parity path present, `db:check` reports `migrationStatus=database_read_parity`, `prismaSchemaPresent=true`, `prismaMigrationsPresent=true`, `seedParityStatus.summary=status=planned, fixture=gate0-smoke.json, rawProviderValuesStored=false`, `migrationPreflightStatus.summary=status=ready, command=gate1:migrate:test, rawSecretsPrinted=false`, `seedDatabaseStatus.summary=status=writer_implemented, command=gate1:seed:database, rawProviderValuesStored=false`, `readParityStatus.summary=status=store_implemented, boundary=gate1-database-store, fixtureShape=gate0-compatible, endpointParity=checked`, `writePathStatus.summary=status=implemented, command=gate1:write-path:test, rawProviderValuesStored=false`, `rollbackStatus.summary=status=ready, mode=fixture, rawSecretsPrinted=false`, `liveSmokeStatus.summary=status=preflight_ready, command=gate1:live-smoke, requiresDatabaseUrl=true, rawSecretsPrinted=false`, and `ciPostgresStatus.summary=status=enabled, workflow=contract-drift.yml, command=gate1:ci-postgres:test, smoke=gate1:live-smoke`. Database-backed mode should also report `databaseUrlStatus=valid` with a `postgresql` or `postgres` protocol without printing the full `DATABASE_URL`.
+Gate 1 cannot close until `db:check` verifies Prisma migration status and the migration set implements the DB constraints matrix. With the database read parity path present, `db:check` reports `migrationStatus=database_read_parity`, `prismaSchemaPresent=true`, `prismaMigrationsPresent=true`, `seedParityStatus.summary=status=planned, fixture=gate0-smoke.json, rawProviderValuesStored=false`, `migrationPreflightStatus.summary=status=ready, command=gate1:migrate:test, rawSecretsPrinted=false`, `seedDatabaseStatus.summary=status=writer_implemented, command=gate1:seed:database, rawProviderValuesStored=false`, `readParityStatus.summary=status=store_implemented, boundary=gate1-database-store, fixtureShape=gate0-compatible, endpointParity=checked`, `writePathStatus.summary=status=implemented, command=gate1:write-path:test, rawProviderValuesStored=false`, `rollbackStatus.summary=status=ready, mode=fixture, rawSecretsPrinted=false`, `liveSmokeStatus.summary=status=preflight_ready, command=gate1:live-smoke, requiresDatabaseUrl=true, rawSecretsPrinted=false`, `ciPostgresStatus.summary=status=enabled, workflow=contract-drift.yml, command=gate1:ci-postgres:test, smoke=gate1:live-smoke`, and `envProvisioningStatus.summary=status=preflight_ready, command=gate1:env, groups=productionRuntime|awsDeploy|androidRelease, secretOutputPolicy=keys-only`. Database-backed mode should also report `databaseUrlStatus=valid` with a `postgresql` or `postgres` protocol without printing the full `DATABASE_URL`.
+
+## Secret Injection And Environment Provisioning
+
+Run `npm run gate1:env -- --json` before live deploy rehearsal. It checks three groups:
+
+- `productionRuntime`: production auth, LINE provider, S3 object storage, and database persistence keys.
+- `awsDeploy`: OIDC deploy role, ECR repository, ECS cluster, and ECS service keys.
+- `androidRelease`: upload keystore path, passwords, and key alias keys.
+
+The command exits non-zero until required keys are present and expected mode keys are set to production values. Output must stay `keys-only`: missing or invalid key names may print, but `DATABASE_URL`, provider secrets, keystore passwords, raw LINE IDs, and provider tokens must never print.
 
 ## Seed Parity
 
