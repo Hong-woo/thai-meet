@@ -14,6 +14,11 @@ const fieldName = fieldIndex >= 0 ? args[fieldIndex + 1] : null;
 const envFile = readOption("--env-file");
 const jsonMode = args.includes("--json");
 
+if (fieldIndex >= 0 && (!fieldName || fieldName.startsWith("--"))) {
+  console.error("TM_GATE1_ENV_PREFLIGHT_OPTION_VALUE_REQUIRED: --field");
+  process.exit(1);
+}
+
 if (jsonMode && fieldName) {
   console.error("TM_GATE1_ENV_PREFLIGHT_OPTION_CONFLICT: use only one of --json or --field");
   process.exit(1);
