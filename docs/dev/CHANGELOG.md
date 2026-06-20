@@ -10,6 +10,7 @@ Record developer-facing changes that affect local setup, API contracts, generate
 - Gate 1 live smoke preflight now rejects `--field` without a field name before reading env state.
 - Gate 1 live smoke preflight now rejects `--field=` before printing dry-run output.
 - Gate 1 rollback preflight now rejects `--field` without a field name before printing fallback output.
+- Gate 1 rollback preflight now rejects `--field=` before printing fallback output.
 - Gate 1 seed parity plan now rejects `--field` without a field name before writing or printing the plan.
 - Gate 1 seed parity plan now rejects `--field=` before printing the plan.
 - Gate 1 database seed writer now rejects `--field` without a field name before DATABASE_URL checks.
