@@ -7,7 +7,7 @@ const root = process.cwd();
 const failures = [];
 
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
-if (packageJson.scripts?.["gate1:env"] !== "node scripts/gate1-env-preflight.mjs") {
+if (packageJson.scripts?.["gate1:env"] !== "node -- scripts/gate1-env-preflight.mjs") {
   failures.push("package.json must expose gate1:env");
 }
 if (packageJson.scripts?.["gate1:env:test"] !== "node scripts/check-gate1-env-preflight.mjs") {
@@ -113,6 +113,14 @@ if (!jsonFieldConflict.stderr.includes("TM_GATE1_ENV_PREFLIGHT_OPTION_CONFLICT")
   failures.push("gate1 env preflight --json --field must fail with TM_GATE1_ENV_PREFLIGHT_OPTION_CONFLICT");
 }
 
+const emptyEnvFileValue = runPreflight({ env: readyEnv, args: ["--env-file="] });
+if (emptyEnvFileValue.status === 0 || !emptyEnvFileValue.stderr.includes("TM_GATE1_ENV_PREFLIGHT_OPTION_VALUE_REQUIRED: --env-file")) {
+  failures.push("gate1 env preflight --env-file= must fail with TM_GATE1_ENV_PREFLIGHT_OPTION_VALUE_REQUIRED");
+}
+if (emptyEnvFileValue.stdout.trim().length > 0) {
+  failures.push("gate1 env preflight --env-file= must not print preflight output");
+}
+
 const tempDir = await mkdtemp(path.join(tmpdir(), "thai-meet-gate1-env-file-"));
 try {
   const readyEnvFile = path.join(tempDir, "gate1.env");
@@ -215,7 +223,7 @@ if (failures.length > 0) {
 console.log("Gate 1 environment preflight OK");
 
 function runPreflight({ env, args }) {
-  return spawnSync(process.execPath, ["scripts/gate1-env-preflight.mjs", ...args], {
+  return spawnSync(process.execPath, ["--", "scripts/gate1-env-preflight.mjs", ...args], {
     cwd: root,
     env,
     encoding: "utf8"

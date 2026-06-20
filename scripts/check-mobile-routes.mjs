@@ -889,7 +889,7 @@ for (const marker of [
   "Gate 0 local vertical slice is executable on Flutter web, Windows, and Android device",
   "OPPO CPH2695 Android 16 smoke passed",
   "Full `npm test` baseline passed with 89 Flutter widget tests",
-  "Production gates now move in this order: persistence -> AWS CI/deploy -> Figma source -> release signing",
+  "Production gates now move in this order: persistence -> AWS CI/deploy -> product review of Figma source -> release signing",
   "Full mobile build/device smoke after Flutter toolchain is installed"
 ]) {
   if (!todos.includes(marker)) {
@@ -934,10 +934,10 @@ for (const marker of [
 
 for (const marker of [
   "DESIGN.md is the Gate 0 source of truth",
-  "Figma source placeholder",
+  "Figma source: https://www.figma.com/design/Jls4ueBkuNa53XXPKv6Yxw",
   "Gate 0 may use the local design system",
-  "Figma Gate 0 screens can replace the placeholder source",
-  "Public ID image templates can improve polish"
+  "Figma Gate 0 screens now replace the placeholder source",
+  "Public ID image templates are available for Flutter handoff"
 ]) {
   if (!designStatusDocs.includes(marker)) {
     missing.push(`design status doc must include: ${marker}`);

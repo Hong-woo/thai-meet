@@ -253,7 +253,7 @@ if (packageJson.scripts?.["gate1:live-smoke:test"] !== "node scripts/check-gate1
 if (packageJson.scripts?.["gate1:ci-postgres:test"] !== "node scripts/check-gate1-ci-postgres.mjs") {
   failures.push("package.json must expose gate1:ci-postgres:test");
 }
-if (packageJson.scripts?.["gate1:env"] !== "node scripts/gate1-env-preflight.mjs") {
+if (packageJson.scripts?.["gate1:env"] !== "node -- scripts/gate1-env-preflight.mjs") {
   failures.push("package.json must expose gate1:env");
 }
 if (packageJson.scripts?.["gate1:env:test"] !== "node scripts/check-gate1-env-preflight.mjs") {

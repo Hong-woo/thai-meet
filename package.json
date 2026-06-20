@@ -30,7 +30,7 @@
     "mobile:device:result": "node scripts/read-mobile-device-smoke-result.mjs",
     "mobile:device:result:test": "node scripts/check-mobile-device-result-reader.mjs",
     "env:check": "node scripts/check-env-matrix.mjs",
-    "gate1:env": "node scripts/gate1-env-preflight.mjs",
+    "gate1:env": "node -- scripts/gate1-env-preflight.mjs",
     "gate1:env:test": "node scripts/check-gate1-env-preflight.mjs",
     "gate1:github-env": "node scripts/gate1-github-env-inventory.mjs",
     "gate1:github-env:test": "node scripts/check-gate1-github-env-inventory.mjs",
