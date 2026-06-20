@@ -81,6 +81,9 @@ if (summary) {
   if (summary.ciPostgresStatus?.summary !== "status=enabled, workflow=contract-drift.yml, command=gate1:ci-postgres:test, smoke=gate1:live-smoke") {
     failures.push("db:check --json must include ciPostgresStatus summary");
   }
+  if (summary.envProvisioningStatus?.summary !== "status=preflight_ready, command=gate1:env, groups=productionRuntime|awsDeploy|androidRelease, secretOutputPolicy=keys-only") {
+    failures.push("db:check --json must include envProvisioningStatus summary");
+  }
   if (summary.seedParityPlanCommand !== "npm run gate1:seed:plan") {
     failures.push("db:check --json must include seed parity plan command");
   }
@@ -104,6 +107,9 @@ if (summary) {
   }
   if (summary.ciPostgresCheckCommand !== "npm run gate1:ci-postgres:test") {
     failures.push("db:check --json must include CI Postgres check command");
+  }
+  if (summary.gate1EnvCheckCommand !== "npm run gate1:env:test") {
+    failures.push("db:check --json must include Gate 1 env check command");
   }
   if (summary.seedDatabaseCheckCommand !== "npm run gate1:seed:database:test") {
     failures.push("db:check --json must include database seed check command");
@@ -236,6 +242,11 @@ if (ciPostgresStatusSummaryField.stdout.trim() !== "status=enabled, workflow=con
   failures.push("db:check --field ciPostgresStatus.summary must print CI Postgres summary");
 }
 
+const envProvisioningStatusSummaryField = await runNode(["scripts/check-db-matrix.mjs", "--field", "envProvisioningStatus.summary"]);
+if (envProvisioningStatusSummaryField.stdout.trim() !== "status=preflight_ready, command=gate1:env, groups=productionRuntime|awsDeploy|androidRelease, secretOutputPolicy=keys-only") {
+  failures.push("db:check --field envProvisioningStatus.summary must print Gate 1 env provisioning summary");
+}
+
 const seedParityCheckCommandField = await runNode(["scripts/check-db-matrix.mjs", "--field", "seedParityCheckCommand"]);
 if (seedParityCheckCommandField.stdout.trim() !== "npm run gate1:seed:test") {
   failures.push("db:check --field seedParityCheckCommand must print gate1 seed check command");
@@ -269,6 +280,11 @@ if (liveSmokeCheckCommandField.stdout.trim() !== "npm run gate1:live-smoke:test"
 const ciPostgresCheckCommandField = await runNode(["scripts/check-db-matrix.mjs", "--field", "ciPostgresCheckCommand"]);
 if (ciPostgresCheckCommandField.stdout.trim() !== "npm run gate1:ci-postgres:test") {
   failures.push("db:check --field ciPostgresCheckCommand must print gate1 CI Postgres check command");
+}
+
+const gate1EnvCheckCommandField = await runNode(["scripts/check-db-matrix.mjs", "--field", "gate1EnvCheckCommand"]);
+if (gate1EnvCheckCommandField.stdout.trim() !== "npm run gate1:env:test") {
+  failures.push("db:check --field gate1EnvCheckCommand must print gate1 env check command");
 }
 
 const seedDatabaseCheckCommandField = await runNode(["scripts/check-db-matrix.mjs", "--field", "seedDatabaseCheckCommand"]);
@@ -313,7 +329,7 @@ if (databaseUrlProtocolField.stdout.trim() !== "postgres") {
 }
 
 const helpResult = await runNode(["scripts/check-db-matrix.mjs", "--help"]);
-for (const term of ["--json", "--field <name>", "migrationStatus", "requiredModels", "notScaffoldedGuard", "notScaffoldedGuard.errorCode", "prismaSchemaPresent", "prismaMigrationsPresent", "prismaScaffoldStatus", "prismaScaffoldStatus.summary", "seedParityStatus", "seedParityStatus.summary", "seedParityCheckCommand", "migrationPreflightStatus", "migrationPreflightStatus.summary", "migrationPreflightCheckCommand", "seedDatabaseStatus", "seedDatabaseStatus.summary", "seedDatabaseCheckCommand", "readParityStatus", "readParityStatus.summary", "readParityCheckCommand", "endpointReadParityCheckCommand", "writePathStatus", "writePathStatus.summary", "writePathCheckCommand", "rollbackStatus", "rollbackStatus.summary", "rollbackCheckCommand", "liveSmokeStatus", "liveSmokeStatus.summary", "liveSmokeCheckCommand", "ciPostgresStatus", "ciPostgresStatus.summary", "ciPostgresCheckCommand", "requiredEnvKeys", "databaseUrlPresent", "databaseUrlStatus", "databaseUrlProtocol", "TM_DB_MATRIX_UNKNOWN_OPTION", "TM_DB_MATRIX_OPTION_CONFLICT", "TM_DB_MATRIX_FIELD_REQUIRED", "TM_DB_MATRIX_UNKNOWN_FIELD"]) {
+for (const term of ["--json", "--field <name>", "migrationStatus", "requiredModels", "notScaffoldedGuard", "notScaffoldedGuard.errorCode", "prismaSchemaPresent", "prismaMigrationsPresent", "prismaScaffoldStatus", "prismaScaffoldStatus.summary", "seedParityStatus", "seedParityStatus.summary", "seedParityCheckCommand", "migrationPreflightStatus", "migrationPreflightStatus.summary", "migrationPreflightCheckCommand", "seedDatabaseStatus", "seedDatabaseStatus.summary", "seedDatabaseCheckCommand", "readParityStatus", "readParityStatus.summary", "readParityCheckCommand", "endpointReadParityCheckCommand", "writePathStatus", "writePathStatus.summary", "writePathCheckCommand", "rollbackStatus", "rollbackStatus.summary", "rollbackCheckCommand", "liveSmokeStatus", "liveSmokeStatus.summary", "liveSmokeCheckCommand", "ciPostgresStatus", "ciPostgresStatus.summary", "ciPostgresCheckCommand", "envProvisioningStatus", "envProvisioningStatus.summary", "gate1EnvCheckCommand", "requiredEnvKeys", "databaseUrlPresent", "databaseUrlStatus", "databaseUrlProtocol", "TM_DB_MATRIX_UNKNOWN_OPTION", "TM_DB_MATRIX_OPTION_CONFLICT", "TM_DB_MATRIX_FIELD_REQUIRED", "TM_DB_MATRIX_UNKNOWN_FIELD"]) {
   if (!helpResult.stdout.includes(term)) failures.push(`db:check --help must include ${term}`);
 }
 

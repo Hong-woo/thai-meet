@@ -19,6 +19,7 @@ const writePathCheckCommand = "npm run gate1:write-path:test";
 const rollbackCheckCommand = "npm run gate1:rollback:test";
 const liveSmokeCheckCommand = "npm run gate1:live-smoke:test";
 const ciPostgresCheckCommand = "npm run gate1:ci-postgres:test";
+const gate1EnvCheckCommand = "npm run gate1:env:test";
 const seedParityPlanPath = ".thai-meet/gate1/seed-parity.json";
 const requiredEnvKeys = ["DATABASE_URL"];
 const requiredModels = [
@@ -117,6 +118,14 @@ const ciPostgresStatus = {
   smokeCommand: "npm run gate1:live-smoke",
   summary: "status=enabled, workflow=contract-drift.yml, command=gate1:ci-postgres:test, smoke=gate1:live-smoke"
 };
+const envProvisioningStatus = {
+  status: "preflight_ready",
+  command: "npm run gate1:env",
+  checkCommand: gate1EnvCheckCommand,
+  groups: ["productionRuntime", "awsDeploy", "androidRelease"],
+  secretOutputPolicy: "keys-only",
+  summary: "status=preflight_ready, command=gate1:env, groups=productionRuntime|awsDeploy|androidRelease, secretOutputPolicy=keys-only"
+};
 const summary = {
   status: "passed",
   migrationStatus,
@@ -140,6 +149,7 @@ const summary = {
   rollbackStatus,
   liveSmokeStatus,
   ciPostgresStatus,
+  envProvisioningStatus,
   seedParityPlanCommand,
   seedParityCheckCommand,
   migrationPreflightCheckCommand,
@@ -150,6 +160,7 @@ const summary = {
   rollbackCheckCommand,
   liveSmokeCheckCommand,
   ciPostgresCheckCommand,
+  gate1EnvCheckCommand,
   seedParityPlanPath,
   requiredEnvKeys,
   databaseUrlPresent,
@@ -171,7 +182,7 @@ const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "
 if (packageJson.scripts?.["db:check"] !== "node scripts/check-db-matrix.mjs") {
   failures.push("package.json must expose db:check");
 }
-if (packageJson.scripts?.["db:check:test"] !== "node scripts/check-db-matrix.mjs && node scripts/check-db-matrix-command.mjs && npm run gate1:prisma:test && npm run gate1:migrate:test && npm run gate1:seed:test && npm run gate1:seed:database:test && npm run gate1:database-store:test && npm run gate1:read-parity:test && npm run gate1:write-path:test && npm run gate1:rollback:test && npm run gate1:live-smoke:test && npm run gate1:ci-postgres:test") {
+if (packageJson.scripts?.["db:check:test"] !== "node scripts/check-db-matrix.mjs && node scripts/check-db-matrix-command.mjs && npm run gate1:prisma:test && npm run gate1:migrate:test && npm run gate1:seed:test && npm run gate1:seed:database:test && npm run gate1:database-store:test && npm run gate1:read-parity:test && npm run gate1:write-path:test && npm run gate1:rollback:test && npm run gate1:live-smoke:test && npm run gate1:ci-postgres:test && npm run gate1:env:test") {
   failures.push("package.json must expose db:check:test");
 }
 if (packageJson.scripts?.["gate1:prisma:test"] !== "node scripts/check-gate1-prisma-scaffold.mjs") {
@@ -216,6 +227,12 @@ if (packageJson.scripts?.["gate1:live-smoke:test"] !== "node scripts/check-gate1
 if (packageJson.scripts?.["gate1:ci-postgres:test"] !== "node scripts/check-gate1-ci-postgres.mjs") {
   failures.push("package.json must expose gate1:ci-postgres:test");
 }
+if (packageJson.scripts?.["gate1:env"] !== "node scripts/gate1-env-preflight.mjs") {
+  failures.push("package.json must expose gate1:env");
+}
+if (packageJson.scripts?.["gate1:env:test"] !== "node scripts/check-gate1-env-preflight.mjs") {
+  failures.push("package.json must expose gate1:env:test");
+}
 
 await requireFile(constraintsDocPath);
 await requireFile(persistenceDocPath);
@@ -233,6 +250,8 @@ await requireFile("scripts/check-gate1-rollback.mjs");
 await requireFile("scripts/gate1-live-smoke.mjs");
 await requireFile("scripts/check-gate1-live-smoke.mjs");
 await requireFile("scripts/check-gate1-ci-postgres.mjs");
+await requireFile("scripts/gate1-env-preflight.mjs");
+await requireFile("scripts/check-gate1-env-preflight.mjs");
 
 const doc = await readIfExists(constraintsDocPath);
 const persistenceDoc = await readIfExists(persistenceDocPath);
@@ -275,6 +294,9 @@ const requiredPersistenceTerms = [
   "gate1:rollback:test",
   "gate1:live-smoke",
   "CI Postgres smoke",
+  "Secret injection and environment provisioning",
+  "gate1:env",
+  "keys-only",
   "raw provider values"
 ];
 
@@ -358,6 +380,7 @@ function printHelp() {
   console.log("  rollbackStatus.summary");
   console.log("  liveSmokeStatus.summary");
   console.log("  ciPostgresStatus.summary");
+  console.log("  envProvisioningStatus.summary");
   console.log("");
   console.log("Stable error codes:");
   console.log("  TM_DB_MATRIX_UNKNOWN_OPTION");

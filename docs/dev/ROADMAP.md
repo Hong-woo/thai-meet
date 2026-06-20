@@ -9,6 +9,7 @@ Next execution order:
 1. Secret injection and environment provisioning.
    - Configure protected GitHub environment secrets.
    - Provide production `DATABASE_URL`, provider credentials, S3 bucket, and Android upload keystore.
+   - Run `npm run gate1:env -- --json` to verify required key presence without printing secret values.
 
 2. Live deploy rehearsal.
    - Run `AWS CI Deploy` manually.
