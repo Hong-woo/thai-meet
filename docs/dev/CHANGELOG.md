@@ -14,6 +14,7 @@ Record developer-facing changes that affect local setup, API contracts, generate
 - Gate 1 seed parity plan now rejects `--field` without a field name before writing or printing the plan.
 - Gate 1 seed parity plan now rejects `--field=` before printing the plan.
 - Gate 1 database seed writer now rejects `--field` without a field name before DATABASE_URL checks.
+- Gate 1 database seed writer now rejects `--field=` before printing dry-run output.
 - Gate 1 environment preflight now rejects `--field=` before printing preflight output.
 - Gate 1 GitHub environment inventory now rejects `--field=` before printing inventory output.
 - Gate 1 deploy rehearsal now rejects `--field=` before printing rehearsal output.
