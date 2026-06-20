@@ -48,6 +48,11 @@ if (!policyResult.stdout.includes("never seed raw LINE/Facebook values")) {
   failures.push("seed parity policy field must describe raw provider value boundary");
 }
 
+const missingFieldValue = await runNode(["scripts/gate1-seed-parity.mjs", "--field"]);
+if (missingFieldValue.code !== 1 || !missingFieldValue.stderr.includes("TM_GATE1_SEED_PARITY_FIELD_REQUIRED")) {
+  failures.push("seed parity --field without a field name must fail with TM_GATE1_SEED_PARITY_FIELD_REQUIRED");
+}
+
 if (failures.length > 0) {
   console.error("TM_GATE1_SEED_PARITY_CHECK_FAILED");
   for (const failure of failures) console.error(`- ${failure}`);
