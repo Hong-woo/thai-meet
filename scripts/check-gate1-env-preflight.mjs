@@ -99,6 +99,14 @@ if (!missingFieldValue.stderr.includes("TM_GATE1_ENV_PREFLIGHT_OPTION_VALUE_REQU
   failures.push("gate1 env preflight missing --field value must fail with TM_GATE1_ENV_PREFLIGHT_OPTION_VALUE_REQUIRED");
 }
 
+const emptyEqualsField = runPreflight({ env: readyEnv, args: ["--field="] });
+if (emptyEqualsField.status === 0 || !emptyEqualsField.stderr.includes("TM_GATE1_ENV_PREFLIGHT_OPTION_VALUE_REQUIRED: --field")) {
+  failures.push("gate1 env preflight --field= must fail with TM_GATE1_ENV_PREFLIGHT_OPTION_VALUE_REQUIRED");
+}
+if (emptyEqualsField.stdout.trim().length > 0) {
+  failures.push("gate1 env preflight --field= must not print preflight output");
+}
+
 const jsonFieldConflict = runPreflight({ env: readyEnv, args: ["--json", "--field", "status"] });
 if (jsonFieldConflict.status === 0) failures.push("gate1 env preflight must fail when --json and --field are combined");
 if (!jsonFieldConflict.stderr.includes("TM_GATE1_ENV_PREFLIGHT_OPTION_CONFLICT")) {
