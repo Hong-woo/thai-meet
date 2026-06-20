@@ -6,6 +6,7 @@ const args = process.argv.slice(2);
 if (args.includes("--help")) {
   console.log("Usage: node scripts/gate1-github-env-inventory.mjs [--env <name>] [--json] [--field <name>] [--plan]");
   console.log("Fields: status, environment, secretOutputPolicy, groups.productionRuntime.status, groups.awsDeploy.status, groups.androidRelease.status");
+  console.log("Use only one output mode: --json, --field, or --plan.");
   process.exit(0);
 }
 
@@ -15,6 +16,12 @@ const variableJsonFile = readOption("--variable-json-file");
 const fieldName = readOption("--field");
 const jsonMode = args.includes("--json");
 const planMode = args.includes("--plan");
+const outputModeCount = [jsonMode, Boolean(fieldName), planMode].filter(Boolean).length;
+
+if (outputModeCount > 1) {
+  console.error("TM_GATE1_GITHUB_ENV_INVENTORY_OPTION_CONFLICT: use only one of --json, --field, or --plan");
+  process.exit(1);
+}
 
 const secretEntries = secretJsonFile
   ? await readJsonFile(secretJsonFile)
