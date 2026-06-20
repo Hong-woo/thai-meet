@@ -43,6 +43,17 @@ try {
   if (blockedJson?.dispatchCommand !== "gh workflow run \"AWS CI Deploy\" --ref main") failures.push("deploy rehearsal must include manual dispatch command");
   if (blockedJson?.watchCommand !== "gh run list --workflow \"AWS CI Deploy\" --branch main --limit 1") failures.push("deploy rehearsal must include watch command");
   if (blockedJson?.missingNameCount !== 2) failures.push("blocked deploy rehearsal must count missing names");
+  if (!Array.isArray(blockedJson?.remediationCommands)) failures.push("blocked deploy rehearsal must include remediationCommands");
+  if (blockedJson?.remediationCommands?.[0] !== "npm run gate1:env -- --env-file .env.production.local --json") {
+    failures.push("blocked deploy rehearsal must first preflight local production env file");
+  }
+  if (!blockedJson?.remediationCommands?.includes("npm run gate1:github-env:apply -- --env-file .env.production.local --plan")) {
+    failures.push("blocked deploy rehearsal must include GitHub env apply plan command");
+  }
+  if (!blockedJson?.remediationCommands?.includes("npm run gate1:github-env:apply -- --env-file .env.production.local --apply --json")) {
+    failures.push("blocked deploy rehearsal must include GitHub env apply command");
+  }
+  if (blockedJson?.remediationCommandCount !== 4) failures.push("blocked deploy rehearsal must report remediation command count");
   assertNoSecretValues(blockedResult.stdout, "blocked deploy rehearsal stdout");
 
   const readyInventoryPath = path.join(tempDir, "ready-inventory.json");
@@ -76,6 +87,12 @@ try {
   if (planResult.status === 0) failures.push("blocked deploy rehearsal plan must fail closed");
   if (!planResult.stdout.includes("Run first: npm run gate1:github-env -- --json")) {
     failures.push("blocked deploy rehearsal plan must include required preflight command");
+  }
+  if (!planResult.stdout.includes("Fix missing env: npm run gate1:env -- --env-file .env.production.local --json")) {
+    failures.push("blocked deploy rehearsal plan must include local env-file remediation command");
+  }
+  if (!planResult.stdout.includes("Apply env: npm run gate1:github-env:apply -- --env-file .env.production.local --apply --json")) {
+    failures.push("blocked deploy rehearsal plan must include apply remediation command");
   }
   if (!planResult.stdout.includes("When ready: gh workflow run \"AWS CI Deploy\" --ref main")) {
     failures.push("deploy rehearsal plan must include dispatch command");
