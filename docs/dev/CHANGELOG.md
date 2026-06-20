@@ -12,6 +12,7 @@ Record developer-facing changes that affect local setup, API contracts, generate
 - Gate 1 seed parity plan now rejects `--field` without a field name before writing or printing the plan.
 - Gate 1 database seed writer now rejects `--field` without a field name before DATABASE_URL checks.
 - Gate 1 GitHub environment inventory now rejects `--field=` before printing inventory output.
+- Gate 1 deploy rehearsal now rejects `--field=` before printing rehearsal output.
 - Gate 1 deploy rehearsal now prints the blocked remediation command sequence without dispatching the workflow.
 - Gate 1 GitHub environment inventory plan now points to the preferred stdin-only apply flow.
 - Gate 1 GitHub environment apply now rejects combined `--plan --apply` mode.

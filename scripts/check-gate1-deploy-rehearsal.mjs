@@ -83,6 +83,14 @@ try {
     failures.push("deploy rehearsal --field dispatchCommand must print dispatch command");
   }
 
+  const emptyEqualsField = runRehearsal(["--field=", "--inventory-json-file", readyInventoryPath]);
+  if (emptyEqualsField.status === 0 || !emptyEqualsField.stderr.includes("TM_GATE1_DEPLOY_REHEARSAL_OPTION_VALUE_REQUIRED: --field")) {
+    failures.push("deploy rehearsal --field= must fail with TM_GATE1_DEPLOY_REHEARSAL_OPTION_VALUE_REQUIRED");
+  }
+  if (emptyEqualsField.stdout.trim().length > 0) {
+    failures.push("deploy rehearsal --field= must not print rehearsal output");
+  }
+
   const jsonPlanConflict = runRehearsal(["--json", "--plan", "--inventory-json-file", blockedInventoryPath]);
   if (jsonPlanConflict.status === 0) failures.push("deploy rehearsal must fail when --json and --plan are combined");
   if (!jsonPlanConflict.stderr.includes("TM_GATE1_DEPLOY_REHEARSAL_OPTION_CONFLICT")) {
