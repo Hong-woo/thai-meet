@@ -20,6 +20,7 @@ AWS CI/deploy pipeline is configured:
 - Runs `npm run production:check` and `npm test` before image push/deploy.
 - Pushes the API image to ECR and forces an ECS service deployment.
 - Waits for ECS service stability before completing.
+- Rehearse manual dispatch first with `npm run gate1:deploy-rehearsal -- --json` or `npm run gate1:deploy-rehearsal -- --plan`.
 
 Manual checks:
 

@@ -14,6 +14,7 @@ Next execution order:
    - Run `npm run gate1:github-env -- --plan` to generate placeholder `gh variable set`/`gh secret set` commands for missing names.
 
 2. Live deploy rehearsal.
+   - Run `npm run gate1:deploy-rehearsal -- --plan`.
    - Run `AWS CI Deploy` manually.
    - Verify ECR push, ECS service stability, and rollback path.
 
