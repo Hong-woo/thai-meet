@@ -47,6 +47,7 @@ const variableNames = new Set([
 if (args.includes("--help")) {
   console.log("Usage: node scripts/gate1-github-env-apply.mjs --env-file <path> [--env <name>] [--json] [--plan] [--apply]");
   console.log("Dry-run is default. --apply writes GitHub environment variables/secrets using gh and stdin.");
+  console.log("Use only one of --plan or --apply.");
   process.exit(0);
 }
 
@@ -62,6 +63,12 @@ const ghBinArgs = readRepeatedOption("--gh-bin-arg");
 const jsonMode = args.includes("--json");
 const planMode = args.includes("--plan");
 const applyMode = args.includes("--apply");
+
+if (planMode && applyMode) {
+  console.error("TM_GATE1_GITHUB_ENV_APPLY_MODE_CONFLICT: use only one of --plan or --apply");
+  process.exit(1);
+}
+
 const envValues = parseEnvFile(await readEnvFile(envFile));
 const missingKeys = requiredNames.filter((name) => !envValues[name]);
 

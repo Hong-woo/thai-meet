@@ -62,6 +62,14 @@ try {
   }
   assertNoSecretValues(plan.stdout, "github env apply plan stdout");
 
+  const planApplyConflict = runApply(["--env-file", envFile, "--plan", "--apply"]);
+  if (planApplyConflict.status === 0) failures.push("github env apply must fail when --plan and --apply are combined");
+  if (!planApplyConflict.stderr.includes("TM_GATE1_GITHUB_ENV_APPLY_MODE_CONFLICT")) {
+    failures.push("github env apply --plan --apply must fail with TM_GATE1_GITHUB_ENV_APPLY_MODE_CONFLICT");
+  }
+  assertNoSecretValues(planApplyConflict.stdout, "github env apply plan/apply conflict stdout");
+  assertNoSecretValues(planApplyConflict.stderr, "github env apply plan/apply conflict stderr");
+
   const missingEnvFile = path.join(tempDir, "missing.env");
   await writeFile(missingEnvFile, "AUTH_MODE=production\n");
   const missing = runApply(["--env-file", missingEnvFile, "--json"]);
