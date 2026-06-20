@@ -8,6 +8,7 @@ Record developer-facing changes that affect local setup, API contracts, generate
 - Gate 1 deploy rehearsal now prints the blocked remediation command sequence without dispatching the workflow.
 - Gate 1 GitHub environment inventory plan now points to the preferred stdin-only apply flow.
 - Gate 1 GitHub environment apply now rejects combined `--plan --apply` mode.
+- Gate 1 GitHub environment inventory now rejects combined `--json`, `--field`, and `--plan` output modes.
 - Gate 1 seed parity plan and checks now map the Gate 0 Trust Loop fixture to Prisma model counts without raw provider values.
 - Gate 0 production readiness blockers are now closed by production integration contract, AWS deploy workflow, DESIGN.md source, and Android release signing scaffold.
 - Gate 0 status now exposes next gate required checks by-type command registry status summary fields.

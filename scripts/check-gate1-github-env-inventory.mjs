@@ -46,6 +46,24 @@ try {
     failures.push("missing github env inventory must include Android release secret names");
   }
 
+  const jsonPlanConflict = runInventory(["--json", "--plan", "--secret-json-file", emptySecretsPath, "--variable-json-file", emptyVariablesPath]);
+  if (jsonPlanConflict.status === 0) failures.push("github env inventory must fail when --json and --plan are combined");
+  if (!jsonPlanConflict.stderr.includes("TM_GATE1_GITHUB_ENV_INVENTORY_OPTION_CONFLICT")) {
+    failures.push("github env inventory --json --plan must fail with TM_GATE1_GITHUB_ENV_INVENTORY_OPTION_CONFLICT");
+  }
+
+  const jsonFieldConflict = runInventory(["--json", "--field", "status", "--secret-json-file", emptySecretsPath, "--variable-json-file", emptyVariablesPath]);
+  if (jsonFieldConflict.status === 0) failures.push("github env inventory must fail when --json and --field are combined");
+  if (!jsonFieldConflict.stderr.includes("TM_GATE1_GITHUB_ENV_INVENTORY_OPTION_CONFLICT")) {
+    failures.push("github env inventory --json --field must fail with TM_GATE1_GITHUB_ENV_INVENTORY_OPTION_CONFLICT");
+  }
+
+  const fieldPlanConflict = runInventory(["--field", "status", "--plan", "--secret-json-file", emptySecretsPath, "--variable-json-file", emptyVariablesPath]);
+  if (fieldPlanConflict.status === 0) failures.push("github env inventory must fail when --field and --plan are combined");
+  if (!fieldPlanConflict.stderr.includes("TM_GATE1_GITHUB_ENV_INVENTORY_OPTION_CONFLICT")) {
+    failures.push("github env inventory --field --plan must fail with TM_GATE1_GITHUB_ENV_INVENTORY_OPTION_CONFLICT");
+  }
+
   const planResult = runInventory(["--plan", "--secret-json-file", emptySecretsPath, "--variable-json-file", emptyVariablesPath]);
   if (planResult.status === 0) {
     failures.push("github env provisioning plan must fail closed while missing names remain");
