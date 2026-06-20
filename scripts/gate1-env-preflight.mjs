@@ -12,7 +12,8 @@ const fieldIndex = args.indexOf("--field");
 const fieldName = fieldIndex >= 0 ? args[fieldIndex + 1] : null;
 const envFile = readOption("--env-file");
 const jsonMode = args.includes("--json");
-const env = envFile ? { ...process.env, ...await readEnvFile(envFile) } : process.env;
+const envFileValues = envFile ? await readEnvFile(envFile) : {};
+const env = envFile ? { ...process.env, ...envFileValues } : process.env;
 
 const groups = {
   productionRuntime: checkGroup({
@@ -85,6 +86,7 @@ process.exit(summary.status === "ready" ? 0 : 1);
 function checkGroup({ requiredKeys, expectedValues = {} }) {
   const missingKeys = [];
   const invalidKeys = [];
+  const placeholderKeys = [];
 
   for (const key of requiredKeys) {
     if (!env[key]) {
@@ -98,12 +100,19 @@ function checkGroup({ requiredKeys, expectedValues = {} }) {
     }
   }
 
+  for (const key of requiredKeys) {
+    if (envFileValues[key]?.includes("replace-with-")) {
+      placeholderKeys.push(key);
+    }
+  }
+
   return {
-    status: missingKeys.length === 0 && invalidKeys.length === 0 ? "ready" : "not_ready",
+    status: missingKeys.length === 0 && invalidKeys.length === 0 && placeholderKeys.length === 0 ? "ready" : "not_ready",
     requiredKeys,
     expectedValueKeys: Object.keys(expectedValues),
     missingKeys,
-    invalidKeys
+    invalidKeys,
+    placeholderKeys
   };
 }
 

@@ -134,6 +134,54 @@ try {
   }
   assertNoSecretValues(envFileResult.stdout, "ready env file preflight stdout");
   assertNoSecretValues(envFileResult.stderr, "ready env file preflight stderr");
+
+  const placeholderEnvFile = path.join(tempDir, "placeholder.env");
+  await writeFile(placeholderEnvFile, [
+    "AUTH_MODE=production",
+    "AUTH_PROVIDER_JWKS_URL=https://replace-with-auth-domain.example/.well-known/jwks.json",
+    "AUTH_PROVIDER_ISSUER=https://replace-with-auth-domain.example/",
+    "AUTH_PROVIDER_AUDIENCE=replace-with-api-audience",
+    "LINE_PROVIDER_MODE=production",
+    "LINE_CHANNEL_ID=replace-with-line-channel-id",
+    "LINE_CHANNEL_SECRET=replace-with-line-channel-secret",
+    "OBJECT_STORAGE_MODE=s3",
+    "AWS_REGION=replace-with-aws-region",
+    "S3_BUCKET_PUBLIC_ASSETS=replace-with-s3-bucket",
+    "PERSISTENCE_MODE=database",
+    "DATABASE_URL=replace-with-postgresql-database-url",
+    "AWS_DEPLOY_ROLE_ARN=replace-with-aws-deploy-role-arn",
+    "ECR_REPOSITORY=replace-with-ecr-repository",
+    "ECS_CLUSTER=replace-with-ecs-cluster",
+    "ECS_SERVICE=replace-with-ecs-service",
+    "THAI_MEET_UPLOAD_KEYSTORE=replace-with-local-upload-keystore-path",
+    "THAI_MEET_UPLOAD_KEYSTORE_PASSWORD=replace-with-upload-keystore-password",
+    "THAI_MEET_UPLOAD_KEY_ALIAS=replace-with-upload-key-alias",
+    "THAI_MEET_UPLOAD_KEY_PASSWORD=replace-with-upload-key-password",
+    ""
+  ].join("\n"));
+
+  const placeholderResult = runPreflight({
+    env: scrubGate1Env(process.env),
+    args: ["--json", "--env-file", placeholderEnvFile]
+  });
+  if (placeholderResult.status === 0) {
+    failures.push("placeholder gate1 env file preflight must fail closed");
+  }
+  const placeholderJson = parseJson(placeholderResult.stdout, "placeholder env file preflight stdout");
+  if (placeholderJson?.status !== "not_ready") {
+    failures.push("placeholder gate1 env file preflight must report status=not_ready");
+  }
+  if (!placeholderJson?.groups?.productionRuntime?.placeholderKeys?.includes("DATABASE_URL")) {
+    failures.push("placeholder gate1 env file preflight must include DATABASE_URL under productionRuntime placeholderKeys");
+  }
+  if (!placeholderJson?.groups?.awsDeploy?.placeholderKeys?.includes("AWS_DEPLOY_ROLE_ARN")) {
+    failures.push("placeholder gate1 env file preflight must include AWS_DEPLOY_ROLE_ARN under awsDeploy placeholderKeys");
+  }
+  if (!placeholderJson?.groups?.androidRelease?.placeholderKeys?.includes("THAI_MEET_UPLOAD_KEYSTORE_PASSWORD")) {
+    failures.push("placeholder gate1 env file preflight must include THAI_MEET_UPLOAD_KEYSTORE_PASSWORD under androidRelease placeholderKeys");
+  }
+  assertNoSecretValues(placeholderResult.stdout, "placeholder env file preflight stdout");
+  assertNoSecretValues(placeholderResult.stderr, "placeholder env file preflight stderr");
 } finally {
   await rm(tempDir, { recursive: true, force: true });
 }
