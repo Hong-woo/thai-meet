@@ -6,6 +6,7 @@ Record developer-facing changes that affect local setup, API contracts, generate
 
 - Gate 1 environment preflight now fails closed on `replace-with-` placeholders while keeping output keys-only.
 - Gate 1 environment preflight now rejects combined `--json` and `--field` output modes.
+- Gate 1 environment preflight now rejects `--field` without a field name before reading env state.
 - Gate 1 deploy rehearsal now prints the blocked remediation command sequence without dispatching the workflow.
 - Gate 1 GitHub environment inventory plan now points to the preferred stdin-only apply flow.
 - Gate 1 GitHub environment apply now rejects combined `--plan --apply` mode.
