@@ -16,7 +16,7 @@ AWS CI/deploy pipeline is configured:
 - GitHub Actions workflow: `AWS CI Deploy`.
 - Uses `aws-actions/configure-aws-credentials` with OIDC.
 - Uses `aws-actions/amazon-ecr-login`.
-- Requires `AWS_REGION`, `ECR_REPOSITORY`, `ECS_CLUSTER`, `ECS_SERVICE`, and `AWS_DEPLOY_ROLE_ARN` in the protected production environment.
+- Requires `AWS_REGION`, `ECR_REPOSITORY`, `ECS_CLUSTER`, `ECS_SERVICE`, and `AWS_DEPLOY_ROLE_ARN` in the protected production environment as secrets or variables.
 - Runs `npm run production:check` and `npm test` before image push/deploy.
 - Pushes the API image to ECR and forces an ECS service deployment.
 - Waits for ECS service stability before completing.
