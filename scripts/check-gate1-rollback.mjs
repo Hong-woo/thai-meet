@@ -47,6 +47,11 @@ for (const forbidden of ["secret-user", "secret-pass", "postgresql://secret-user
 const modeField = await runNode(["scripts/gate1-rollback-preflight.mjs", "--field", "mode"]);
 if (modeField.stdout.trim() !== "fixture") failures.push("rollback --field mode must print fixture");
 
+const missingFieldValue = await runNode(["scripts/gate1-rollback-preflight.mjs", "--field"]);
+if (missingFieldValue.code !== 1 || !missingFieldValue.stderr.includes("TM_GATE1_ROLLBACK_FIELD_REQUIRED")) {
+  failures.push("rollback --field without a field name must fail with TM_GATE1_ROLLBACK_FIELD_REQUIRED");
+}
+
 const unknownOption = await runNode(["scripts/gate1-rollback-preflight.mjs", "--wat"]);
 if (unknownOption.code !== 1 || !unknownOption.stderr.includes("TM_GATE1_ROLLBACK_UNKNOWN_OPTION")) {
   failures.push("rollback must reject unknown options");
