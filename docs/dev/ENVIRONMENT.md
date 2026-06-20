@@ -11,12 +11,14 @@ npm run env:check
 Check Gate 1 production environment provisioning before live deploy rehearsal:
 
 ```powershell
+copy .env.production.local.example .env.production.local
+npm run gate1:env -- --env-file .env.production.local --json
 npm run gate1:env -- --json
 npm run gate1:github-env -- --json
 npm run gate1:github-env -- --plan
 ```
 
-These preflights report required key names and group status only. They must not print `DATABASE_URL`, provider secrets, keystore passwords, raw contact values, provider tokens, or GitHub variable values.
+Fill `.env.production.local` locally only. It is ignored by Git, while `.env.production.local.example` stays safe to commit. These preflights report required key names and group status only. They must not print `DATABASE_URL`, provider secrets, keystore passwords, raw contact values, provider tokens, or GitHub variable values.
 
 Pinned toolchain:
 
@@ -48,6 +50,7 @@ Rules:
 - Do not commit real provider secrets or raw contact values.
 - Do not require real provider credentials for `npm test`, `npm run smoke:doctor`, or the first prepared-machine `pnpm smoke`.
 - Keep `.env.example` safe to paste into local `.env`.
+- Keep `.env.production.local.example` placeholder-only and safe to commit.
 - Add new provider, ad, push, or storage defaults here before adding real integration code.
 - Keep fixture persistence available so prepared-machine smoke can run without a database.
 - Use `npm run gate1:env:test` when changing production secret requirements so the preflight remains keys-only.

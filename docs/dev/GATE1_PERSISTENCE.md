@@ -73,7 +73,7 @@ Gate 1 cannot close until `db:check` verifies Prisma migration status and the mi
 
 ## Secret Injection And Environment Provisioning
 
-Run `npm run gate1:env -- --json` before live deploy rehearsal. To preflight a local production-value file without exporting secrets into the shell, run `npm run gate1:env -- --env-file .env.production.local --json`. The command checks three groups:
+Run `npm run gate1:env -- --json` before live deploy rehearsal. To preflight a local production-value file without exporting secrets into the shell, copy `.env.production.local.example` to `.env.production.local`, fill placeholders locally, then run `npm run gate1:env -- --env-file .env.production.local --json`. The command checks three groups:
 
 - `productionRuntime`: production auth, LINE provider, S3 object storage, and database persistence keys.
 - `awsDeploy`: OIDC deploy role, ECR repository, ECS cluster, and ECS service keys.
