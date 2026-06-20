@@ -12,9 +12,10 @@ Check Gate 1 production environment provisioning before live deploy rehearsal:
 
 ```powershell
 npm run gate1:env -- --json
+npm run gate1:github-env -- --json
 ```
 
-This preflight reports required key names and group status only. It must not print `DATABASE_URL`, provider secrets, keystore passwords, raw contact values, or provider tokens.
+These preflights report required key names and group status only. They must not print `DATABASE_URL`, provider secrets, keystore passwords, raw contact values, provider tokens, or GitHub variable values.
 
 Pinned toolchain:
 
@@ -49,3 +50,4 @@ Rules:
 - Add new provider, ad, push, or storage defaults here before adding real integration code.
 - Keep fixture persistence available so prepared-machine smoke can run without a database.
 - Use `npm run gate1:env:test` when changing production secret requirements so the preflight remains keys-only.
+- Use `npm run gate1:github-env:test` when changing protected GitHub environment requirements so remote inventory remains names-only.
