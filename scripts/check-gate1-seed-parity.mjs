@@ -53,6 +53,14 @@ if (missingFieldValue.code !== 1 || !missingFieldValue.stderr.includes("TM_GATE1
   failures.push("seed parity --field without a field name must fail with TM_GATE1_SEED_PARITY_FIELD_REQUIRED");
 }
 
+const emptyEqualsField = await runNode(["scripts/gate1-seed-parity.mjs", "--field="]);
+if (emptyEqualsField.code !== 1 || !emptyEqualsField.stderr.includes("TM_GATE1_SEED_PARITY_FIELD_REQUIRED")) {
+  failures.push("seed parity --field= must fail with TM_GATE1_SEED_PARITY_FIELD_REQUIRED");
+}
+if (emptyEqualsField.stdout.trim().length > 0) {
+  failures.push("seed parity --field= must not print seed parity output");
+}
+
 if (failures.length > 0) {
   console.error("TM_GATE1_SEED_PARITY_CHECK_FAILED");
   for (const failure of failures) console.error(`- ${failure}`);
