@@ -63,6 +63,14 @@ if (missingFieldValue.code !== 1 || !missingFieldValue.stderr.includes("TM_GATE1
   failures.push("live smoke --field without a field name must fail with TM_GATE1_LIVE_SMOKE_FIELD_REQUIRED");
 }
 
+const emptyEqualsField = await runNode(["scripts/gate1-live-smoke.mjs", "--dry-run", "--field="]);
+if (emptyEqualsField.code !== 1 || !emptyEqualsField.stderr.includes("TM_GATE1_LIVE_SMOKE_FIELD_REQUIRED")) {
+  failures.push("live smoke --field= must fail with TM_GATE1_LIVE_SMOKE_FIELD_REQUIRED");
+}
+if (emptyEqualsField.stdout.trim().length > 0) {
+  failures.push("live smoke --field= must not print dry-run output");
+}
+
 const unknownOption = await runNode(["scripts/gate1-live-smoke.mjs", "--wat"]);
 if (unknownOption.code !== 1 || !unknownOption.stderr.includes("TM_GATE1_LIVE_SMOKE_UNKNOWN_OPTION")) {
   failures.push("live smoke must reject unknown options");
