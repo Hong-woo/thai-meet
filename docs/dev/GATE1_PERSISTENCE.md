@@ -58,6 +58,8 @@ npm run gate1:env -- --env-file .env.production.local --json
 npm run gate1:github-env:test
 npm run gate1:github-env -- --json
 npm run gate1:github-env -- --plan
+npm run gate1:github-env:apply:test
+npm run gate1:github-env:apply -- --env-file .env.production.local --plan
 npm run gate1:deploy-rehearsal:test
 npm run gate1:deploy-rehearsal -- --json
 npm run gate1:deploy-rehearsal -- --plan
@@ -84,6 +86,8 @@ The command exits non-zero until required keys are present and expected mode key
 Run `npm run gate1:github-env -- --json` after configuring the protected GitHub `production` environment. It checks the remote secret and variable inventory by name and exits non-zero until all required names are present. Output must stay `names-only`: configured values, variable values, timestamps, provider tokens, database URLs, and keystore passwords must never print.
 
 Run `npm run gate1:github-env -- --plan` to print placeholder `gh variable set` commands for non-sensitive deployment settings and `gh secret set` commands for sensitive values. Replace placeholders locally before running the commands; never paste real secret values into issue, PR, CI, or chat logs.
+
+Run `npm run gate1:github-env:apply -- --env-file .env.production.local --plan` to preview the concrete upload sequence without printing values. After local preflight passes, run `npm run gate1:github-env:apply -- --env-file .env.production.local --apply --json` to write GitHub `production` environment variables and secrets. The apply command sends values to `gh` via stdin, keeps output `names-only`, and fails closed if any `replace-with-` placeholder remains.
 
 ## Live Deploy Rehearsal
 

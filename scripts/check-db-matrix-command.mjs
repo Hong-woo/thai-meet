@@ -120,6 +120,9 @@ if (summary) {
   if (summary.gate1GithubEnvCheckCommand !== "npm run gate1:github-env:test") {
     failures.push("db:check --json must include Gate 1 GitHub env check command");
   }
+  if (summary.gate1GithubEnvApplyCheckCommand !== "npm run gate1:github-env:apply:test") {
+    failures.push("db:check --json must include Gate 1 GitHub env apply check command");
+  }
   if (summary.gate1DeployRehearsalCheckCommand !== "npm run gate1:deploy-rehearsal:test") {
     failures.push("db:check --json must include Gate 1 deploy rehearsal check command");
   }
@@ -314,6 +317,11 @@ if (gate1GithubEnvCheckCommandField.stdout.trim() !== "npm run gate1:github-env:
   failures.push("db:check --field gate1GithubEnvCheckCommand must print gate1 GitHub env check command");
 }
 
+const gate1GithubEnvApplyCheckCommandField = await runNode(["scripts/check-db-matrix.mjs", "--field", "gate1GithubEnvApplyCheckCommand"]);
+if (gate1GithubEnvApplyCheckCommandField.stdout.trim() !== "npm run gate1:github-env:apply:test") {
+  failures.push("db:check --field gate1GithubEnvApplyCheckCommand must print gate1 GitHub env apply check command");
+}
+
 const gate1DeployRehearsalCheckCommandField = await runNode(["scripts/check-db-matrix.mjs", "--field", "gate1DeployRehearsalCheckCommand"]);
 if (gate1DeployRehearsalCheckCommandField.stdout.trim() !== "npm run gate1:deploy-rehearsal:test") {
   failures.push("db:check --field gate1DeployRehearsalCheckCommand must print gate1 deploy rehearsal check command");
@@ -361,7 +369,7 @@ if (databaseUrlProtocolField.stdout.trim() !== "postgres") {
 }
 
 const helpResult = await runNode(["scripts/check-db-matrix.mjs", "--help"]);
-for (const term of ["--json", "--field <name>", "migrationStatus", "requiredModels", "notScaffoldedGuard", "notScaffoldedGuard.errorCode", "prismaSchemaPresent", "prismaMigrationsPresent", "prismaScaffoldStatus", "prismaScaffoldStatus.summary", "seedParityStatus", "seedParityStatus.summary", "seedParityCheckCommand", "migrationPreflightStatus", "migrationPreflightStatus.summary", "migrationPreflightCheckCommand", "seedDatabaseStatus", "seedDatabaseStatus.summary", "seedDatabaseCheckCommand", "readParityStatus", "readParityStatus.summary", "readParityCheckCommand", "endpointReadParityCheckCommand", "writePathStatus", "writePathStatus.summary", "writePathCheckCommand", "rollbackStatus", "rollbackStatus.summary", "rollbackCheckCommand", "liveSmokeStatus", "liveSmokeStatus.summary", "liveSmokeCheckCommand", "ciPostgresStatus", "ciPostgresStatus.summary", "ciPostgresCheckCommand", "envProvisioningStatus", "envProvisioningStatus.summary", "gate1EnvCheckCommand", "githubEnvInventoryStatus", "githubEnvInventoryStatus.summary", "gate1GithubEnvCheckCommand", "deployRehearsalStatus", "deployRehearsalStatus.summary", "gate1DeployRehearsalCheckCommand", "requiredEnvKeys", "databaseUrlPresent", "databaseUrlStatus", "databaseUrlProtocol", "TM_DB_MATRIX_UNKNOWN_OPTION", "TM_DB_MATRIX_OPTION_CONFLICT", "TM_DB_MATRIX_FIELD_REQUIRED", "TM_DB_MATRIX_UNKNOWN_FIELD"]) {
+for (const term of ["--json", "--field <name>", "migrationStatus", "requiredModels", "notScaffoldedGuard", "notScaffoldedGuard.errorCode", "prismaSchemaPresent", "prismaMigrationsPresent", "prismaScaffoldStatus", "prismaScaffoldStatus.summary", "seedParityStatus", "seedParityStatus.summary", "seedParityCheckCommand", "migrationPreflightStatus", "migrationPreflightStatus.summary", "migrationPreflightCheckCommand", "seedDatabaseStatus", "seedDatabaseStatus.summary", "seedDatabaseCheckCommand", "readParityStatus", "readParityStatus.summary", "readParityCheckCommand", "endpointReadParityCheckCommand", "writePathStatus", "writePathStatus.summary", "writePathCheckCommand", "rollbackStatus", "rollbackStatus.summary", "rollbackCheckCommand", "liveSmokeStatus", "liveSmokeStatus.summary", "liveSmokeCheckCommand", "ciPostgresStatus", "ciPostgresStatus.summary", "ciPostgresCheckCommand", "envProvisioningStatus", "envProvisioningStatus.summary", "gate1EnvCheckCommand", "githubEnvInventoryStatus", "githubEnvInventoryStatus.summary", "gate1GithubEnvCheckCommand", "gate1GithubEnvApplyCheckCommand", "deployRehearsalStatus", "deployRehearsalStatus.summary", "gate1DeployRehearsalCheckCommand", "requiredEnvKeys", "databaseUrlPresent", "databaseUrlStatus", "databaseUrlProtocol", "TM_DB_MATRIX_UNKNOWN_OPTION", "TM_DB_MATRIX_OPTION_CONFLICT", "TM_DB_MATRIX_FIELD_REQUIRED", "TM_DB_MATRIX_UNKNOWN_FIELD"]) {
   if (!helpResult.stdout.includes(term)) failures.push(`db:check --help must include ${term}`);
 }
 

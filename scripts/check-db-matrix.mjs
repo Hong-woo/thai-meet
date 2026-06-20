@@ -21,6 +21,7 @@ const liveSmokeCheckCommand = "npm run gate1:live-smoke:test";
 const ciPostgresCheckCommand = "npm run gate1:ci-postgres:test";
 const gate1EnvCheckCommand = "npm run gate1:env:test";
 const gate1GithubEnvCheckCommand = "npm run gate1:github-env:test";
+const gate1GithubEnvApplyCheckCommand = "npm run gate1:github-env:apply:test";
 const gate1DeployRehearsalCheckCommand = "npm run gate1:deploy-rehearsal:test";
 const seedParityPlanPath = ".thai-meet/gate1/seed-parity.json";
 const requiredEnvKeys = ["DATABASE_URL"];
@@ -184,6 +185,7 @@ const summary = {
   ciPostgresCheckCommand,
   gate1EnvCheckCommand,
   gate1GithubEnvCheckCommand,
+  gate1GithubEnvApplyCheckCommand,
   gate1DeployRehearsalCheckCommand,
   seedParityPlanPath,
   requiredEnvKeys,
@@ -206,7 +208,7 @@ const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "
 if (packageJson.scripts?.["db:check"] !== "node scripts/check-db-matrix.mjs") {
   failures.push("package.json must expose db:check");
 }
-if (packageJson.scripts?.["db:check:test"] !== "node scripts/check-db-matrix.mjs && node scripts/check-db-matrix-command.mjs && npm run gate1:prisma:test && npm run gate1:migrate:test && npm run gate1:seed:test && npm run gate1:seed:database:test && npm run gate1:database-store:test && npm run gate1:read-parity:test && npm run gate1:write-path:test && npm run gate1:rollback:test && npm run gate1:live-smoke:test && npm run gate1:ci-postgres:test && npm run gate1:env:test && npm run gate1:github-env:test && npm run gate1:deploy-rehearsal:test") {
+if (packageJson.scripts?.["db:check:test"] !== "node scripts/check-db-matrix.mjs && node scripts/check-db-matrix-command.mjs && npm run gate1:prisma:test && npm run gate1:migrate:test && npm run gate1:seed:test && npm run gate1:seed:database:test && npm run gate1:database-store:test && npm run gate1:read-parity:test && npm run gate1:write-path:test && npm run gate1:rollback:test && npm run gate1:live-smoke:test && npm run gate1:ci-postgres:test && npm run gate1:env:test && npm run gate1:github-env:test && npm run gate1:github-env:apply:test && npm run gate1:deploy-rehearsal:test") {
   failures.push("package.json must expose db:check:test");
 }
 if (packageJson.scripts?.["gate1:prisma:test"] !== "node scripts/check-gate1-prisma-scaffold.mjs") {
@@ -263,6 +265,12 @@ if (packageJson.scripts?.["gate1:github-env"] !== "node scripts/gate1-github-env
 if (packageJson.scripts?.["gate1:github-env:test"] !== "node scripts/check-gate1-github-env-inventory.mjs") {
   failures.push("package.json must expose gate1:github-env:test");
 }
+if (packageJson.scripts?.["gate1:github-env:apply"] !== "node scripts/gate1-github-env-apply.mjs") {
+  failures.push("package.json must expose gate1:github-env:apply");
+}
+if (packageJson.scripts?.["gate1:github-env:apply:test"] !== "node scripts/check-gate1-github-env-apply.mjs") {
+  failures.push("package.json must expose gate1:github-env:apply:test");
+}
 if (packageJson.scripts?.["gate1:deploy-rehearsal"] !== "node scripts/gate1-deploy-rehearsal.mjs") {
   failures.push("package.json must expose gate1:deploy-rehearsal");
 }
@@ -290,6 +298,8 @@ await requireFile("scripts/gate1-env-preflight.mjs");
 await requireFile("scripts/check-gate1-env-preflight.mjs");
 await requireFile("scripts/gate1-github-env-inventory.mjs");
 await requireFile("scripts/check-gate1-github-env-inventory.mjs");
+await requireFile("scripts/gate1-github-env-apply.mjs");
+await requireFile("scripts/check-gate1-github-env-apply.mjs");
 await requireFile("scripts/gate1-deploy-rehearsal.mjs");
 await requireFile("scripts/check-gate1-deploy-rehearsal.mjs");
 
@@ -337,6 +347,7 @@ const requiredPersistenceTerms = [
   "Secret injection and environment provisioning",
   "gate1:env",
   "gate1:github-env",
+  "gate1:github-env:apply",
   "gate1:github-env -- --plan",
   "gate1:deploy-rehearsal",
   "AWS CI Deploy",
