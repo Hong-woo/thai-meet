@@ -95,7 +95,14 @@ async function loadPrismaClient() {
 
 function parseFieldArg(argv) {
   const equalsArg = argv.find((arg) => arg.startsWith("--field="));
-  if (equalsArg) return equalsArg.slice("--field=".length);
+  if (equalsArg) {
+    const value = equalsArg.slice("--field=".length);
+    if (!value) {
+      console.error("TM_GATE1_LIVE_SMOKE_FIELD_REQUIRED");
+      process.exit(1);
+    }
+    return value;
+  }
   const index = argv.indexOf("--field");
   if (index === -1) return null;
 
