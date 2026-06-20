@@ -86,8 +86,8 @@ for (const marker of [
 
 for (const marker of [
   "DESIGN.md is the Gate 0 source of truth",
-  "Figma source placeholder",
-  "figma://thai-meet/gate0-source-of-truth"
+  "Figma source: https://www.figma.com/design/Jls4ueBkuNa53XXPKv6Yxw",
+  "Figma Gate 0 screens now replace the placeholder source"
 ]) {
   assertIncludes(designStatus, marker, `design status doc must include ${marker}`);
 }

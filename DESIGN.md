@@ -359,6 +359,18 @@ Current design consultation preview:
 ~/.gstack/projects/thai-meet/designs/design-system-20260603/preview-mobile.png
 ```
 
+Current Figma Gate 0 source:
+
+```text
+https://www.figma.com/design/Jls4ueBkuNa53XXPKv6Yxw
+```
+
+The Figma file contains:
+
+- `Brand Reference` page using the ThaiMeet brand package assets.
+- `Public ID Templates` page with six editable non-official badge directions.
+- `Gate 0 Screens` page with eight mobile Trust Loop screens.
+
 AI mockup generation was not used because no OpenAI API key was configured for the gstack design CLI in this environment.
 
 ## Implementation Guidance
@@ -388,3 +400,4 @@ When reviewing UI:
 | 2026-06-03 | Made Public Meet ID a visible card/chat trust marker | Public ID is the trust and fresh-start mechanism, not backend-only metadata. |
 | 2026-06-04 | Locked color system to Bangkok Rose Trust | Dating-app benchmarking favored rose/coral energy; rose is now the primary trust/action color, LINE green remains provider-scoped. |
 | 2026-06-04 | Moved wireframe first viewport to app-first preview | Reviewers should judge the mobile dating experience before reading benchmark or planning notes. |
+| 2026-06-21 | Created Figma Gate 0 source with ThaiMeet brand assets | Product review can now use editable Gate 0 screens and six Public ID template directions instead of the placeholder source. |

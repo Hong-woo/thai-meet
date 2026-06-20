@@ -18,6 +18,7 @@ Done in scaffold:
 - Feature flag matrix and rollout sequence.
 - Reward ledger scaffold contract.
 - DESIGN.md, PRODUCT.md, and static Gate 0 wireframes.
+- Figma Gate 0 screen set and six Public ID image templates.
 - Executable wireframe QA contract wired into `npm test`.
 - Gate 0 5-tab route/nav contract aligned across wireframes, Flutter route shell, developer docs, and tests.
 - Gate 0 local vertical slice is executable on Flutter web, Windows, and Android device.
@@ -27,21 +28,20 @@ Done in scaffold:
 Partial:
 
 - Cross-platform smoke parity: Windows/Ubuntu CI and Windows local checks exist; full Flutter/Docker prepared-machine smoke still depends on installed prerequisites.
-- Design system: source-of-truth docs and wireframes exist; Figma screen set and Public ID image templates remain.
+- Design system: source-of-truth docs, wireframes, Figma Gate 0 screens, and Public ID templates exist; formal token export to Flutter remains optional alpha polish.
 - Trust Loop implementation: API routes now call a fixture-backed Gate 0 service boundary; real Prisma/NestJS storage and Flutter screens remain.
-- Production gates now move in this order: persistence -> AWS CI/deploy -> Figma source -> release signing.
+- Production gates now move in this order: persistence -> AWS CI/deploy -> product review of Figma source -> release signing.
 
 Remaining:
 
-- Figma Gate 0 screen set and Public ID image templates.
 - Real Prisma/NestJS/Flutter feature implementation beyond the fixture-backed Gate 0 scaffold.
 - Full mobile build/device smoke after Flutter toolchain is installed.
 
 ## Sprint 0 Design System And Gate 0 Screens
 
-What: Complete the Figma Gate 0 screen set and six Public ID image templates now that `DESIGN.md`, `PRODUCT.md`, and static wireframes exist.
+What: Figma Gate 0 screen set and six Public ID image templates are created in `thai-meet Gate 0`: https://www.figma.com/design/Jls4ueBkuNa53XXPKv6Yxw
 
-Why: Gate 0 now has source-of-truth docs and HTML wireframes, but Figma handoff assets and reusable Public ID visual templates are still needed for production mobile implementation.
+Why: Gate 0 now has source-of-truth docs, HTML wireframes, Figma handoff screens, and reusable Public ID visual templates for production mobile implementation.
 
 Pros: Prevents Flutter implementation from drifting screen by screen; gives designers, developers, and QA one reference for Trust Loop UI decisions.
 
@@ -49,7 +49,7 @@ Cons: Adds final design handoff work before implementation can be considered des
 
 Context: `/plan-design-review`, UI UX Pro Max, Impeccable, interface-design, and Emil design review work fixed the 5-tab Gate 0 UX structure, Bangkok Rose Trust visual system, wireframe QA contract, localization/accessibility contracts, and Contact Card lifecycle states.
 
-Depends on / blocked by: Figma access and confirmation of initial launch language priority.
+Depends on / blocked by: Product review, Flutter token/component handoff, and confirmation of initial launch language priority.
 
 ## Sprint 0 Minimal Executable Monorepo Scaffold
 
