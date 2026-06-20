@@ -5,6 +5,7 @@ const args = process.argv.slice(2);
 if (args.includes("--help")) {
   console.log("Usage: node scripts/gate1-env-preflight.mjs [--json] [--field <name>] [--env-file <path>]");
   console.log("Fields: status, secretOutputPolicy, groups.productionRuntime.status, groups.awsDeploy.status, groups.androidRelease.status");
+  console.log("Use only one output mode: --json or --field.");
   process.exit(0);
 }
 
@@ -12,6 +13,12 @@ const fieldIndex = args.indexOf("--field");
 const fieldName = fieldIndex >= 0 ? args[fieldIndex + 1] : null;
 const envFile = readOption("--env-file");
 const jsonMode = args.includes("--json");
+
+if (jsonMode && fieldName) {
+  console.error("TM_GATE1_ENV_PREFLIGHT_OPTION_CONFLICT: use only one of --json or --field");
+  process.exit(1);
+}
+
 const envFileValues = envFile ? await readEnvFile(envFile) : {};
 const env = envFile ? { ...process.env, ...envFileValues } : process.env;
 

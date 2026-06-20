@@ -93,6 +93,12 @@ if (fieldResult.status !== 0 || fieldResult.stdout.trim() !== "ready") {
   failures.push("gate1 env preflight --field groups.awsDeploy.status must print ready");
 }
 
+const jsonFieldConflict = runPreflight({ env: readyEnv, args: ["--json", "--field", "status"] });
+if (jsonFieldConflict.status === 0) failures.push("gate1 env preflight must fail when --json and --field are combined");
+if (!jsonFieldConflict.stderr.includes("TM_GATE1_ENV_PREFLIGHT_OPTION_CONFLICT")) {
+  failures.push("gate1 env preflight --json --field must fail with TM_GATE1_ENV_PREFLIGHT_OPTION_CONFLICT");
+}
+
 const tempDir = await mkdtemp(path.join(tmpdir(), "thai-meet-gate1-env-file-"));
 try {
   const readyEnvFile = path.join(tempDir, "gate1.env");
