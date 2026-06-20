@@ -52,6 +52,14 @@ if (missingFieldValue.code !== 1 || !missingFieldValue.stderr.includes("TM_GATE1
   failures.push("rollback --field without a field name must fail with TM_GATE1_ROLLBACK_FIELD_REQUIRED");
 }
 
+const emptyEqualsField = await runNode(["scripts/gate1-rollback-preflight.mjs", "--field="]);
+if (emptyEqualsField.code !== 1 || !emptyEqualsField.stderr.includes("TM_GATE1_ROLLBACK_FIELD_REQUIRED")) {
+  failures.push("rollback --field= must fail with TM_GATE1_ROLLBACK_FIELD_REQUIRED");
+}
+if (emptyEqualsField.stdout.trim().length > 0) {
+  failures.push("rollback --field= must not print rollback output");
+}
+
 const unknownOption = await runNode(["scripts/gate1-rollback-preflight.mjs", "--wat"]);
 if (unknownOption.code !== 1 || !unknownOption.stderr.includes("TM_GATE1_ROLLBACK_UNKNOWN_OPTION")) {
   failures.push("rollback must reject unknown options");
