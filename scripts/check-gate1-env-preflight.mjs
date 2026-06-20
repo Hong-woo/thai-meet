@@ -1,4 +1,5 @@
-import { readFile } from "node:fs/promises";
+import { mkdtemp, writeFile, rm, readFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -11,6 +12,11 @@ if (packageJson.scripts?.["gate1:env"] !== "node scripts/gate1-env-preflight.mjs
 }
 if (packageJson.scripts?.["gate1:env:test"] !== "node scripts/check-gate1-env-preflight.mjs") {
   failures.push("package.json must expose gate1:env:test");
+}
+
+const helpResult = runPreflight({ env: scrubGate1Env(process.env), args: ["--help"] });
+if (!helpResult.stdout.includes("--env-file <path>")) {
+  failures.push("gate1 env preflight help must include --env-file <path>");
 }
 
 const missingResult = runPreflight({ env: scrubGate1Env(process.env), args: ["--json"] });
@@ -85,6 +91,51 @@ assertNoSecretValues(readyResult.stderr, "ready preflight stderr");
 const fieldResult = runPreflight({ env: readyEnv, args: ["--field", "groups.awsDeploy.status"] });
 if (fieldResult.status !== 0 || fieldResult.stdout.trim() !== "ready") {
   failures.push("gate1 env preflight --field groups.awsDeploy.status must print ready");
+}
+
+const tempDir = await mkdtemp(path.join(tmpdir(), "thai-meet-gate1-env-file-"));
+try {
+  const readyEnvFile = path.join(tempDir, "gate1.env");
+  await writeFile(readyEnvFile, [
+    "# Gate 1 local preflight values",
+    "AUTH_MODE=production",
+    "AUTH_PROVIDER_JWKS_URL=https://auth.example.invalid/.well-known/jwks.json",
+    "AUTH_PROVIDER_ISSUER=https://auth.example.invalid/",
+    "AUTH_PROVIDER_AUDIENCE=thai-meet-api",
+    "LINE_PROVIDER_MODE=production",
+    "LINE_CHANNEL_ID=1234567890",
+    "LINE_CHANNEL_SECRET=gate1_line_secret_value",
+    "OBJECT_STORAGE_MODE=s3",
+    "AWS_REGION=ap-southeast-1",
+    "S3_BUCKET_PUBLIC_ASSETS=thai-meet-public-assets",
+    "PERSISTENCE_MODE=database",
+    "DATABASE_URL=postgresql://user:gate1_db_secret@example.invalid:5432/thai_meet",
+    "AWS_DEPLOY_ROLE_ARN=arn:aws:iam::123456789012:role/thai-meet-deploy",
+    "ECR_REPOSITORY=thai-meet-api",
+    "ECS_CLUSTER=thai-meet-cluster",
+    "ECS_SERVICE=thai-meet-service",
+    "THAI_MEET_UPLOAD_KEYSTORE=C:/secrets/thai-meet-upload.jks",
+    "THAI_MEET_UPLOAD_KEYSTORE_PASSWORD=gate1_keystore_password",
+    "THAI_MEET_UPLOAD_KEY_ALIAS=thai-meet-upload",
+    "THAI_MEET_UPLOAD_KEY_PASSWORD=gate1_key_password",
+    ""
+  ].join("\n"));
+
+  const envFileResult = runPreflight({
+    env: scrubGate1Env(process.env),
+    args: ["--json", "--env-file", readyEnvFile]
+  });
+  if (envFileResult.status !== 0) {
+    failures.push(`ready gate1 env file preflight must pass, got exit ${envFileResult.status}`);
+  }
+  const envFileJson = parseJson(envFileResult.stdout, "ready env file preflight stdout");
+  if (envFileJson?.status !== "ready") {
+    failures.push("ready gate1 env file preflight must report status=ready");
+  }
+  assertNoSecretValues(envFileResult.stdout, "ready env file preflight stdout");
+  assertNoSecretValues(envFileResult.stderr, "ready env file preflight stderr");
+} finally {
+  await rm(tempDir, { recursive: true, force: true });
 }
 
 if (failures.length > 0) {

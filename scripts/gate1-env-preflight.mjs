@@ -1,14 +1,18 @@
+import { readFile } from "node:fs/promises";
+
 const args = process.argv.slice(2);
 
 if (args.includes("--help")) {
-  console.log("Usage: node scripts/gate1-env-preflight.mjs [--json] [--field <name>]");
+  console.log("Usage: node scripts/gate1-env-preflight.mjs [--json] [--field <name>] [--env-file <path>]");
   console.log("Fields: status, secretOutputPolicy, groups.productionRuntime.status, groups.awsDeploy.status, groups.androidRelease.status");
   process.exit(0);
 }
 
 const fieldIndex = args.indexOf("--field");
 const fieldName = fieldIndex >= 0 ? args[fieldIndex + 1] : null;
+const envFile = readOption("--env-file");
 const jsonMode = args.includes("--json");
+const env = envFile ? { ...process.env, ...await readEnvFile(envFile) } : process.env;
 
 const groups = {
   productionRuntime: checkGroup({
@@ -83,13 +87,13 @@ function checkGroup({ requiredKeys, expectedValues = {} }) {
   const invalidKeys = [];
 
   for (const key of requiredKeys) {
-    if (!process.env[key]) {
+    if (!env[key]) {
       missingKeys.push(key);
     }
   }
 
   for (const [key, expected] of Object.entries(expectedValues)) {
-    if (process.env[key] && process.env[key] !== expected) {
+    if (env[key] && env[key] !== expected) {
       invalidKeys.push(key);
     }
   }
@@ -101,6 +105,54 @@ function checkGroup({ requiredKeys, expectedValues = {} }) {
     missingKeys,
     invalidKeys
   };
+}
+
+async function readEnvFile(filePath) {
+  try {
+    const text = await readFile(filePath, "utf8");
+    return parseEnvFile(text);
+  } catch (error) {
+    console.error(`TM_GATE1_ENV_FILE_READ_FAILED: ${error.message}`);
+    process.exit(1);
+  }
+}
+
+function parseEnvFile(text) {
+  const parsed = {};
+  for (const rawLine of text.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith("#")) continue;
+
+    const equalsIndex = line.indexOf("=");
+    if (equalsIndex <= 0) continue;
+
+    const key = line.slice(0, equalsIndex).trim();
+    const value = line.slice(equalsIndex + 1).trim();
+    if (!/^[A-Z_][A-Z0-9_]*$/.test(key)) continue;
+    parsed[key] = unquote(value);
+  }
+  return parsed;
+}
+
+function unquote(value) {
+  if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+    return value.slice(1, -1);
+  }
+  return value;
+}
+
+function readOption(name) {
+  const equalsArg = args.find((arg) => arg.startsWith(`${name}=`));
+  if (equalsArg) return equalsArg.slice(name.length + 1);
+
+  const index = args.indexOf(name);
+  if (index === -1) return null;
+  const value = args[index + 1];
+  if (!value || value.startsWith("--")) {
+    console.error(`TM_GATE1_ENV_PREFLIGHT_OPTION_VALUE_REQUIRED: ${name}`);
+    process.exit(1);
+  }
+  return value;
 }
 
 function getField(value, dottedPath) {
