@@ -58,6 +58,11 @@ if (fieldResult.stdout.trim() !== "npm run gate1:seed:database") {
   failures.push("live smoke --field commandOrder.1 must print seed command");
 }
 
+const missingFieldValue = await runNode(["scripts/gate1-live-smoke.mjs", "--dry-run", "--field"]);
+if (missingFieldValue.code !== 1 || !missingFieldValue.stderr.includes("TM_GATE1_LIVE_SMOKE_FIELD_REQUIRED")) {
+  failures.push("live smoke --field without a field name must fail with TM_GATE1_LIVE_SMOKE_FIELD_REQUIRED");
+}
+
 const unknownOption = await runNode(["scripts/gate1-live-smoke.mjs", "--wat"]);
 if (unknownOption.code !== 1 || !unknownOption.stderr.includes("TM_GATE1_LIVE_SMOKE_UNKNOWN_OPTION")) {
   failures.push("live smoke must reject unknown options");
