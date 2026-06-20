@@ -87,7 +87,7 @@ Run `npm run gate1:github-env -- --json` after configuring the protected GitHub 
 
 Run `npm run gate1:github-env -- --plan` to print placeholder `gh variable set` commands for non-sensitive deployment settings and `gh secret set` commands for sensitive values. Prefer the stdin-only apply flow printed at the end of the plan; never paste real secret values into issue, PR, CI, or chat logs.
 
-Run `npm run gate1:github-env:apply -- --env-file .env.production.local --plan` to preview the concrete upload sequence without printing values. After local preflight passes, run `npm run gate1:github-env:apply -- --env-file .env.production.local --apply --json` to write GitHub `production` environment variables and secrets. The apply command sends values to `gh` via stdin, keeps output `names-only`, and fails closed if any `replace-with-` placeholder remains.
+Run `npm run gate1:github-env:apply -- --env-file .env.production.local --plan` to preview the concrete upload sequence without printing values. After local preflight passes, run `npm run gate1:github-env:apply -- --env-file .env.production.local --apply --json` to write GitHub `production` environment variables and secrets. The apply command sends values to `gh` via stdin, keeps output `names-only`, fails closed if any `replace-with-` placeholder remains, and rejects combined `--plan --apply` mode.
 
 ## Live Deploy Rehearsal
 
