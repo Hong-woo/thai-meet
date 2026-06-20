@@ -21,6 +21,12 @@ const inventory = inventoryJsonFile
 const missingNameCount = Object.values(inventory.groups ?? {})
   .reduce((count, group) => count + (Array.isArray(group.missingNames) ? group.missingNames.length : 0), 0);
 const ready = inventory.status === "ready";
+const remediationCommands = [
+  "npm run gate1:env -- --env-file .env.production.local --json",
+  "npm run gate1:github-env:apply -- --env-file .env.production.local --plan",
+  "npm run gate1:github-env:apply -- --env-file .env.production.local --apply --json",
+  "npm run gate1:github-env -- --json"
+];
 
 const summary = {
   status: ready ? "ready" : "blocked",
@@ -33,6 +39,8 @@ const summary = {
   dispatchCommand: "gh workflow run \"AWS CI Deploy\" --ref main",
   watchCommand: "gh run list --workflow \"AWS CI Deploy\" --branch main --limit 1",
   missingNameCount,
+  remediationCommandCount: ready ? 0 : remediationCommands.length,
+  remediationCommands: ready ? [] : remediationCommands,
   secretOutputPolicy: "names-only"
 };
 
@@ -86,6 +94,17 @@ function readInventory() {
 function printPlan(value) {
   console.log(`Gate 1 deploy rehearsal ${value.status}:`);
   console.log(`Run first: ${value.requiredPreflightCommand}`);
+  for (const command of value.remediationCommands) {
+    if (command.includes("gate1:env -- --env-file")) {
+      console.log(`Fix missing env: ${command}`);
+    } else if (command.includes("gate1:github-env:apply") && command.includes("--plan")) {
+      console.log(`Preview env: ${command}`);
+    } else if (command.includes("gate1:github-env:apply") && command.includes("--apply")) {
+      console.log(`Apply env: ${command}`);
+    } else {
+      console.log(`Verify env: ${command}`);
+    }
+  }
   console.log(`When ready: ${value.dispatchCommand}`);
   console.log(`Watch: ${value.watchCommand}`);
 }
