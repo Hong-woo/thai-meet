@@ -162,6 +162,14 @@ try {
     failures.push("github env inventory --field groups.awsDeploy.status must print ready");
   }
 
+  const emptyEqualsField = runInventory(["--field=", "--secret-json-file", readySecretsPath, "--variable-json-file", readyVariablesPath]);
+  if (emptyEqualsField.status === 0 || !emptyEqualsField.stderr.includes("TM_GATE1_GITHUB_ENV_INVENTORY_OPTION_VALUE_REQUIRED: --field")) {
+    failures.push("github env inventory --field= must fail with TM_GATE1_GITHUB_ENV_INVENTORY_OPTION_VALUE_REQUIRED");
+  }
+  if (emptyEqualsField.stdout.trim().length > 0) {
+    failures.push("github env inventory --field= must not print inventory output");
+  }
+
   const readyPlanResult = runInventory(["--plan", "--secret-json-file", readySecretsPath, "--variable-json-file", readyVariablesPath]);
   if (readyPlanResult.status !== 0) {
     failures.push("ready github env provisioning plan must pass");

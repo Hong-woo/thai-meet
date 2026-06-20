@@ -184,7 +184,14 @@ function readGhNames(ghArgs, errorCode) {
 
 function readOption(name) {
   const equalsArg = args.find((arg) => arg.startsWith(`${name}=`));
-  if (equalsArg) return equalsArg.slice(name.length + 1);
+  if (equalsArg) {
+    const value = equalsArg.slice(name.length + 1);
+    if (!value) {
+      console.error(`TM_GATE1_GITHUB_ENV_INVENTORY_OPTION_VALUE_REQUIRED: ${name}`);
+      process.exit(1);
+    }
+    return value;
+  }
 
   const index = args.indexOf(name);
   if (index === -1) return null;
