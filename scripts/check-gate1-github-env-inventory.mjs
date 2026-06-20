@@ -46,6 +46,22 @@ try {
     failures.push("missing github env inventory must include Android release secret names");
   }
 
+  const planResult = runInventory(["--plan", "--secret-json-file", emptySecretsPath, "--variable-json-file", emptyVariablesPath]);
+  if (planResult.status === 0) {
+    failures.push("github env provisioning plan must fail closed while missing names remain");
+  }
+  if (!planResult.stdout.includes("gh secret set DATABASE_URL --env production --body '<DATABASE_URL>'")) {
+    failures.push("github env provisioning plan must include DATABASE_URL secret set command with placeholder");
+  }
+  if (!planResult.stdout.includes("gh secret set AWS_DEPLOY_ROLE_ARN --env production --body '<AWS_DEPLOY_ROLE_ARN>'")) {
+    failures.push("github env provisioning plan must include AWS deploy role secret set command with placeholder");
+  }
+  if (!planResult.stdout.includes("gh secret set THAI_MEET_UPLOAD_KEYSTORE_PASSWORD --env production --body '<THAI_MEET_UPLOAD_KEYSTORE_PASSWORD>'")) {
+    failures.push("github env provisioning plan must include Android release password secret set command with placeholder");
+  }
+  assertNoValues(planResult.stdout, "github env provisioning plan stdout");
+  assertNoValues(planResult.stderr, "github env provisioning plan stderr");
+
   const allNames = [
     "AUTH_MODE",
     "AUTH_PROVIDER_JWKS_URL",
@@ -99,6 +115,14 @@ try {
   const fieldResult = runInventory(["--field", "groups.awsDeploy.status", "--secret-json-file", readySecretsPath, "--variable-json-file", readyVariablesPath]);
   if (fieldResult.status !== 0 || fieldResult.stdout.trim() !== "ready") {
     failures.push("github env inventory --field groups.awsDeploy.status must print ready");
+  }
+
+  const readyPlanResult = runInventory(["--plan", "--secret-json-file", readySecretsPath, "--variable-json-file", readyVariablesPath]);
+  if (readyPlanResult.status !== 0) {
+    failures.push("ready github env provisioning plan must pass");
+  }
+  if (!readyPlanResult.stdout.includes("No missing GitHub production environment names.")) {
+    failures.push("ready github env provisioning plan must report no missing names");
   }
 } finally {
   await rm(tempDir, { recursive: true, force: true });

@@ -56,6 +56,7 @@ npm run gate1:env:test
 npm run gate1:env -- --json
 npm run gate1:github-env:test
 npm run gate1:github-env -- --json
+npm run gate1:github-env -- --plan
 npm run gate1:live-smoke
 npm run not-scaffolded:test
 node scripts/not-scaffolded.mjs --help
@@ -77,6 +78,8 @@ Run `npm run gate1:env -- --json` before live deploy rehearsal. It checks three 
 The command exits non-zero until required keys are present and expected mode keys are set to production values. Output must stay `keys-only`: missing or invalid key names may print, but `DATABASE_URL`, provider secrets, keystore passwords, raw LINE IDs, and provider tokens must never print.
 
 Run `npm run gate1:github-env -- --json` after configuring the protected GitHub `production` environment. It checks the remote secret and variable inventory by name and exits non-zero until all required names are present. Output must stay `names-only`: configured values, variable values, timestamps, provider tokens, database URLs, and keystore passwords must never print.
+
+Run `npm run gate1:github-env -- --plan` to print placeholder `gh secret set` commands for missing names. Replace placeholders locally before running the commands; never paste real secret values into issue, PR, CI, or chat logs.
 
 ## Seed Parity
 

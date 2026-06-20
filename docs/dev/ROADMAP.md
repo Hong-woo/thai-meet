@@ -11,6 +11,7 @@ Next execution order:
    - Provide production `DATABASE_URL`, provider credentials, S3 bucket, and Android upload keystore.
    - Run `npm run gate1:env -- --json` to verify required key presence without printing secret values.
    - Run `npm run gate1:github-env -- --json` to verify remote GitHub `production` secret and variable names.
+   - Run `npm run gate1:github-env -- --plan` to generate placeholder `gh secret set` commands for missing names.
 
 2. Live deploy rehearsal.
    - Run `AWS CI Deploy` manually.
