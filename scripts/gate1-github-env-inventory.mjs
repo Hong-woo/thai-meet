@@ -27,6 +27,24 @@ const presentNames = new Set([
   ...secretEntries.map((entry) => entry.name).filter(Boolean),
   ...variableEntries.map((entry) => entry.name).filter(Boolean)
 ]);
+const variableNames = new Set([
+  "AUTH_MODE",
+  "AUTH_PROVIDER_JWKS_URL",
+  "AUTH_PROVIDER_ISSUER",
+  "AUTH_PROVIDER_AUDIENCE",
+  "LINE_PROVIDER_MODE",
+  "LINE_CHANNEL_ID",
+  "OBJECT_STORAGE_MODE",
+  "AWS_REGION",
+  "S3_BUCKET_PUBLIC_ASSETS",
+  "PERSISTENCE_MODE",
+  "AWS_DEPLOY_ROLE_ARN",
+  "ECR_REPOSITORY",
+  "ECS_CLUSTER",
+  "ECS_SERVICE",
+  "THAI_MEET_UPLOAD_KEYSTORE",
+  "THAI_MEET_UPLOAD_KEY_ALIAS"
+]);
 
 const groups = {
   productionRuntime: checkNames([
@@ -118,7 +136,8 @@ function printProvisioningPlan(value) {
     for (const name of group.missingNames) {
       if (printed.has(name)) continue;
       printed.add(name);
-      console.log(`gh secret set ${name} --env ${environment} --body '<${name}>'`);
+      const ghResource = variableNames.has(name) ? "variable" : "secret";
+      console.log(`gh ${ghResource} set ${name} --env ${environment} --body '<${name}>'`);
     }
   }
 }

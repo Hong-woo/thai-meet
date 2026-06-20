@@ -62,8 +62,13 @@ for (const marker of [
 
 for (const marker of [
   "id: aws-deploy-preflight",
-  "AWS deploy skipped: missing AWS deployment secrets",
-  "steps.aws-deploy-preflight.outputs.deploy_ready == 'true'"
+  "AWS deploy skipped: missing AWS deployment settings",
+  "steps.aws-deploy-preflight.outputs.deploy_ready == 'true'",
+  "secrets.AWS_REGION || vars.AWS_REGION",
+  "secrets.ECR_REPOSITORY || vars.ECR_REPOSITORY",
+  "secrets.ECS_CLUSTER || vars.ECS_CLUSTER",
+  "secrets.ECS_SERVICE || vars.ECS_SERVICE",
+  "secrets.AWS_DEPLOY_ROLE_ARN || vars.AWS_DEPLOY_ROLE_ARN"
 ]) {
   assertIncludes(awsWorkflow, marker, `AWS workflow must guard deploy with ${marker}`);
 }

@@ -50,11 +50,26 @@ try {
   if (planResult.status === 0) {
     failures.push("github env provisioning plan must fail closed while missing names remain");
   }
+  if (!planResult.stdout.includes("gh variable set AWS_REGION --env production --body '<AWS_REGION>'")) {
+    failures.push("github env provisioning plan must include AWS_REGION variable set command with placeholder");
+  }
+  if (planResult.stdout.includes("gh secret set AWS_REGION --env production")) {
+    failures.push("github env provisioning plan must not put AWS_REGION in secrets");
+  }
+  if (!planResult.stdout.includes("gh variable set ECR_REPOSITORY --env production --body '<ECR_REPOSITORY>'")) {
+    failures.push("github env provisioning plan must include ECR_REPOSITORY variable set command with placeholder");
+  }
+  if (!planResult.stdout.includes("gh variable set ECS_CLUSTER --env production --body '<ECS_CLUSTER>'")) {
+    failures.push("github env provisioning plan must include ECS_CLUSTER variable set command with placeholder");
+  }
+  if (!planResult.stdout.includes("gh variable set ECS_SERVICE --env production --body '<ECS_SERVICE>'")) {
+    failures.push("github env provisioning plan must include ECS_SERVICE variable set command with placeholder");
+  }
   if (!planResult.stdout.includes("gh secret set DATABASE_URL --env production --body '<DATABASE_URL>'")) {
     failures.push("github env provisioning plan must include DATABASE_URL secret set command with placeholder");
   }
-  if (!planResult.stdout.includes("gh secret set AWS_DEPLOY_ROLE_ARN --env production --body '<AWS_DEPLOY_ROLE_ARN>'")) {
-    failures.push("github env provisioning plan must include AWS deploy role secret set command with placeholder");
+  if (!planResult.stdout.includes("gh variable set AWS_DEPLOY_ROLE_ARN --env production --body '<AWS_DEPLOY_ROLE_ARN>'")) {
+    failures.push("github env provisioning plan must include AWS deploy role variable set command with placeholder");
   }
   if (!planResult.stdout.includes("gh secret set THAI_MEET_UPLOAD_KEYSTORE_PASSWORD --env production --body '<THAI_MEET_UPLOAD_KEYSTORE_PASSWORD>'")) {
     failures.push("github env provisioning plan must include Android release password secret set command with placeholder");

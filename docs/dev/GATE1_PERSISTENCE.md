@@ -79,7 +79,7 @@ The command exits non-zero until required keys are present and expected mode key
 
 Run `npm run gate1:github-env -- --json` after configuring the protected GitHub `production` environment. It checks the remote secret and variable inventory by name and exits non-zero until all required names are present. Output must stay `names-only`: configured values, variable values, timestamps, provider tokens, database URLs, and keystore passwords must never print.
 
-Run `npm run gate1:github-env -- --plan` to print placeholder `gh secret set` commands for missing names. Replace placeholders locally before running the commands; never paste real secret values into issue, PR, CI, or chat logs.
+Run `npm run gate1:github-env -- --plan` to print placeholder `gh variable set` commands for non-sensitive deployment settings and `gh secret set` commands for sensitive values. Replace placeholders locally before running the commands; never paste real secret values into issue, PR, CI, or chat logs.
 
 ## Seed Parity
 
