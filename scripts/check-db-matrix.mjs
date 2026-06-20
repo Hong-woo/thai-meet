@@ -316,6 +316,7 @@ const requiredPersistenceTerms = [
   "Secret injection and environment provisioning",
   "gate1:env",
   "gate1:github-env",
+  "gate1:github-env -- --plan",
   "keys-only",
   "names-only",
   "raw provider values"

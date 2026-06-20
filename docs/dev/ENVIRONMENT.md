@@ -13,6 +13,7 @@ Check Gate 1 production environment provisioning before live deploy rehearsal:
 ```powershell
 npm run gate1:env -- --json
 npm run gate1:github-env -- --json
+npm run gate1:github-env -- --plan
 ```
 
 These preflights report required key names and group status only. They must not print `DATABASE_URL`, provider secrets, keystore passwords, raw contact values, provider tokens, or GitHub variable values.

@@ -4,7 +4,7 @@ import { spawnSync } from "node:child_process";
 const args = process.argv.slice(2);
 
 if (args.includes("--help")) {
-  console.log("Usage: node scripts/gate1-github-env-inventory.mjs [--env <name>] [--json] [--field <name>]");
+  console.log("Usage: node scripts/gate1-github-env-inventory.mjs [--env <name>] [--json] [--field <name>] [--plan]");
   console.log("Fields: status, environment, secretOutputPolicy, groups.productionRuntime.status, groups.awsDeploy.status, groups.androidRelease.status");
   process.exit(0);
 }
@@ -14,6 +14,7 @@ const secretJsonFile = readOption("--secret-json-file");
 const variableJsonFile = readOption("--variable-json-file");
 const fieldName = readOption("--field");
 const jsonMode = args.includes("--json");
+const planMode = args.includes("--plan");
 
 const secretEntries = secretJsonFile
   ? await readJsonFile(secretJsonFile)
@@ -68,6 +69,11 @@ const summary = {
   groups
 };
 
+if (planMode) {
+  printProvisioningPlan(summary);
+  process.exit(summary.status === "ready" ? 0 : 1);
+}
+
 if (fieldName) {
   const value = getField(summary, fieldName);
   if (value === undefined) {
@@ -96,6 +102,25 @@ function checkNames(requiredNames) {
     requiredNames,
     missingNames
   };
+}
+
+function printProvisioningPlan(value) {
+  if (value.status === "ready") {
+    console.log(`No missing GitHub ${environment} environment names.`);
+    return;
+  }
+
+  console.log(`Gate 1 GitHub ${environment} environment provisioning plan:`);
+  console.log("Replace placeholder values before running. Do not paste real secret values into logs.");
+
+  const printed = new Set();
+  for (const group of Object.values(value.groups)) {
+    for (const name of group.missingNames) {
+      if (printed.has(name)) continue;
+      printed.add(name);
+      console.log(`gh secret set ${name} --env ${environment} --body '<${name}>'`);
+    }
+  }
 }
 
 async function readJsonFile(filePath) {
