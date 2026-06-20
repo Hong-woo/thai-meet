@@ -12,7 +12,7 @@ Next execution order:
    - Run `npm run gate1:env -- --env-file .env.production.local --json` before uploading values.
    - Run `npm run gate1:env -- --json` to verify required key presence without printing secret values.
    - Run `npm run gate1:github-env -- --json` to verify remote GitHub `production` secret and variable names.
-   - Run `npm run gate1:github-env -- --plan` to generate placeholder `gh variable set`/`gh secret set` commands for missing names.
+   - Run `npm run gate1:github-env -- --plan` to generate placeholder `gh variable set`/`gh secret set` commands for missing names and confirm the preferred stdin-only apply flow.
    - Run `npm run gate1:github-env:apply -- --env-file .env.production.local --apply --json` after local values pass.
 
 2. Live deploy rehearsal.

@@ -74,6 +74,18 @@ try {
   if (!planResult.stdout.includes("gh secret set THAI_MEET_UPLOAD_KEYSTORE_PASSWORD --env production --body '<THAI_MEET_UPLOAD_KEYSTORE_PASSWORD>'")) {
     failures.push("github env provisioning plan must include Android release password secret set command with placeholder");
   }
+  if (!planResult.stdout.includes("Preferred stdin-only apply flow:")) {
+    failures.push("github env provisioning plan must include preferred stdin-only apply flow");
+  }
+  if (!planResult.stdout.includes("npm run gate1:env -- --env-file .env.production.local --json")) {
+    failures.push("github env provisioning plan must include local env-file preflight command");
+  }
+  if (!planResult.stdout.includes("npm run gate1:github-env:apply -- --env-file .env.production.local --plan")) {
+    failures.push("github env provisioning plan must include apply preview command");
+  }
+  if (!planResult.stdout.includes("npm run gate1:github-env:apply -- --env-file .env.production.local --apply --json")) {
+    failures.push("github env provisioning plan must include stdin-only apply command");
+  }
   assertNoValues(planResult.stdout, "github env provisioning plan stdout");
   assertNoValues(planResult.stderr, "github env provisioning plan stderr");
 
