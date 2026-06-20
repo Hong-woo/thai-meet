@@ -19,7 +19,7 @@ npm run gate1:github-env -- --plan
 npm run gate1:github-env:apply -- --env-file .env.production.local --plan
 ```
 
-Fill `.env.production.local` locally only. It is ignored by Git, while `.env.production.local.example` stays safe to commit. These preflights report required key names and group status only. They must not print `DATABASE_URL`, provider secrets, keystore passwords, raw contact values, provider tokens, or GitHub variable values.
+Fill `.env.production.local` locally only. It is ignored by Git, while `.env.production.local.example` stays safe to commit. These preflights report required key names, placeholder key names, and group status only. They fail closed while any `replace-with-` placeholder remains. They must not print `DATABASE_URL`, provider secrets, keystore passwords, raw contact values, provider tokens, or GitHub variable values.
 
 Pinned toolchain:
 
