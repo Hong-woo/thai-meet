@@ -10,11 +10,12 @@ if (args.includes("--help")) {
 }
 
 const fieldIndex = args.indexOf("--field");
-const fieldName = fieldIndex >= 0 ? args[fieldIndex + 1] : null;
+const fieldEqualsArg = args.find((arg) => arg.startsWith("--field="));
+const fieldName = fieldEqualsArg ? fieldEqualsArg.slice("--field=".length) : fieldIndex >= 0 ? args[fieldIndex + 1] : null;
 const envFile = readOption("--env-file");
 const jsonMode = args.includes("--json");
 
-if (fieldIndex >= 0 && (!fieldName || fieldName.startsWith("--"))) {
+if ((fieldIndex >= 0 || fieldEqualsArg) && (!fieldName || fieldName.startsWith("--"))) {
   console.error("TM_GATE1_ENV_PREFLIGHT_OPTION_VALUE_REQUIRED: --field");
   process.exit(1);
 }
