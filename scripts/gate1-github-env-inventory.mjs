@@ -140,6 +140,13 @@ function printProvisioningPlan(value) {
       console.log(`gh ${ghResource} set ${name} --env ${environment} --body '<${name}>'`);
     }
   }
+
+  console.log("");
+  console.log("Preferred stdin-only apply flow:");
+  console.log("npm run gate1:env -- --env-file .env.production.local --json");
+  console.log("npm run gate1:github-env:apply -- --env-file .env.production.local --plan");
+  console.log("npm run gate1:github-env:apply -- --env-file .env.production.local --apply --json");
+  console.log("npm run gate1:github-env -- --json");
 }
 
 async function readJsonFile(filePath) {

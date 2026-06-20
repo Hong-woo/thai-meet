@@ -55,5 +55,5 @@ Rules:
 - Add new provider, ad, push, or storage defaults here before adding real integration code.
 - Keep fixture persistence available so prepared-machine smoke can run without a database.
 - Use `npm run gate1:env:test` when changing production secret requirements so the preflight remains keys-only.
-- Use `npm run gate1:github-env:test` when changing protected GitHub environment requirements so remote inventory remains names-only.
+- Use `npm run gate1:github-env:test` when changing protected GitHub environment requirements so remote inventory remains names-only and points to the stdin-only apply flow.
 - Use `npm run gate1:github-env:apply:test` when changing GitHub environment upload behavior so values stay stdin-only.
