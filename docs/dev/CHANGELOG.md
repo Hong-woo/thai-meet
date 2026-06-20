@@ -5,6 +5,8 @@ Record developer-facing changes that affect local setup, API contracts, generate
 ## 2026-06-15
 
 - Gate 1 environment preflight now fails closed on `replace-with-` placeholders while keeping output keys-only.
+- Gate 1 environment preflight npm wrapper now uses a Node option boundary before script arguments.
+- Gate 1 environment preflight now rejects `--env-file=` before printing preflight output.
 - Gate 1 environment preflight now rejects combined `--json` and `--field` output modes.
 - Gate 1 environment preflight now rejects `--field` without a field name before reading env state.
 - Gate 1 live smoke preflight now rejects `--field` without a field name before reading env state.
