@@ -56,6 +56,14 @@ if (missingFieldValue.stderr.includes("TM_GATE1_DATABASE_URL_REQUIRED")) {
   failures.push("gate1 database seed missing --field value must fail before DATABASE_URL checks");
 }
 
+const emptyEqualsField = await runNode(["scripts/gate1-seed-database.mjs", "--dry-run", "--field="]);
+if (emptyEqualsField.code !== 1 || !emptyEqualsField.stderr.includes("TM_GATE1_DATABASE_SEED_FIELD_REQUIRED")) {
+  failures.push("gate1 database seed --field= must fail with TM_GATE1_DATABASE_SEED_FIELD_REQUIRED");
+}
+if (emptyEqualsField.stdout.trim().length > 0) {
+  failures.push("gate1 database seed --field= must not print dry-run output");
+}
+
 const unknown = await runNode(["scripts/gate1-seed-database.mjs", "--wat"]);
 if (unknown.code !== 1 || !unknown.stderr.includes("TM_GATE1_DATABASE_SEED_UNKNOWN_OPTION")) {
   failures.push("gate1 database seed must reject unknown options");
