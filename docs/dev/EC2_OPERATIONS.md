@@ -4,12 +4,16 @@ Gate 1 production runtime currently runs on one AWS Free Tier EC2 instance, back
 
 ## Current Production Endpoint
 
-- Public health URL: `http://15.164.219.139/health`
+- Temporary HTTPS health URL: `https://15-164-219-139.sslip.io/health`
+- HTTP redirects to HTTPS: `http://15-164-219-139.sslip.io/health`
+- Raw public IP health URL: `http://15.164.219.139/health`
 - Runtime mode: `AUTH_MODE=production`, `PERSISTENCE_MODE=database`
 - EC2 app directory: `/opt/thai-meet`
 - systemd service: `thai-meet-api`
 - Container image tag used by service: `thai-meet-api:latest`
 - Nginx proxy: port `80` to `127.0.0.1:3000`
+- TLS certificate: Let's Encrypt for `15-164-219-139.sslip.io`
+- TLS renewal: `certbot-renew.timer`
 
 ## GitHub Production Environment
 
@@ -75,7 +79,7 @@ ExecStop=/usr/bin/docker stop thai-meet-api
 WantedBy=multi-user.target
 ```
 
-Nginx should proxy HTTP traffic to the API:
+Nginx should proxy HTTP traffic to the API. Certbot then adds the HTTPS server and HTTP-to-HTTPS redirect.
 
 ```nginx
 server {
@@ -100,6 +104,14 @@ sudo nginx -t
 sudo systemctl enable --now nginx
 sudo systemctl daemon-reload
 sudo systemctl enable thai-meet-api
+```
+
+Temporary HTTPS can be enabled with the EC2 public-IP `sslip.io` hostname:
+
+```bash
+sudo certbot --nginx -d 15-164-219-139.sslip.io --non-interactive --agree-tos --register-unsafely-without-email --redirect
+sudo systemctl enable --now certbot-renew.timer
+sudo certbot renew --dry-run
 ```
 
 ## Deploy
@@ -131,17 +143,18 @@ docker ps --filter name=thai-meet-api
 curl -fsS http://127.0.0.1/health
 ```
 
-Public check:
+Public checks:
 
 ```powershell
 Invoke-RestMethod -Uri "http://15.164.219.139/health"
+Invoke-RestMethod -Uri "https://15-164-219-139.sslip.io/health"
 ```
 
 ## Next Hardening
 
-HTTP on a public IP is not enough for production sign-in callbacks, mobile release, or provider review. Next infrastructure step is:
+The `sslip.io` hostname is acceptable as a temporary HTTPS endpoint, but it is not the final brand/domain path for production sign-in callbacks, mobile release, or provider review. Next infrastructure step is:
 
 1. Point a real domain or subdomain at the EC2 public IP.
 2. Open inbound ports `80` and `443` only where needed.
-3. Install Certbot or use an AWS-managed TLS path.
-4. Replace public IP URLs in provider callback/config values with HTTPS domain URLs.
+3. Reissue TLS for the real domain with Certbot or an AWS-managed TLS path.
+4. Replace public IP and `sslip.io` callback/config URLs with HTTPS domain URLs.

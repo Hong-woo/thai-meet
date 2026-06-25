@@ -13,15 +13,15 @@ Current Gate 1 infrastructure state:
 
 2. Live deploy rehearsal: complete on EC2.
    - `AWS CI Deploy` builds the API image, copies it to EC2, loads Docker, and restarts `thai-meet-api`.
-   - Public health is available at `http://15.164.219.139/health`.
+   - Temporary HTTPS health is available at `https://15-164-219-139.sslip.io/health`.
    - EC2 operational steps live in `docs/dev/EC2_OPERATIONS.md`.
 
 Next execution order:
 
-1. Domain and HTTPS hardening.
+1. Real domain hardening.
    - Point a real domain or subdomain at the EC2 public IP.
-   - Add TLS with Certbot or an AWS-managed TLS path.
-   - Replace public-IP callback/config URLs with HTTPS domain URLs.
+   - Reissue TLS with Certbot or an AWS-managed TLS path.
+   - Replace public-IP and `sslip.io` callback/config URLs with HTTPS domain URLs.
 
 2. Store-track packaging.
    - Run `flutter build appbundle --release`.
