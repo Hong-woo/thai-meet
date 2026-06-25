@@ -11,7 +11,7 @@ Current Gate 1 infrastructure state:
    - Remote names pass `npm run gate1:github-env -- --json`.
    - Apply flow uses `npm run gate1:github-env:apply -- --env-file .env.production.local --apply --json` without printing secrets.
 
-2. Live EC2 deploy rehearsal: complete.
+2. Live deploy rehearsal: complete on EC2.
    - `AWS CI Deploy` builds the API image, copies it to EC2, loads Docker, and restarts `thai-meet-api`.
    - Public health is available at `http://15.164.219.139/health`.
    - EC2 operational steps live in `docs/dev/EC2_OPERATIONS.md`.
