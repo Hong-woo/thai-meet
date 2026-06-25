@@ -157,14 +157,23 @@ export function lineWebhookSignatureRequired() {
   });
 }
 
-export function lineWebhookNotImplemented() {
+export function lineWebhookSignatureInvalid() {
   return apiError({
-    type: "system_error",
-    code: "TM_API_LINE_WEBHOOK_NOT_IMPLEMENTED",
-    message: "LINE webhook route is reserved but signature verification and event handling are not implemented yet.",
-    param: "webhook",
+    type: "auth_error",
+    code: "TM_API_LINE_WEBHOOK_SIGNATURE_INVALID",
+    message: "LINE webhook signature verification failed.",
+    param: "x-line-signature",
     docRef: "docs/dev/PROVIDER_CONSOLE_SETTINGS.md#line"
   });
+}
+
+export function lineWebhookAccepted() {
+  return {
+    status: "accepted",
+    provider: "LINE",
+    eventHandlingMode: "verified_noop",
+    message: "LINE webhook signature verified; event handling is pending."
+  };
 }
 
 export function apiError({ type, code, message, param, docRef }) {

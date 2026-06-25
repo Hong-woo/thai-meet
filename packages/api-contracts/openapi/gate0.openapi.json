@@ -118,18 +118,46 @@
           }
         ],
         "responses": {
-          "401": {
-            "description": "LINE webhook signature header is missing",
+          "202": {
+            "description": "LINE webhook signature verified and accepted for no-op event handling",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "provider",
+                    "eventHandlingMode"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "accepted"
+                      ]
+                    },
+                    "provider": {
+                      "type": "string",
+                      "enum": [
+                        "LINE"
+                      ]
+                    },
+                    "eventHandlingMode": {
+                      "type": "string",
+                      "enum": [
+                        "verified_noop"
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
           },
-          "501": {
-            "description": "LINE webhook signature verification and event handling are not implemented yet",
+          "401": {
+            "description": "LINE webhook signature header is missing or invalid",
             "content": {
               "application/json": {
                 "schema": {
