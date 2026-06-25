@@ -9,6 +9,7 @@ import {
   databaseClientUnavailable,
   databaseStoreNotScaffolded,
   lineWebhookAccepted,
+  lineWebhookPayloadInvalid,
   lineWebhookSignatureInvalid,
   lineWebhookSignatureRequired,
   notFound,
@@ -20,6 +21,7 @@ const port = Number(process.env.API_PORT || 3000);
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const gate0Store = createGate0StoreFromEnv(root);
 const gate0 = createGate0Service(gate0Store.store);
+const lineWebhookEventLedger = new Set();
 
 const server = http.createServer(async (req, res) => {
   try {
@@ -67,7 +69,13 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
-      sendJson(res, 202, lineWebhookAccepted());
+      const eventResult = acceptLineWebhookEvents(body);
+      if (!eventResult) {
+        sendJson(res, 400, lineWebhookPayloadInvalid());
+        return;
+      }
+
+      sendJson(res, 202, lineWebhookAccepted(eventResult));
       return;
     }
 
@@ -157,6 +165,52 @@ function verifyLineWebhookSignature(body, signature) {
   const expectedBuffer = Buffer.from(expected);
   const actualBuffer = Buffer.from(actual);
   return expectedBuffer.length === actualBuffer.length && crypto.timingSafeEqual(expectedBuffer, actualBuffer);
+}
+
+function acceptLineWebhookEvents(body) {
+  let payload;
+  try {
+    payload = JSON.parse(body.toString("utf8") || "{}");
+  } catch {
+    return null;
+  }
+
+  const events = Array.isArray(payload?.events) ? payload.events : [];
+  let acceptedEventCount = 0;
+  let duplicateEventCount = 0;
+  let invalidEventCount = 0;
+
+  for (const event of events) {
+    const eventId = typeof event?.webhookEventId === "string" ? event.webhookEventId.trim() : "";
+    if (!eventId) {
+      invalidEventCount += 1;
+      continue;
+    }
+
+    const eventKey = crypto.createHash("sha256").update(eventId).digest("hex");
+    if (lineWebhookEventLedger.has(eventKey)) {
+      duplicateEventCount += 1;
+      continue;
+    }
+
+    lineWebhookEventLedger.add(eventKey);
+    acceptedEventCount += 1;
+  }
+
+  trimLineWebhookEventLedger();
+  return {
+    eventCount: events.length,
+    acceptedEventCount,
+    duplicateEventCount,
+    invalidEventCount
+  };
+}
+
+function trimLineWebhookEventLedger() {
+  while (lineWebhookEventLedger.size > 2048) {
+    const oldest = lineWebhookEventLedger.values().next().value;
+    lineWebhookEventLedger.delete(oldest);
+  }
 }
 
 server.listen(port, () => {

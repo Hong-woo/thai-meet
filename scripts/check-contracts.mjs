@@ -62,9 +62,20 @@ if (!lineWebhookSignature?.required) {
 }
 
 const lineWebhookResponses = openApi.paths?.["/webhooks/line"]?.post?.responses || {};
-if (!lineWebhookResponses["202"] || !lineWebhookResponses["401"]) {
+if (!lineWebhookResponses["202"] || !lineWebhookResponses["400"] || !lineWebhookResponses["401"]) {
   console.error("TM_CONTRACT_OPENAPI_STALE");
-  console.error("- LINE webhook OpenAPI must accept verified events with 202 and fail bad signatures with 401");
+  console.error("- LINE webhook OpenAPI must accept verified events with 202, reject invalid JSON with 400, and fail bad signatures with 401");
+  process.exit(1);
+}
+
+const lineWebhookAcceptedSchema = lineWebhookResponses["202"]?.content?.["application/json"]?.schema;
+if (
+  !lineWebhookAcceptedSchema?.required?.includes("acceptedEventCount") ||
+  !lineWebhookAcceptedSchema?.required?.includes("duplicateEventCount") ||
+  !lineWebhookAcceptedSchema?.properties?.eventHandlingMode?.enum?.includes("verified_idempotent_noop")
+) {
+  console.error("TM_CONTRACT_OPENAPI_STALE");
+  console.error("- LINE webhook OpenAPI must expose idempotent no-op event counts");
   process.exit(1);
 }
 

@@ -35,7 +35,7 @@ Current Gate 0 paths:
 
 `GET /health` returns the local scaffold status, service name, Node environment mode, and required `persistenceMode` enum (`fixture` or `database`) so Gate 1 work can verify whether the API is running against fixture or database storage.
 
-Provider callback and webhook routes are reserved. `GET /auth/callback/cognito` requires `code` and returns `501` until token exchange is implemented. `POST /webhooks/line` requires `x-line-signature`, verifies the LINE HMAC-SHA256 signature with `LINE_CHANNEL_SECRET`, and returns `202` in no-op event-handling mode until idempotent event handling is implemented. Current provider console values and callback shapes are tracked in `docs/dev/PROVIDER_CONSOLE_SETTINGS.md`.
+Provider callback and webhook routes are reserved. `GET /auth/callback/cognito` requires `code` and returns `501` until token exchange is implemented. `POST /webhooks/line` requires `x-line-signature`, verifies the LINE HMAC-SHA256 signature with `LINE_CHANNEL_SECRET`, and returns `202` in idempotent no-op mode with event counts until persisted event handling is implemented. Current provider console values and callback shapes are tracked in `docs/dev/PROVIDER_CONSOLE_SETTINGS.md`.
 
 Drift checks:
 

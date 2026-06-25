@@ -39,7 +39,7 @@ Current configured values:
 - Channel ID: `2010515307`
 - Channel secret: stored only in local/protected environments
 
-The API now verifies the LINE webhook signature with `LINE_CHANNEL_SECRET`, but event handling is still no-op. Keep this out of public production traffic until idempotent event handling is implemented behind the verified webhook route.
+The API now verifies the LINE webhook signature with `LINE_CHANNEL_SECRET` and counts duplicate `webhookEventId` values in idempotent no-op mode. Keep this out of public production traffic until persisted event handling is implemented behind the verified webhook route.
 
 LINE webhook shape:
 
@@ -71,14 +71,14 @@ These routes are live today:
 - `POST /api/v1/safety/reports`
 - `POST /api/v1/safety/blocks`
 
-The provider routes expose stable paths. Cognito still fails closed until token exchange exists. LINE verifies signatures and accepts verified payloads in no-op mode until event handling is implemented.
+The provider routes expose stable paths. Cognito still fails closed until token exchange exists. LINE verifies signatures and accepts verified payloads with idempotent no-op counting until persisted event handling is implemented.
 
 ## Next Implementation Step
 
 Before provider console callback URLs can be used in public production, implement and contract-test:
 
 1. Cognito token exchange and session binding behind `GET /auth/callback/cognito`.
-2. Idempotent LINE event handling behind verified `POST /webhooks/line`.
+2. Persisted LINE event handling behind verified `POST /webhooks/line`.
 3. Optional later: `GET /auth/callback/line`
 
 After a real domain exists, replace every `sslip.io` URL in provider settings with the final HTTPS domain.

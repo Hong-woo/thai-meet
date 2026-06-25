@@ -144,11 +144,27 @@ try {
     failures.push("LINE webhook route must reject invalid x-line-signature");
   }
 
-  const lineWebhookBody = "{}";
+  const invalidLineWebhookJson = "{";
+  const invalidLineWebhookJsonSignature = crypto.createHmac("sha256", lineWebhookSecret).update(invalidLineWebhookJson).digest("base64");
+  const invalidLineWebhookPayload = await fetchAnyJson(port, "/webhooks/line", { method: "POST", headers: { "x-line-signature": invalidLineWebhookJsonSignature }, body: invalidLineWebhookJson });
+  if (invalidLineWebhookPayload.status !== 400 || invalidLineWebhookPayload.payload?.error?.code !== "TM_API_LINE_WEBHOOK_PAYLOAD_INVALID") {
+    failures.push("LINE webhook route must reject invalid JSON after signature verification");
+  }
+
+  const lineWebhookBody = JSON.stringify({
+    events: [
+      { webhookEventId: "line-webhook-event-runtime-001", type: "message" }
+    ]
+  });
   const lineWebhookSignature = crypto.createHmac("sha256", lineWebhookSecret).update(lineWebhookBody).digest("base64");
   const verifiedLineWebhook = await fetchAnyJson(port, "/webhooks/line", { method: "POST", headers: { "x-line-signature": lineWebhookSignature }, body: lineWebhookBody });
-  if (verifiedLineWebhook.status !== 202 || verifiedLineWebhook.payload?.eventHandlingMode !== "verified_noop") {
-    failures.push("LINE webhook route must verify the signature and accept events in no-op mode");
+  if (verifiedLineWebhook.status !== 202 || verifiedLineWebhook.payload?.eventHandlingMode !== "verified_idempotent_noop" || verifiedLineWebhook.payload?.acceptedEventCount !== 1 || verifiedLineWebhook.payload?.duplicateEventCount !== 0) {
+    failures.push("LINE webhook route must verify the signature and accept new events idempotently in no-op mode");
+  }
+
+  const duplicateLineWebhook = await fetchAnyJson(port, "/webhooks/line", { method: "POST", headers: { "x-line-signature": lineWebhookSignature }, body: lineWebhookBody });
+  if (duplicateLineWebhook.status !== 202 || duplicateLineWebhook.payload?.acceptedEventCount !== 0 || duplicateLineWebhook.payload?.duplicateEventCount !== 1) {
+    failures.push("LINE webhook route must count duplicate webhookEventId values idempotently");
   }
 } catch (error) {
   failures.push(`API runtime check failed: ${error.message}`);
