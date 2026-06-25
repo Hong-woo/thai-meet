@@ -33,6 +33,8 @@ Current Gate 0 paths:
 
 `GET /health` returns the local scaffold status, service name, Node environment mode, and required `persistenceMode` enum (`fixture` or `database`) so Gate 1 work can verify whether the API is running against fixture or database storage.
 
+Provider callback and webhook routes are not implemented yet. Do not put callback URLs into Cognito or LINE until the corresponding API routes exist. Current provider console values and future callback shapes are tracked in `docs/dev/PROVIDER_CONSOLE_SETTINGS.md`.
+
 Drift checks:
 
 - `scripts/check-contracts.mjs` validates required OpenAPI paths, the `GET /health` persistence mode response contract, and Dart client members.
