@@ -1,7 +1,17 @@
 import http from "node:http";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { createGate0Service, databaseClientUnavailable, databaseStoreNotScaffolded, notFound, scaffoldFailure } from "./gate0-service.mjs";
+import {
+  authCallbackCodeRequired,
+  authCallbackNotImplemented,
+  createGate0Service,
+  databaseClientUnavailable,
+  databaseStoreNotScaffolded,
+  lineWebhookNotImplemented,
+  lineWebhookSignatureRequired,
+  notFound,
+  scaffoldFailure
+} from "./gate0-service.mjs";
 import { createGate0StoreFromEnv } from "./gate0-store-factory.mjs";
 
 const port = Number(process.env.API_PORT || 3000);
@@ -30,6 +40,27 @@ const server = http.createServer(async (req, res) => {
 
     if (url.pathname === "/fixtures/gate0") {
       sendJson(res, 200, await gate0.getFixture());
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/auth/callback/cognito") {
+      if (!url.searchParams.get("code")) {
+        sendJson(res, 400, authCallbackCodeRequired());
+        return;
+      }
+
+      sendJson(res, 501, authCallbackNotImplemented());
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/webhooks/line") {
+      await readBody(req);
+      if (!req.headers["x-line-signature"]) {
+        sendJson(res, 401, lineWebhookSignatureRequired());
+        return;
+      }
+
+      sendJson(res, 501, lineWebhookNotImplemented());
       return;
     }
 
@@ -95,6 +126,16 @@ const server = http.createServer(async (req, res) => {
 function sendJson(res, status, payload) {
   res.writeHead(status, { "content-type": "application/json; charset=utf-8" });
   res.end(JSON.stringify(payload, null, 2));
+}
+
+async function readBody(req) {
+  let size = 0;
+  for await (const chunk of req) {
+    size += chunk.length;
+    if (size > 1024 * 1024) {
+      throw new Error("TM_API_REQUEST_BODY_TOO_LARGE");
+    }
+  }
 }
 
 server.listen(port, () => {

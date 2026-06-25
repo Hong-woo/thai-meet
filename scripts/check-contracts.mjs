@@ -7,6 +7,8 @@ const dartClient = await readFile(path.join(root, "packages/api-contracts/dart/t
 
 const requiredPaths = [
   "/health",
+  "/auth/callback/cognito",
+  "/webhooks/line",
   "/api/v1/public-identities/me",
   "/api/v1/discover/profiles",
   "/api/v1/chats/rooms/{roomId}",
@@ -34,6 +36,28 @@ if (!healthSchema?.required?.includes("persistenceMode") || !healthPersistenceMo
 if (!dartClient.includes("lineContactExchangePath")) {
   console.error("TM_CONTRACT_DART_CLIENT_STALE");
   console.error("- generated Dart client placeholder does not expose lineContactExchangePath");
+  process.exit(1);
+}
+
+for (const route of ["cognitoCallbackPath", "lineWebhookPath"]) {
+  if (!dartClient.includes(route)) {
+    console.error("TM_CONTRACT_DART_CLIENT_STALE");
+    console.error(`- generated Dart client placeholder does not expose ${route}`);
+    process.exit(1);
+  }
+}
+
+const cognitoResponses = openApi.paths?.["/auth/callback/cognito"]?.get?.responses || {};
+if (!cognitoResponses["400"] || !cognitoResponses["501"]) {
+  console.error("TM_CONTRACT_OPENAPI_STALE");
+  console.error("- Cognito callback OpenAPI must fail closed with 400 and 501 responses");
+  process.exit(1);
+}
+
+const lineWebhookSignature = openApi.paths?.["/webhooks/line"]?.post?.parameters?.find((parameter) => parameter.name === "x-line-signature" && parameter.in === "header");
+if (!lineWebhookSignature?.required) {
+  console.error("TM_CONTRACT_OPENAPI_STALE");
+  console.error("- LINE webhook OpenAPI must require x-line-signature header");
   process.exit(1);
 }
 

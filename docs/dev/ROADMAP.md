@@ -24,8 +24,10 @@ Next execution order:
    - Replace public-IP and `sslip.io` callback/config URLs with HTTPS domain URLs.
 
 2. Provider callback routes.
-   - Implement and contract-test `GET /auth/callback/cognito`.
-   - Implement and contract-test `POST /webhooks/line`.
+   - Reserved fail-closed route shell exists for `GET /auth/callback/cognito`.
+   - Reserved fail-closed route shell exists for `POST /webhooks/line`.
+   - Implement Cognito token exchange and session binding.
+   - Implement LINE signature verification and idempotent event handling.
    - Keep LINE Login callback separate from Messaging API webhook setup.
    - Use `docs/dev/PROVIDER_CONSOLE_SETTINGS.md` as the console setup checklist.
 

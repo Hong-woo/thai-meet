@@ -24,6 +24,8 @@ npm test
 Current Gate 0 paths:
 
 - `GET /health`
+- `GET /auth/callback/cognito`
+- `POST /webhooks/line`
 - `GET /api/v1/public-identities/me`
 - `GET /api/v1/discover/profiles`
 - `GET /api/v1/chats/rooms/{roomId}`
@@ -33,7 +35,7 @@ Current Gate 0 paths:
 
 `GET /health` returns the local scaffold status, service name, Node environment mode, and required `persistenceMode` enum (`fixture` or `database`) so Gate 1 work can verify whether the API is running against fixture or database storage.
 
-Provider callback and webhook routes are not implemented yet. Do not put callback URLs into Cognito or LINE until the corresponding API routes exist. Current provider console values and future callback shapes are tracked in `docs/dev/PROVIDER_CONSOLE_SETTINGS.md`.
+Provider callback and webhook routes are reserved but still fail closed. `GET /auth/callback/cognito` requires `code` and returns `501` until token exchange is implemented. `POST /webhooks/line` requires `x-line-signature` and returns `501` until signature verification and event handling are implemented. Current provider console values and callback shapes are tracked in `docs/dev/PROVIDER_CONSOLE_SETTINGS.md`.
 
 Drift checks:
 

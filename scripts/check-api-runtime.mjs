@@ -121,6 +121,26 @@ try {
   if (!fixture.mockUser?.publicId || !fixture.contactExchange?.permission?.canViewContactCard) {
     failures.push("fixture endpoint must return the Gate 0 mock user and ContactExchange permission");
   }
+
+  const missingCognitoCode = await fetchAnyJson(port, "/auth/callback/cognito");
+  if (missingCognitoCode.status !== 400 || missingCognitoCode.payload?.error?.code !== "TM_API_AUTH_CALLBACK_CODE_REQUIRED") {
+    failures.push("Cognito callback route must fail closed when code is missing");
+  }
+
+  const cognitoReserved = await fetchAnyJson(port, "/auth/callback/cognito?code=test-code");
+  if (cognitoReserved.status !== 501 || cognitoReserved.payload?.error?.code !== "TM_API_AUTH_CALLBACK_NOT_IMPLEMENTED") {
+    failures.push("Cognito callback route must reserve token exchange with 501 until implemented");
+  }
+
+  const unsignedLineWebhook = await fetchAnyJson(port, "/webhooks/line", { method: "POST", body: "{}" });
+  if (unsignedLineWebhook.status !== 401 || unsignedLineWebhook.payload?.error?.code !== "TM_API_LINE_WEBHOOK_SIGNATURE_REQUIRED") {
+    failures.push("LINE webhook route must require x-line-signature");
+  }
+
+  const lineWebhookReserved = await fetchAnyJson(port, "/webhooks/line", { method: "POST", headers: { "x-line-signature": "test-signature" }, body: "{}" });
+  if (lineWebhookReserved.status !== 501 || lineWebhookReserved.payload?.error?.code !== "TM_API_LINE_WEBHOOK_NOT_IMPLEMENTED") {
+    failures.push("LINE webhook route must reserve event handling with 501 until implemented");
+  }
 } catch (error) {
   failures.push(`API runtime check failed: ${error.message}`);
 } finally {
@@ -210,8 +230,8 @@ async function fetchJson(port, route) {
   return payload;
 }
 
-async function fetchAnyJson(port, route) {
-  const response = await fetch(`http://127.0.0.1:${port}${route}`);
+async function fetchAnyJson(port, route, options = {}) {
+  const response = await fetch(`http://127.0.0.1:${port}${route}`, options);
   return {
     status: response.status,
     payload: await response.json()
