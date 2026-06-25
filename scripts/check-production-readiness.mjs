@@ -51,9 +51,9 @@ for (const marker of [
 for (const marker of [
   "AWS CI/deploy pipeline is configured",
   "AWS CI Deploy",
-  "aws-actions/configure-aws-credentials",
-  "amazon-ecr-login",
-  "ECS_SERVICE",
+  "EC2_SSH_PRIVATE_KEY_B64",
+  "docker save",
+  "systemctl restart",
   "npm run production:check"
 ]) {
   assertIncludes(ci, marker, `CI doc must include ${marker}`);
@@ -62,13 +62,13 @@ for (const marker of [
 
 for (const marker of [
   "id: aws-deploy-preflight",
-  "AWS deploy skipped: missing AWS deployment settings",
+  "AWS EC2 deploy skipped: missing EC2 deployment settings",
   "steps.aws-deploy-preflight.outputs.deploy_ready == 'true'",
   "secrets.AWS_REGION || vars.AWS_REGION",
-  "secrets.ECR_REPOSITORY || vars.ECR_REPOSITORY",
-  "secrets.ECS_CLUSTER || vars.ECS_CLUSTER",
-  "secrets.ECS_SERVICE || vars.ECS_SERVICE",
-  "secrets.AWS_DEPLOY_ROLE_ARN || vars.AWS_DEPLOY_ROLE_ARN"
+  "secrets.EC2_HOST || vars.EC2_HOST",
+  "secrets.EC2_USER || vars.EC2_USER",
+  "secrets.EC2_SSH_PRIVATE_KEY_B64",
+  "secrets.EC2_SERVICE_NAME || vars.EC2_SERVICE_NAME"
 ]) {
   assertIncludes(awsWorkflow, marker, `AWS workflow must guard deploy with ${marker}`);
 }

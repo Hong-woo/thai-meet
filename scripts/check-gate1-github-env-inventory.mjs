@@ -39,8 +39,8 @@ try {
   if (!missingJson?.groups?.productionRuntime?.missingNames?.includes("DATABASE_URL")) {
     failures.push("missing github env inventory must include DATABASE_URL under productionRuntime missingNames");
   }
-  if (!missingJson?.groups?.awsDeploy?.missingNames?.includes("AWS_DEPLOY_ROLE_ARN")) {
-    failures.push("missing github env inventory must include AWS_DEPLOY_ROLE_ARN under awsDeploy missingNames");
+  if (!missingJson?.groups?.awsDeploy?.missingNames?.includes("EC2_HOST")) {
+    failures.push("missing github env inventory must include EC2_HOST under awsDeploy missingNames");
   }
   if (!missingJson?.groups?.androidRelease?.missingNames?.includes("THAI_MEET_UPLOAD_KEYSTORE_PASSWORD")) {
     failures.push("missing github env inventory must include Android release secret names");
@@ -74,20 +74,20 @@ try {
   if (planResult.stdout.includes("gh secret set AWS_REGION --env production")) {
     failures.push("github env provisioning plan must not put AWS_REGION in secrets");
   }
-  if (!planResult.stdout.includes("gh variable set ECR_REPOSITORY --env production --body '<ECR_REPOSITORY>'")) {
-    failures.push("github env provisioning plan must include ECR_REPOSITORY variable set command with placeholder");
+  if (!planResult.stdout.includes("gh variable set EC2_HOST --env production --body '<EC2_HOST>'")) {
+    failures.push("github env provisioning plan must include EC2_HOST variable set command with placeholder");
   }
-  if (!planResult.stdout.includes("gh variable set ECS_CLUSTER --env production --body '<ECS_CLUSTER>'")) {
-    failures.push("github env provisioning plan must include ECS_CLUSTER variable set command with placeholder");
+  if (!planResult.stdout.includes("gh variable set EC2_USER --env production --body '<EC2_USER>'")) {
+    failures.push("github env provisioning plan must include EC2_USER variable set command with placeholder");
   }
-  if (!planResult.stdout.includes("gh variable set ECS_SERVICE --env production --body '<ECS_SERVICE>'")) {
-    failures.push("github env provisioning plan must include ECS_SERVICE variable set command with placeholder");
+  if (!planResult.stdout.includes("gh secret set EC2_SSH_PRIVATE_KEY_B64 --env production --body '<EC2_SSH_PRIVATE_KEY_B64>'")) {
+    failures.push("github env provisioning plan must include EC2 SSH key secret set command with placeholder");
   }
   if (!planResult.stdout.includes("gh secret set DATABASE_URL --env production --body '<DATABASE_URL>'")) {
     failures.push("github env provisioning plan must include DATABASE_URL secret set command with placeholder");
   }
-  if (!planResult.stdout.includes("gh variable set AWS_DEPLOY_ROLE_ARN --env production --body '<AWS_DEPLOY_ROLE_ARN>'")) {
-    failures.push("github env provisioning plan must include AWS deploy role variable set command with placeholder");
+  if (!planResult.stdout.includes("gh variable set EC2_SERVICE_NAME --env production --body '<EC2_SERVICE_NAME>'")) {
+    failures.push("github env provisioning plan must include EC2 service variable set command with placeholder");
   }
   if (!planResult.stdout.includes("gh secret set THAI_MEET_UPLOAD_KEYSTORE_PASSWORD --env production --body '<THAI_MEET_UPLOAD_KEYSTORE_PASSWORD>'")) {
     failures.push("github env provisioning plan must include Android release password secret set command with placeholder");
@@ -120,10 +120,11 @@ try {
     "S3_BUCKET_PUBLIC_ASSETS",
     "PERSISTENCE_MODE",
     "DATABASE_URL",
-    "AWS_DEPLOY_ROLE_ARN",
-    "ECR_REPOSITORY",
-    "ECS_CLUSTER",
-    "ECS_SERVICE",
+    "EC2_HOST",
+    "EC2_USER",
+    "EC2_SSH_PRIVATE_KEY_B64",
+    "EC2_APP_DIR",
+    "EC2_SERVICE_NAME",
     "THAI_MEET_UPLOAD_KEYSTORE",
     "THAI_MEET_UPLOAD_KEYSTORE_PASSWORD",
     "THAI_MEET_UPLOAD_KEY_ALIAS",
@@ -134,7 +135,7 @@ try {
   await writeFile(readySecretsPath, JSON.stringify(allNames.map((name) => ({ name, updatedAt: "2026-06-20T00:00:00Z" }))));
   await writeFile(readyVariablesPath, JSON.stringify([
     { name: "AWS_REGION", value: "ap-southeast-1" },
-    { name: "ECS_CLUSTER", value: "gate1_cluster_secret_should_not_print" }
+    { name: "EC2_HOST", value: "gate1_ec2_host_should_not_print" }
   ]));
 
   const readyResult = runInventory(["--json", "--secret-json-file", readySecretsPath, "--variable-json-file", readyVariablesPath]);
@@ -206,7 +207,7 @@ function parseJson(text, label) {
 }
 
 function assertNoValues(text, label) {
-  for (const value of ["ap-southeast-1", "gate1_cluster_secret_should_not_print", "2026-06-20T00:00:00Z"]) {
+  for (const value of ["ap-southeast-1", "gate1_ec2_host_should_not_print", "2026-06-20T00:00:00Z"]) {
     if (text.includes(value)) {
       failures.push(`${label} must not print inventory value ${value}`);
     }

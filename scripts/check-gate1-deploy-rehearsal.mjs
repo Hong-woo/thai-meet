@@ -23,7 +23,7 @@ try {
     secretOutputPolicy: "names-only",
     groups: {
       productionRuntime: { status: "not_ready", missingNames: ["DATABASE_URL"] },
-      awsDeploy: { status: "not_ready", missingNames: ["ECS_SERVICE"] },
+      awsDeploy: { status: "not_ready", missingNames: ["EC2_HOST"] },
       androidRelease: { status: "ready", missingNames: [] }
     }
   }));
