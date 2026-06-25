@@ -25,9 +25,9 @@ Next execution order:
 
 2. Provider callback routes.
    - Reserved fail-closed route shell exists for `GET /auth/callback/cognito`.
-   - Reserved fail-closed route shell exists for `POST /webhooks/line`.
+   - Verified no-op route exists for `POST /webhooks/line`.
    - Implement Cognito token exchange and session binding.
-   - Implement LINE signature verification and idempotent event handling.
+   - Implement idempotent LINE event handling.
    - Keep LINE Login callback separate from Messaging API webhook setup.
    - Use `docs/dev/PROVIDER_CONSOLE_SETTINGS.md` as the console setup checklist.
 

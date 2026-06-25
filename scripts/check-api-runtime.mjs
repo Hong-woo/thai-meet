@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import crypto from "node:crypto";
 import { once } from "node:events";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -6,6 +7,7 @@ import { createGate0StoreFromEnv } from "../apps/api/src/gate0-store-factory.mjs
 
 const root = process.cwd();
 const failures = [];
+const lineWebhookSecret = "gate0_line_webhook_test_secret";
 
 const serverSource = await readFile(path.join(root, "apps/api/src/server.mjs"), "utf8");
 const gate0ServiceSource = await readFile(path.join(root, "apps/api/src/gate0-service.mjs"), "utf8");
@@ -97,7 +99,7 @@ assertThrows(
 
 const child = spawn(process.execPath, ["apps/api/src/server.mjs"], {
   cwd: root,
-  env: { ...process.env, API_PORT: "0" },
+  env: { ...process.env, API_PORT: "0", LINE_CHANNEL_SECRET: lineWebhookSecret },
   stdio: ["ignore", "pipe", "pipe"]
 });
 
@@ -137,9 +139,16 @@ try {
     failures.push("LINE webhook route must require x-line-signature");
   }
 
-  const lineWebhookReserved = await fetchAnyJson(port, "/webhooks/line", { method: "POST", headers: { "x-line-signature": "test-signature" }, body: "{}" });
-  if (lineWebhookReserved.status !== 501 || lineWebhookReserved.payload?.error?.code !== "TM_API_LINE_WEBHOOK_NOT_IMPLEMENTED") {
-    failures.push("LINE webhook route must reserve event handling with 501 until implemented");
+  const invalidLineWebhook = await fetchAnyJson(port, "/webhooks/line", { method: "POST", headers: { "x-line-signature": "test-signature" }, body: "{}" });
+  if (invalidLineWebhook.status !== 401 || invalidLineWebhook.payload?.error?.code !== "TM_API_LINE_WEBHOOK_SIGNATURE_INVALID") {
+    failures.push("LINE webhook route must reject invalid x-line-signature");
+  }
+
+  const lineWebhookBody = "{}";
+  const lineWebhookSignature = crypto.createHmac("sha256", lineWebhookSecret).update(lineWebhookBody).digest("base64");
+  const verifiedLineWebhook = await fetchAnyJson(port, "/webhooks/line", { method: "POST", headers: { "x-line-signature": lineWebhookSignature }, body: lineWebhookBody });
+  if (verifiedLineWebhook.status !== 202 || verifiedLineWebhook.payload?.eventHandlingMode !== "verified_noop") {
+    failures.push("LINE webhook route must verify the signature and accept events in no-op mode");
   }
 } catch (error) {
   failures.push(`API runtime check failed: ${error.message}`);

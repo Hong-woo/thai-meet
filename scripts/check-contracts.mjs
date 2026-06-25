@@ -61,6 +61,13 @@ if (!lineWebhookSignature?.required) {
   process.exit(1);
 }
 
+const lineWebhookResponses = openApi.paths?.["/webhooks/line"]?.post?.responses || {};
+if (!lineWebhookResponses["202"] || !lineWebhookResponses["401"]) {
+  console.error("TM_CONTRACT_OPENAPI_STALE");
+  console.error("- LINE webhook OpenAPI must accept verified events with 202 and fail bad signatures with 401");
+  process.exit(1);
+}
+
 const lineExchangeParameters = openApi.paths?.["/api/v1/chats/rooms/{roomId}/contact-exchanges/line"]?.post?.parameters || [];
 const stateParameter = lineExchangeParameters.find((parameter) => parameter.name === "state" && parameter.in === "query");
 if (!stateParameter?.schema?.enum?.includes("provider_unavailable")) {

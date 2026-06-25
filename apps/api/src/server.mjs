@@ -1,4 +1,5 @@
 import http from "node:http";
+import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import {
@@ -7,7 +8,8 @@ import {
   createGate0Service,
   databaseClientUnavailable,
   databaseStoreNotScaffolded,
-  lineWebhookNotImplemented,
+  lineWebhookAccepted,
+  lineWebhookSignatureInvalid,
   lineWebhookSignatureRequired,
   notFound,
   scaffoldFailure
@@ -54,13 +56,18 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === "POST" && url.pathname === "/webhooks/line") {
-      await readBody(req);
+      const body = await readBody(req);
       if (!req.headers["x-line-signature"]) {
         sendJson(res, 401, lineWebhookSignatureRequired());
         return;
       }
 
-      sendJson(res, 501, lineWebhookNotImplemented());
+      if (!verifyLineWebhookSignature(body, req.headers["x-line-signature"])) {
+        sendJson(res, 401, lineWebhookSignatureInvalid());
+        return;
+      }
+
+      sendJson(res, 202, lineWebhookAccepted());
       return;
     }
 
@@ -130,12 +137,26 @@ function sendJson(res, status, payload) {
 
 async function readBody(req) {
   let size = 0;
+  const chunks = [];
   for await (const chunk of req) {
     size += chunk.length;
     if (size > 1024 * 1024) {
       throw new Error("TM_API_REQUEST_BODY_TOO_LARGE");
     }
+    chunks.push(chunk);
   }
+  return Buffer.concat(chunks);
+}
+
+function verifyLineWebhookSignature(body, signature) {
+  const secret = process.env.LINE_CHANNEL_SECRET || "";
+  if (!secret) return false;
+
+  const expected = crypto.createHmac("sha256", secret).update(body).digest("base64");
+  const actual = String(signature || "");
+  const expectedBuffer = Buffer.from(expected);
+  const actualBuffer = Buffer.from(actual);
+  return expectedBuffer.length === actualBuffer.length && crypto.timingSafeEqual(expectedBuffer, actualBuffer);
 }
 
 server.listen(port, () => {
