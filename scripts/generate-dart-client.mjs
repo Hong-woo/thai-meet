@@ -19,6 +19,8 @@ class ThaiMeetApiClient {
   const ThaiMeetApiClient();
 
   String get healthPath => '/health';
+  String get cognitoCallbackPath => '/auth/callback/cognito';
+  String get lineWebhookPath => '/webhooks/line';
   String get myPublicIdentitiesPath => '/api/v1/public-identities/me';
   String get discoverProfilesPath => '/api/v1/discover/profiles';
 

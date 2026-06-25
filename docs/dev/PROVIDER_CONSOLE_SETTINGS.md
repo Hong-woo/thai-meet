@@ -24,12 +24,12 @@ Current configured values:
 - Issuer: `https://cognito-idp.ap-northeast-2.amazonaws.com/ap-northeast-2_2q4x5HDnO`
 - JWKS URL: `https://cognito-idp.ap-northeast-2.amazonaws.com/ap-northeast-2_2q4x5HDnO/.well-known/jwks.json`
 
-Do not configure a hosted-UI callback path yet. The API and mobile app do not currently expose a real OAuth redirect/callback route. Add the route first, then put the exact callback URL into Cognito.
+The API now reserves the Cognito callback route, but token exchange is not implemented yet. Keep this out of public production traffic until `TM_API_AUTH_CALLBACK_NOT_IMPLEMENTED` is replaced by a real token exchange flow.
 
-Future expected callback shape:
+Cognito callback shape:
 
 ```text
-https://<real-domain>/auth/callback/cognito
+https://15-164-219-139.sslip.io/auth/callback/cognito
 ```
 
 ## LINE
@@ -39,12 +39,12 @@ Current configured values:
 - Channel ID: `2010515307`
 - Channel secret: stored only in local/protected environments
 
-Do not configure a LINE webhook URL yet. The API does not currently expose a LINE Messaging API webhook route.
+The API now reserves the LINE webhook route, but signature verification and event handling are not implemented yet. Keep this out of public production traffic until `TM_API_LINE_WEBHOOK_NOT_IMPLEMENTED` is replaced by real verification and idempotent event handling.
 
-Future expected webhook shape:
+LINE webhook shape:
 
 ```text
-https://<real-domain>/webhooks/line
+https://15-164-219-139.sslip.io/webhooks/line
 ```
 
 If LINE Login is added later, use a separate LINE Login channel and implement the callback route before filling console values.
@@ -60,6 +60,8 @@ https://<real-domain>/auth/callback/line
 These routes are live today:
 
 - `GET /health`
+- `GET /auth/callback/cognito`
+- `POST /webhooks/line`
 - `GET /openapi.json`
 - `GET /fixtures/gate0`
 - `GET /api/v1/public-identities/me`
@@ -69,14 +71,14 @@ These routes are live today:
 - `POST /api/v1/safety/reports`
 - `POST /api/v1/safety/blocks`
 
-These are not provider callback routes. They are Gate 0/Gate 1 app API routes.
+The provider routes are reserved fail-closed routes. They expose stable paths, but provider token exchange, LINE signature verification, and event handling are still pending.
 
 ## Next Implementation Step
 
-Before provider console callback URLs can be finalized, implement and contract-test:
+Before provider console callback URLs can be used in public production, implement and contract-test:
 
-1. `GET /auth/callback/cognito`
-2. `POST /webhooks/line`
+1. Cognito token exchange and session binding behind `GET /auth/callback/cognito`.
+2. LINE signature verification and idempotent event handling behind `POST /webhooks/line`.
 3. Optional later: `GET /auth/callback/line`
 
 After a real domain exists, replace every `sslip.io` URL in provider settings with the final HTTPS domain.

@@ -127,6 +127,46 @@ export function databaseClientUnavailable() {
   });
 }
 
+export function authCallbackCodeRequired() {
+  return apiError({
+    type: "validation_error",
+    code: "TM_API_AUTH_CALLBACK_CODE_REQUIRED",
+    message: "Cognito callback requires an authorization code.",
+    param: "code",
+    docRef: "docs/dev/PROVIDER_CONSOLE_SETTINGS.md#cognito"
+  });
+}
+
+export function authCallbackNotImplemented() {
+  return apiError({
+    type: "system_error",
+    code: "TM_API_AUTH_CALLBACK_NOT_IMPLEMENTED",
+    message: "Cognito callback route is reserved but token exchange is not implemented yet.",
+    param: "code",
+    docRef: "docs/dev/PROVIDER_CONSOLE_SETTINGS.md#cognito"
+  });
+}
+
+export function lineWebhookSignatureRequired() {
+  return apiError({
+    type: "auth_error",
+    code: "TM_API_LINE_WEBHOOK_SIGNATURE_REQUIRED",
+    message: "LINE webhook requires the x-line-signature header.",
+    param: "x-line-signature",
+    docRef: "docs/dev/PROVIDER_CONSOLE_SETTINGS.md#line"
+  });
+}
+
+export function lineWebhookNotImplemented() {
+  return apiError({
+    type: "system_error",
+    code: "TM_API_LINE_WEBHOOK_NOT_IMPLEMENTED",
+    message: "LINE webhook route is reserved but signature verification and event handling are not implemented yet.",
+    param: "webhook",
+    docRef: "docs/dev/PROVIDER_CONSOLE_SETTINGS.md#line"
+  });
+}
+
 export function apiError({ type, code, message, param, docRef }) {
   return {
     error: {
