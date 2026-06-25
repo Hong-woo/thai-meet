@@ -167,12 +167,26 @@ export function lineWebhookSignatureInvalid() {
   });
 }
 
-export function lineWebhookAccepted() {
+export function lineWebhookPayloadInvalid() {
+  return apiError({
+    type: "validation_error",
+    code: "TM_API_LINE_WEBHOOK_PAYLOAD_INVALID",
+    message: "LINE webhook payload must be valid JSON.",
+    param: "body",
+    docRef: "docs/dev/PROVIDER_CONSOLE_SETTINGS.md#line"
+  });
+}
+
+export function lineWebhookAccepted({ eventCount, acceptedEventCount, duplicateEventCount, invalidEventCount }) {
   return {
     status: "accepted",
     provider: "LINE",
-    eventHandlingMode: "verified_noop",
-    message: "LINE webhook signature verified; event handling is pending."
+    eventHandlingMode: "verified_idempotent_noop",
+    eventCount,
+    acceptedEventCount,
+    duplicateEventCount,
+    invalidEventCount,
+    message: "LINE webhook signature verified; events were accepted idempotently in no-op mode."
   };
 }
 

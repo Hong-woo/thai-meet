@@ -127,7 +127,11 @@
                   "required": [
                     "status",
                     "provider",
-                    "eventHandlingMode"
+                    "eventHandlingMode",
+                    "eventCount",
+                    "acceptedEventCount",
+                    "duplicateEventCount",
+                    "invalidEventCount"
                   ],
                   "properties": {
                     "status": {
@@ -145,13 +149,39 @@
                     "eventHandlingMode": {
                       "type": "string",
                       "enum": [
-                        "verified_noop"
+                        "verified_idempotent_noop"
                       ]
+                    },
+                    "eventCount": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "acceptedEventCount": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "duplicateEventCount": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "invalidEventCount": {
+                      "type": "integer",
+                      "minimum": 0
                     },
                     "message": {
                       "type": "string"
                     }
                   }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "LINE webhook payload is not valid JSON",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
                 }
               }
             }
