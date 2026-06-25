@@ -23,7 +23,13 @@ Next execution order:
    - Reissue TLS with Certbot or an AWS-managed TLS path.
    - Replace public-IP and `sslip.io` callback/config URLs with HTTPS domain URLs.
 
-2. Store-track packaging.
+2. Provider callback routes.
+   - Implement and contract-test `GET /auth/callback/cognito`.
+   - Implement and contract-test `POST /webhooks/line`.
+   - Keep LINE Login callback separate from Messaging API webhook setup.
+   - Use `docs/dev/PROVIDER_CONSOLE_SETTINGS.md` as the console setup checklist.
+
+3. Store-track packaging.
    - Run `flutter build appbundle --release`.
    - Upload through internal testing first.
    - Add iOS signing only on a macOS-capable path.
