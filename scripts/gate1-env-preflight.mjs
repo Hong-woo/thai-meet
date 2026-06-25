@@ -53,10 +53,11 @@ const groups = {
   }),
   awsDeploy: checkGroup({
     requiredKeys: [
-      "AWS_DEPLOY_ROLE_ARN",
-      "ECR_REPOSITORY",
-      "ECS_CLUSTER",
-      "ECS_SERVICE"
+      "EC2_HOST",
+      "EC2_USER",
+      "EC2_SSH_PRIVATE_KEY_B64",
+      "EC2_APP_DIR",
+      "EC2_SERVICE_NAME"
     ]
   }),
   androidRelease: checkGroup({

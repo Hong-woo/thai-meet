@@ -31,8 +31,8 @@ if (missingJson?.status !== "not_ready") {
 if (!missingJson?.groups?.productionRuntime?.missingKeys?.includes("DATABASE_URL")) {
   failures.push("missing gate1 env preflight must include DATABASE_URL under productionRuntime missingKeys");
 }
-if (!missingJson?.groups?.awsDeploy?.missingKeys?.includes("AWS_DEPLOY_ROLE_ARN")) {
-  failures.push("missing gate1 env preflight must include AWS_DEPLOY_ROLE_ARN under awsDeploy missingKeys");
+if (!missingJson?.groups?.awsDeploy?.missingKeys?.includes("EC2_HOST")) {
+  failures.push("missing gate1 env preflight must include EC2_HOST under awsDeploy missingKeys");
 }
 if (!missingJson?.groups?.androidRelease?.missingKeys?.includes("THAI_MEET_UPLOAD_KEYSTORE")) {
   failures.push("missing gate1 env preflight must include THAI_MEET_UPLOAD_KEYSTORE under androidRelease missingKeys");
@@ -54,10 +54,11 @@ const readyEnv = {
   S3_BUCKET_PUBLIC_ASSETS: "thai-meet-public-assets",
   PERSISTENCE_MODE: "database",
   DATABASE_URL: "postgresql://user:gate1_db_secret@example.invalid:5432/thai_meet",
-  AWS_DEPLOY_ROLE_ARN: "arn:aws:iam::123456789012:role/thai-meet-deploy",
-  ECR_REPOSITORY: "thai-meet-api",
-  ECS_CLUSTER: "thai-meet-cluster",
-  ECS_SERVICE: "thai-meet-service",
+  EC2_HOST: "ec2.example.invalid",
+  EC2_USER: "ec2-user",
+  EC2_SSH_PRIVATE_KEY_B64: "Z2F0ZTFfc3NoX3ByaXZhdGVfa2V5",
+  EC2_APP_DIR: "/opt/thai-meet",
+  EC2_SERVICE_NAME: "thai-meet-api",
   THAI_MEET_UPLOAD_KEYSTORE: "C:/secrets/thai-meet-upload.jks",
   THAI_MEET_UPLOAD_KEYSTORE_PASSWORD: "gate1_keystore_password",
   THAI_MEET_UPLOAD_KEY_ALIAS: "thai-meet-upload",
@@ -138,10 +139,11 @@ try {
     "S3_BUCKET_PUBLIC_ASSETS=thai-meet-public-assets",
     "PERSISTENCE_MODE=database",
     "DATABASE_URL=postgresql://user:gate1_db_secret@example.invalid:5432/thai_meet",
-    "AWS_DEPLOY_ROLE_ARN=arn:aws:iam::123456789012:role/thai-meet-deploy",
-    "ECR_REPOSITORY=thai-meet-api",
-    "ECS_CLUSTER=thai-meet-cluster",
-    "ECS_SERVICE=thai-meet-service",
+    "EC2_HOST=ec2.example.invalid",
+    "EC2_USER=ec2-user",
+    "EC2_SSH_PRIVATE_KEY_B64=Z2F0ZTFfc3NoX3ByaXZhdGVfa2V5",
+    "EC2_APP_DIR=/opt/thai-meet",
+    "EC2_SERVICE_NAME=thai-meet-api",
     "THAI_MEET_UPLOAD_KEYSTORE=C:/secrets/thai-meet-upload.jks",
     "THAI_MEET_UPLOAD_KEYSTORE_PASSWORD=gate1_keystore_password",
     "THAI_MEET_UPLOAD_KEY_ALIAS=thai-meet-upload",
@@ -177,10 +179,11 @@ try {
     "S3_BUCKET_PUBLIC_ASSETS=replace-with-s3-bucket",
     "PERSISTENCE_MODE=database",
     "DATABASE_URL=replace-with-postgresql-database-url",
-    "AWS_DEPLOY_ROLE_ARN=replace-with-aws-deploy-role-arn",
-    "ECR_REPOSITORY=replace-with-ecr-repository",
-    "ECS_CLUSTER=replace-with-ecs-cluster",
-    "ECS_SERVICE=replace-with-ecs-service",
+    "EC2_HOST=replace-with-ec2-host",
+    "EC2_USER=replace-with-ec2-user",
+    "EC2_SSH_PRIVATE_KEY_B64=replace-with-ec2-ssh-private-key-b64",
+    "EC2_APP_DIR=replace-with-ec2-app-dir",
+    "EC2_SERVICE_NAME=replace-with-ec2-service-name",
     "THAI_MEET_UPLOAD_KEYSTORE=replace-with-local-upload-keystore-path",
     "THAI_MEET_UPLOAD_KEYSTORE_PASSWORD=replace-with-upload-keystore-password",
     "THAI_MEET_UPLOAD_KEY_ALIAS=replace-with-upload-key-alias",
@@ -202,8 +205,8 @@ try {
   if (!placeholderJson?.groups?.productionRuntime?.placeholderKeys?.includes("DATABASE_URL")) {
     failures.push("placeholder gate1 env file preflight must include DATABASE_URL under productionRuntime placeholderKeys");
   }
-  if (!placeholderJson?.groups?.awsDeploy?.placeholderKeys?.includes("AWS_DEPLOY_ROLE_ARN")) {
-    failures.push("placeholder gate1 env file preflight must include AWS_DEPLOY_ROLE_ARN under awsDeploy placeholderKeys");
+  if (!placeholderJson?.groups?.awsDeploy?.placeholderKeys?.includes("EC2_SSH_PRIVATE_KEY_B64")) {
+    failures.push("placeholder gate1 env file preflight must include EC2_SSH_PRIVATE_KEY_B64 under awsDeploy placeholderKeys");
   }
   if (!placeholderJson?.groups?.androidRelease?.placeholderKeys?.includes("THAI_MEET_UPLOAD_KEYSTORE_PASSWORD")) {
     failures.push("placeholder gate1 env file preflight must include THAI_MEET_UPLOAD_KEYSTORE_PASSWORD under androidRelease placeholderKeys");
@@ -244,10 +247,11 @@ function scrubGate1Env(env) {
     "S3_BUCKET_PUBLIC_ASSETS",
     "PERSISTENCE_MODE",
     "DATABASE_URL",
-    "AWS_DEPLOY_ROLE_ARN",
-    "ECR_REPOSITORY",
-    "ECS_CLUSTER",
-    "ECS_SERVICE",
+    "EC2_HOST",
+    "EC2_USER",
+    "EC2_SSH_PRIVATE_KEY_B64",
+    "EC2_APP_DIR",
+    "EC2_SERVICE_NAME",
     "THAI_MEET_UPLOAD_KEYSTORE",
     "THAI_MEET_UPLOAD_KEYSTORE_PASSWORD",
     "THAI_MEET_UPLOAD_KEY_ALIAS",

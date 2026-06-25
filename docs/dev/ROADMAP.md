@@ -18,7 +18,7 @@ Next execution order:
 2. Live deploy rehearsal.
    - Run `npm run gate1:deploy-rehearsal -- --plan`.
    - Run `AWS CI Deploy` manually.
-   - Verify ECR push, ECS service stability, and rollback path.
+   - Verify EC2 SSH copy, Docker image load, systemd service restart, and rollback path.
 
 3. Store-track packaging.
    - Run `flutter build appbundle --release`.

@@ -10,13 +10,13 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION || vars.AWS_REGION }}
-  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY || vars.ECR_REPOSITORY }}
-  ECS_CLUSTER: ${{ secrets.ECS_CLUSTER || vars.ECS_CLUSTER }}
-  ECS_SERVICE: ${{ secrets.ECS_SERVICE || vars.ECS_SERVICE }}
+  EC2_HOST: ${{ secrets.EC2_HOST || vars.EC2_HOST }}
+  EC2_USER: ${{ secrets.EC2_USER || vars.EC2_USER }}
+  EC2_APP_DIR: ${{ secrets.EC2_APP_DIR || vars.EC2_APP_DIR }}
+  EC2_SERVICE_NAME: ${{ secrets.EC2_SERVICE_NAME || vars.EC2_SERVICE_NAME }}
 
 jobs:
   deploy:
@@ -48,48 +48,53 @@ jobs:
         id: aws-deploy-preflight
         shell: bash
         env:
-          AWS_DEPLOY_ROLE_ARN: ${{ secrets.AWS_DEPLOY_ROLE_ARN || vars.AWS_DEPLOY_ROLE_ARN }}
+          EC2_SSH_PRIVATE_KEY_B64: ${{ secrets.EC2_SSH_PRIVATE_KEY_B64 }}
         run: |
           missing=0
-          for key in AWS_REGION ECR_REPOSITORY ECS_CLUSTER ECS_SERVICE AWS_DEPLOY_ROLE_ARN; do
+          for key in AWS_REGION EC2_HOST EC2_USER EC2_SSH_PRIVATE_KEY_B64 EC2_APP_DIR EC2_SERVICE_NAME; do
             if [ -z "${!key}" ]; then
               missing=1
             fi
           done
 
           if [ "$missing" -eq 1 ]; then
-            echo "AWS deploy skipped: missing AWS deployment settings"
+            echo "AWS EC2 deploy skipped: missing EC2 deployment settings"
             echo "deploy_ready=false" >> "$GITHUB_OUTPUT"
           else
             echo "deploy_ready=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Configure AWS credentials
-        if: ${{ steps.aws-deploy-preflight.outputs.deploy_ready == 'true' }}
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN || vars.AWS_DEPLOY_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        if: ${{ steps.aws-deploy-preflight.outputs.deploy_ready == 'true' }}
-        id: ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
       - name: Build API image
         if: ${{ steps.aws-deploy-preflight.outputs.deploy_ready == 'true' }}
+        run: docker build -t "thai-meet-api:${{ github.sha }}" -f apps/api/Dockerfile .
+
+      - name: Package API image
+        if: ${{ steps.aws-deploy-preflight.outputs.deploy_ready == 'true' }}
+        run: docker save "thai-meet-api:${{ github.sha }}" | gzip > thai-meet-api.tar.gz
+
+      - name: Prepare EC2 SSH key
+        if: ${{ steps.aws-deploy-preflight.outputs.deploy_ready == 'true' }}
+        shell: bash
+        env:
+          EC2_SSH_PRIVATE_KEY_B64: ${{ secrets.EC2_SSH_PRIVATE_KEY_B64 }}
         run: |
-          docker build -t "$ECR_REPOSITORY:${{ github.sha }}" -f apps/api/Dockerfile .
-          docker tag "$ECR_REPOSITORY:${{ github.sha }}" "${{ steps.ecr.outputs.registry }}/$ECR_REPOSITORY:${{ github.sha }}"
+          mkdir -p ~/.ssh
+          echo "$EC2_SSH_PRIVATE_KEY_B64" | base64 -d > ~/.ssh/thai-meet-ec2
+          chmod 600 ~/.ssh/thai-meet-ec2
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
 
-      - name: Push API image
+      - name: Copy API image to EC2
         if: ${{ steps.aws-deploy-preflight.outputs.deploy_ready == 'true' }}
-        run: docker push "${{ steps.ecr.outputs.registry }}/$ECR_REPOSITORY:${{ github.sha }}"
+        run: |
+          ssh -i ~/.ssh/thai-meet-ec2 "$EC2_USER@$EC2_HOST" "mkdir -p '$EC2_APP_DIR'"
+          scp -i ~/.ssh/thai-meet-ec2 thai-meet-api.tar.gz "$EC2_USER@$EC2_HOST:$EC2_APP_DIR/thai-meet-api.tar.gz"
 
-      - name: Force ECS deployment
+      - name: Load API image and restart EC2 service
         if: ${{ steps.aws-deploy-preflight.outputs.deploy_ready == 'true' }}
-        run: aws ecs update-service --cluster "$ECS_CLUSTER" --service "$ECS_SERVICE" --force-new-deployment
-
-      - name: Wait for ECS stability
-        if: ${{ steps.aws-deploy-preflight.outputs.deploy_ready == 'true' }}
-        run: aws ecs wait services-stable --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE"
+        run: |
+          ssh -i ~/.ssh/thai-meet-ec2 "$EC2_USER@$EC2_HOST" "
+            set -e
+            docker load -i '$EC2_APP_DIR/thai-meet-api.tar.gz'
+            docker tag 'thai-meet-api:${{ github.sha }}' thai-meet-api:latest
+            sudo systemctl restart '$EC2_SERVICE_NAME'
+          "

@@ -78,7 +78,7 @@ Gate 1 cannot close until `db:check` verifies Prisma migration status and the mi
 Run `npm run gate1:env -- --json` before live deploy rehearsal. To preflight a local production-value file without exporting secrets into the shell, copy `.env.production.local.example` to `.env.production.local`, fill placeholders locally, then run `npm run gate1:env -- --env-file .env.production.local --json`. The command fails closed while any `replace-with-` placeholder remains and checks three groups:
 
 - `productionRuntime`: production auth, LINE provider, S3 object storage, and database persistence keys.
-- `awsDeploy`: OIDC deploy role, ECR repository, ECS cluster, and ECS service keys.
+- `awsDeploy`: EC2 host, user, SSH private key, app directory, and systemd service keys.
 - `androidRelease`: upload keystore path, passwords, and key alias keys.
 
 The command exits non-zero until required keys are present, expected mode keys are set to production values, and local template placeholders are replaced. Use only one output mode: `--json` or `--field`. Output must stay `keys-only`: missing, invalid, or placeholder key names may print, but `DATABASE_URL`, provider secrets, keystore passwords, raw LINE IDs, and provider tokens must never print.

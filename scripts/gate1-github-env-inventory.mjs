@@ -45,10 +45,10 @@ const variableNames = new Set([
   "AWS_REGION",
   "S3_BUCKET_PUBLIC_ASSETS",
   "PERSISTENCE_MODE",
-  "AWS_DEPLOY_ROLE_ARN",
-  "ECR_REPOSITORY",
-  "ECS_CLUSTER",
-  "ECS_SERVICE",
+  "EC2_HOST",
+  "EC2_USER",
+  "EC2_APP_DIR",
+  "EC2_SERVICE_NAME",
   "THAI_MEET_UPLOAD_KEYSTORE",
   "THAI_MEET_UPLOAD_KEY_ALIAS"
 ]);
@@ -69,10 +69,11 @@ const groups = {
     "DATABASE_URL"
   ]),
   awsDeploy: checkNames([
-    "AWS_DEPLOY_ROLE_ARN",
-    "ECR_REPOSITORY",
-    "ECS_CLUSTER",
-    "ECS_SERVICE"
+    "EC2_HOST",
+    "EC2_USER",
+    "EC2_SSH_PRIVATE_KEY_B64",
+    "EC2_APP_DIR",
+    "EC2_SERVICE_NAME"
   ]),
   androidRelease: checkNames([
     "THAI_MEET_UPLOAD_KEYSTORE",

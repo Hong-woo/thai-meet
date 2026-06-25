@@ -30,10 +30,11 @@ try {
     "S3_BUCKET_PUBLIC_ASSETS=thai-meet-public-assets",
     "PERSISTENCE_MODE=database",
     "DATABASE_URL=postgresql://user:gate1_db_secret@example.invalid:5432/thai_meet",
-    "AWS_DEPLOY_ROLE_ARN=arn:aws:iam::123456789012:role/thai-meet-deploy",
-    "ECR_REPOSITORY=thai-meet-api",
-    "ECS_CLUSTER=thai-meet-cluster",
-    "ECS_SERVICE=thai-meet-service",
+    "EC2_HOST=ec2.example.invalid",
+    "EC2_USER=ec2-user",
+    "EC2_SSH_PRIVATE_KEY_B64=Z2F0ZTFfc3NoX3ByaXZhdGVfa2V5",
+    "EC2_APP_DIR=/opt/thai-meet",
+    "EC2_SERVICE_NAME=thai-meet-api",
     "THAI_MEET_UPLOAD_KEYSTORE=C:/secrets/thai-meet-upload.jks",
     "THAI_MEET_UPLOAD_KEYSTORE_PASSWORD=gate1_keystore_password",
     "THAI_MEET_UPLOAD_KEY_ALIAS=thai-meet-upload",
@@ -47,8 +48,8 @@ try {
   if (dryRunJson?.mode !== "dry-run") failures.push("github env apply dry-run must report mode=dry-run");
   if (dryRunJson?.environment !== "production") failures.push("github env apply must default to production");
   if (dryRunJson?.variableCount !== 16) failures.push("github env apply must classify 16 variables");
-  if (dryRunJson?.secretCount !== 4) failures.push("github env apply must classify 4 secrets");
-  if (dryRunJson?.commandCount !== 20) failures.push("github env apply must report 20 commands");
+  if (dryRunJson?.secretCount !== 5) failures.push("github env apply must classify 5 secrets");
+  if (dryRunJson?.commandCount !== 21) failures.push("github env apply must report 21 commands");
   assertNoSecretValues(dryRun.stdout, "github env apply dry-run stdout");
   assertNoSecretValues(dryRun.stderr, "github env apply dry-run stderr");
 
@@ -92,10 +93,11 @@ try {
     "S3_BUCKET_PUBLIC_ASSETS=replace-with-s3-bucket",
     "PERSISTENCE_MODE=database",
     "DATABASE_URL=replace-with-postgresql-database-url",
-    "AWS_DEPLOY_ROLE_ARN=replace-with-aws-deploy-role-arn",
-    "ECR_REPOSITORY=replace-with-ecr-repository",
-    "ECS_CLUSTER=replace-with-ecs-cluster",
-    "ECS_SERVICE=replace-with-ecs-service",
+    "EC2_HOST=replace-with-ec2-host",
+    "EC2_USER=replace-with-ec2-user",
+    "EC2_SSH_PRIVATE_KEY_B64=replace-with-ec2-ssh-private-key-b64",
+    "EC2_APP_DIR=replace-with-ec2-app-dir",
+    "EC2_SERVICE_NAME=replace-with-ec2-service-name",
     "THAI_MEET_UPLOAD_KEYSTORE=replace-with-local-upload-keystore-path",
     "THAI_MEET_UPLOAD_KEYSTORE_PASSWORD=replace-with-upload-keystore-password",
     "THAI_MEET_UPLOAD_KEY_ALIAS=replace-with-upload-key-alias",
@@ -130,18 +132,21 @@ try {
   if (apply.status !== 0) failures.push(`github env apply --apply must pass with fake gh, got ${apply.status}`);
   const applyJson = parseJson(apply.stdout, "github env apply stdout");
   if (applyJson?.mode !== "apply") failures.push("github env apply --apply must report mode=apply");
-  if (applyJson?.appliedCount !== 20) failures.push("github env apply --apply must report appliedCount=20");
+  if (applyJson?.appliedCount !== 21) failures.push("github env apply --apply must report appliedCount=21");
   assertNoSecretValues(apply.stdout, "github env apply stdout");
   assertNoSecretValues(apply.stderr, "github env apply stderr");
 
   const fakeLog = await readIfExists(fakeGhLog);
   const fakeCalls = fakeLog.trim().split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line));
-  if (fakeCalls.length !== 20) failures.push(`fake gh must receive 20 calls, got ${fakeCalls.length}`);
+  if (fakeCalls.length !== 21) failures.push(`fake gh must receive 21 calls, got ${fakeCalls.length}`);
   if (!fakeCalls.some((call) => call.argv.join(" ") === "variable set AUTH_MODE --env production")) {
     failures.push("fake gh must receive AUTH_MODE variable set call");
   }
   if (!fakeCalls.some((call) => call.argv.join(" ") === "secret set DATABASE_URL --env production")) {
     failures.push("fake gh must receive DATABASE_URL secret set call");
+  }
+  if (!fakeCalls.some((call) => call.argv.join(" ") === "secret set EC2_SSH_PRIVATE_KEY_B64 --env production")) {
+    failures.push("fake gh must receive EC2_SSH_PRIVATE_KEY_B64 secret set call");
   }
   assertNoSecretValues(fakeLog, "fake gh argv log");
 } finally {

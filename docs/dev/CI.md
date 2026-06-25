@@ -14,12 +14,9 @@ Current CI gate:
 AWS CI/deploy pipeline is configured:
 
 - GitHub Actions workflow: `AWS CI Deploy`.
-- Uses `aws-actions/configure-aws-credentials` with OIDC.
-- Uses `aws-actions/amazon-ecr-login`.
-- Requires `AWS_REGION`, `ECR_REPOSITORY`, `ECS_CLUSTER`, `ECS_SERVICE`, and `AWS_DEPLOY_ROLE_ARN` in the protected production environment as secrets or variables.
-- Runs `npm run production:check` and `npm test` before image push/deploy.
-- Pushes the API image to ECR and forces an ECS service deployment.
-- Waits for ECS service stability before completing.
+- Requires `AWS_REGION`, `EC2_HOST`, `EC2_USER`, `EC2_SSH_PRIVATE_KEY_B64`, `EC2_APP_DIR`, and `EC2_SERVICE_NAME` in the protected production environment as secrets or variables.
+- Runs `npm run production:check` and `npm test` before image package/deploy.
+- Builds the API Docker image, packages it with `docker save`, copies it to EC2 over SSH, loads it on the instance, and restarts the configured systemd service with `systemctl restart`.
 - Rehearse manual dispatch first with `npm run gate1:deploy-rehearsal -- --json` or `npm run gate1:deploy-rehearsal -- --plan`; keep deploy rehearsal output modes uncombined.
 
 Manual checks:
