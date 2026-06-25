@@ -18,6 +18,7 @@ AWS CI/deploy pipeline is configured:
 - Runs `npm run production:check` and `npm test` before image package/deploy.
 - Builds the API Docker image, packages it with `docker save`, copies it to EC2 over SSH, loads it on the instance, and restarts the configured systemd service with `systemctl restart`.
 - Rehearse manual dispatch first with `npm run gate1:deploy-rehearsal -- --json` or `npm run gate1:deploy-rehearsal -- --plan`; keep deploy rehearsal output modes uncombined.
+- EC2 bootstrap, runtime env, Nginx, and systemd operations are documented in `docs/dev/EC2_OPERATIONS.md`.
 
 Manual checks:
 
