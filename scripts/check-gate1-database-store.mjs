@@ -8,7 +8,7 @@ const failures = [];
 const fixture = JSON.parse(await readFile(path.join(root, "packages/api-contracts/fixtures/gate0-smoke.json"), "utf8"));
 const client = createFixtureBackedPrismaClient(fixture);
 const store = createGate1DatabaseStore(root, { client });
-const service = createGate0Service(store);
+const service = createGate0Service(store, { lineWebhookEventStoreMode: "database" });
 
 const openApi = await store.readOpenApi();
 assertEqual(openApi.openapi, "3.0.3", "database store should keep OpenAPI file-backed");
@@ -35,6 +35,13 @@ assertEqual(room.messages[0].id, fixture.chatMessages[0].id, "service should rea
 const lineExchange = await service.createLineContactExchange(fixture.chatRoom.id, null, "available");
 assertEqual(lineExchange.status, 201, "service should create LINE contact exchange from database store fixture shape");
 assertEqual(lineExchange.payload.contactExchange.id, fixture.contactExchange.id, "service should return available contact exchange from database store");
+
+const lineWebhookFirst = await service.acceptLineWebhookEvents([{ eventKey: "line-webhook-store-key-001", eventType: "message" }]);
+assertEqual(lineWebhookFirst.acceptedEventCount, 1, "database store should persist first LINE webhook event key");
+assertEqual(lineWebhookFirst.duplicateEventCount, 0, "database store should not mark first LINE webhook event as duplicate");
+const lineWebhookDuplicate = await service.acceptLineWebhookEvents([{ eventKey: "line-webhook-store-key-001", eventType: "message" }]);
+assertEqual(lineWebhookDuplicate.acceptedEventCount, 0, "database store should not accept duplicate LINE webhook event key");
+assertEqual(lineWebhookDuplicate.duplicateEventCount, 1, "database store should count duplicate LINE webhook event key");
 
 for (const forbidden of ["mock-line-contact", "facebook.example.invalid/mock-contact"]) {
   if (JSON.stringify(databaseFixture).includes(forbidden)) {
@@ -174,10 +181,37 @@ function createFixtureBackedPrismaClient(source) {
         return create;
       }
     },
+    lineWebhookEvent: createLineWebhookEventDelegate(),
     rewardLedger: {
       async findMany() {
         return source.rewardLedger ?? [];
       }
+    }
+  };
+}
+
+function createLineWebhookEventDelegate() {
+  const rows = new Map();
+  return {
+    async findUnique({ where }) {
+      return rows.get(where.eventKey) ?? null;
+    },
+    async create({ data }) {
+      const row = { id: `line_webhook_${rows.size + 1}`, duplicateCount: 0, ...data };
+      rows.set(data.eventKey, row);
+      return row;
+    },
+    async update({ where, data }) {
+      const row = rows.get(where.eventKey);
+      if (!row) return null;
+      const increment = data.duplicateCount?.increment ?? 0;
+      const updated = {
+        ...row,
+        duplicateCount: row.duplicateCount + increment,
+        eventType: data.eventType ?? row.eventType
+      };
+      rows.set(where.eventKey, updated);
+      return updated;
     }
   };
 }

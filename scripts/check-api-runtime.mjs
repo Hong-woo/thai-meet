@@ -60,7 +60,7 @@ for (const marker of ["createGate1DatabaseStore", "TM_GATE1_DATABASE_CLIENT_UNAV
     failures.push(`Gate 1 database store must include ${marker}`);
   }
 }
-for (const member of ["getMyPublicIdentity", "listDiscoverProfiles", "createLineContactExchange", "createSafetyReport", "createSafetyBlock"]) {
+for (const member of ["getMyPublicIdentity", "listDiscoverProfiles", "createLineContactExchange", "createSafetyReport", "createSafetyBlock", "acceptLineWebhookEvents"]) {
   if (!gate0ServiceSource.includes(member)) {
     failures.push(`Gate 0 service must expose ${member}`);
   }

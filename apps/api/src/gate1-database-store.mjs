@@ -104,6 +104,12 @@ export function createGate1DatabaseStore(root, options = {}) {
       if (!event) return { event: null };
       await persistBlockWrite(client, fixture, event);
       return { event };
+    },
+
+    async acceptLineWebhookEvents(events) {
+      const client = await getClient();
+      validateLineWebhookClient(client);
+      return await persistLineWebhookEvents(client, events);
     }
   };
 
@@ -173,6 +179,59 @@ function validateWriteClient(client) {
   if (typeof client?.block?.upsert !== "function") {
     throw new Error("TM_GATE1_DATABASE_CLIENT_INVALID: client.block.upsert must be a function");
   }
+}
+
+function validateLineWebhookClient(client) {
+  for (const method of ["findUnique", "create", "update"]) {
+    if (typeof client?.lineWebhookEvent?.[method] !== "function") {
+      throw new Error(`TM_GATE1_DATABASE_CLIENT_INVALID: client.lineWebhookEvent.${method} must be a function`);
+    }
+  }
+}
+
+async function persistLineWebhookEvents(client, events) {
+  const eventList = Array.isArray(events) ? events : [];
+  let acceptedEventCount = 0;
+  let duplicateEventCount = 0;
+  let invalidEventCount = 0;
+
+  for (const event of eventList) {
+    const eventKey = typeof event?.eventKey === "string" ? event.eventKey : "";
+    if (!eventKey) {
+      invalidEventCount += 1;
+      continue;
+    }
+
+    const existing = await client.lineWebhookEvent.findUnique({ where: { eventKey } });
+    if (existing) {
+      duplicateEventCount += 1;
+      await client.lineWebhookEvent.update({
+        where: { eventKey },
+        data: {
+          duplicateCount: { increment: 1 },
+          eventType: event.eventType || existing.eventType || null
+        }
+      });
+      continue;
+    }
+
+    acceptedEventCount += 1;
+    await client.lineWebhookEvent.create({
+      data: {
+        eventKey,
+        provider: "LINE",
+        eventType: event.eventType || null
+      }
+    });
+  }
+
+  return {
+    eventHandlingMode: "verified_idempotent_database",
+    eventCount: eventList.length,
+    acceptedEventCount,
+    duplicateEventCount,
+    invalidEventCount
+  };
 }
 
 async function persistContactExchangeWrite(client, fixture, contactExchange) {

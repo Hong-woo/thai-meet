@@ -1,5 +1,7 @@
-export function createGate0Service(store) {
+export function createGate0Service(store, options = {}) {
   validateGate0Store(store);
+  const lineWebhookEventLedger = new Set();
+  const lineWebhookEventStoreMode = options.lineWebhookEventStoreMode || process.env.LINE_WEBHOOK_EVENT_STORE_MODE || "memory";
 
   return {
     async getOpenApi() {
@@ -75,6 +77,14 @@ export function createGate0Service(store) {
 
       const fixture = await store.readFixture();
       return { event: fixture.safetyEvents.find((event) => event.type === "block") };
+    },
+
+    async acceptLineWebhookEvents(events) {
+      if (lineWebhookEventStoreMode === "database" && typeof store.acceptLineWebhookEvents === "function") {
+        return await store.acceptLineWebhookEvents(events);
+      }
+
+      return acceptLineWebhookEventsInMemory(lineWebhookEventLedger, events);
     }
   };
 }
@@ -177,16 +187,56 @@ export function lineWebhookPayloadInvalid() {
   });
 }
 
-export function lineWebhookAccepted({ eventCount, acceptedEventCount, duplicateEventCount, invalidEventCount }) {
+export function lineWebhookAccepted({ eventHandlingMode, eventCount, acceptedEventCount, duplicateEventCount, invalidEventCount }) {
+  const mode = eventHandlingMode || "verified_idempotent_noop";
   return {
     status: "accepted",
     provider: "LINE",
-    eventHandlingMode: "verified_idempotent_noop",
+    eventHandlingMode: mode,
     eventCount,
     acceptedEventCount,
     duplicateEventCount,
     invalidEventCount,
-    message: "LINE webhook signature verified; events were accepted idempotently in no-op mode."
+    message:
+      mode === "verified_idempotent_database"
+        ? "LINE webhook signature verified; events were accepted idempotently in database mode."
+        : "LINE webhook signature verified; events were accepted idempotently in no-op mode."
+  };
+}
+
+export function acceptLineWebhookEventsInMemory(ledger, events) {
+  const eventList = Array.isArray(events) ? events : [];
+  let acceptedEventCount = 0;
+  let duplicateEventCount = 0;
+  let invalidEventCount = 0;
+
+  for (const event of eventList) {
+    const eventKey = typeof event?.eventKey === "string" ? event.eventKey : "";
+    if (!eventKey) {
+      invalidEventCount += 1;
+      continue;
+    }
+
+    if (ledger.has(eventKey)) {
+      duplicateEventCount += 1;
+      continue;
+    }
+
+    ledger.add(eventKey);
+    acceptedEventCount += 1;
+  }
+
+  while (ledger.size > 2048) {
+    const oldest = ledger.values().next().value;
+    ledger.delete(oldest);
+  }
+
+  return {
+    eventHandlingMode: "verified_idempotent_noop",
+    eventCount: eventList.length,
+    acceptedEventCount,
+    duplicateEventCount,
+    invalidEventCount
   };
 }
 

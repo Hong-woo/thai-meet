@@ -42,7 +42,7 @@ Database seed writer fields are dry-run checks plus `npm run gate1:seed:database
 
 Read parity fields are database-store mapping checks plus `npm run gate1:database-store:test` and fixture-vs-database service checks plus `npm run gate1:read-parity:test`. Gate 1 should report `readParityStatus.summary=status=store_implemented, boundary=gate1-database-store, fixtureShape=gate0-compatible, endpointParity=checked`.
 
-Write path fields are persisted ContactExchange, ChatMessage, Report, and Block upsert checks plus `npm run gate1:write-path:test`. Gate 1 should report `writePathStatus.summary=status=implemented, command=gate1:write-path:test, rawProviderValuesStored=false`.
+Write path fields are persisted ContactExchange, ChatMessage, Report, Block, and LineWebhookEvent upsert/create checks plus `npm run gate1:write-path:test`. Gate 1 should report `writePathStatus.summary=status=implemented, command=gate1:write-path:test, rawProviderValuesStored=false`.
 
 Rollback fields are fixture-mode recovery checks plus `npm run gate1:rollback:test`. Gate 1 should report `rollbackStatus.summary=status=ready, mode=fixture, rawSecretsPrinted=false`.
 
@@ -128,12 +128,20 @@ AuditEvent:
 - index(targetUserId, createdAt)
 - index(eventType, createdAt)
 
+LineWebhookEvent:
+
+- unique(eventKey)
+- index(provider, receivedAt)
+- index(eventType, receivedAt)
+- Stores hashed event keys only; no raw webhook payload, reply token, provider user ID, message text, or raw provider event ID.
+
 ## Atomicity Rules
 
 - Social login must create or resolve User, UserIdentity, initial PublicIdentity, and activePublicIdentityId atomically.
 - Public ID activation must atomically update User.activePublicIdentityId and identity status rules.
 - Contact sharing must atomically create ContactExchange and ChatMessage.
 - Reward grant and reward consumption must be transactional and idempotent.
+- LINE webhook event writes must be idempotent by hashed event key.
 - ChatRoomParticipant must store publicIdentityIdAtCreation for every participant.
 - ChatMessage must store senderPublicIdentityId at send time.
 - Report must store both reportedUserId and reportedPublicIdentityId.
@@ -142,5 +150,6 @@ AuditEvent:
 ## Safety Rules
 
 - Raw LINE IDs, Facebook URLs, QR payloads, decrypted external contact fields, provider tokens, ad keys, and push keys must not be copied into ChatMessage.
+- Raw LINE webhook payloads, reply tokens, provider user IDs, message text, and raw provider event IDs must not be stored in LineWebhookEvent.
 - PublicIdentity exists so users can reset public-facing identity without losing safety, audit, report, or block history.
 - ContactExchange is not a chat text payload; it is an authority object with permission, audit, revoke, report, and admin-inspection behavior.

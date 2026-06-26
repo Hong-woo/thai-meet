@@ -5,10 +5,10 @@ Gate 1 production backend persistence replaces the Gate 0 fixture-backed storage
 ## Scope
 
 - Replace `apps/api/src/gate0-fixture-store.mjs` through a fixture store replacement boundary, not by changing mobile routes or response shapes first.
-- Keep `ContactExchange`, `PublicIdentity`, `Report`, `Block`, and `RewardLedger` contract-tested while moving reads and writes to persisted models.
+- Keep `ContactExchange`, `PublicIdentity`, `Report`, `Block`, `RewardLedger`, and `LineWebhookEvent` contract-tested while moving reads and writes to persisted models.
 - Add Prisma migration status checks before a database-backed API can be treated as Gate 1 ready.
 - Keep rollback paths explicit for every migration that touches safety, identity, contact exchange, report, block, or reward data.
-- Keep raw provider values out of `ChatMessage`, logs, smoke JSON, screenshots, generated clients, and API error envelopes.
+- Keep raw provider values out of `ChatMessage`, `LineWebhookEvent`, logs, smoke JSON, screenshots, generated clients, and API error envelopes.
 - Keep `PERSISTENCE_MODE=fixture` as the mock-first local default so `npm test` and first-run smoke can pass without a database.
 
 ## Replacement Order
@@ -16,7 +16,7 @@ Gate 1 production backend persistence replaces the Gate 0 fixture-backed storage
 1. Add Prisma schema and migrations that satisfy `docs/dev/DB_CONSTRAINTS.md`.
 2. Add a persisted store behind the same read boundary used by the current fixture store.
 3. Move read-only endpoints first: OpenAPI stays file-backed, while public identity, discover profiles, and chat rooms can read persisted seed data.
-4. Move write paths after read parity: ContactExchange creation, report, block, Public ID rotation, and reward ledger grants.
+4. Move write paths after read parity: ContactExchange creation, report, block, Public ID rotation, reward ledger grants, and LINE webhook event-key writes.
 5. Keep fixture mode available until local smoke, contract drift, and rollback checks pass against the persisted path.
 
 ## Local Modes
@@ -29,6 +29,8 @@ Gate 1 production backend persistence replaces the Gate 0 fixture-backed storage
 Do not remove fixture mode when adding the database path. Gate 1 should add the persisted store behind the same service boundary, then switch environments by mode only after contract parity is proven.
 
 Current local `PERSISTENCE_MODE=database` has a Gate 0-compatible persisted read store in `apps/api/src/gate1-database-store.mjs`. Without `DATABASE_URL` and a generated Prisma client, database mode still fails closed with `TM_GATE1_DATABASE_CLIENT_UNAVAILABLE` without printing the URL. Prisma schema and the first migration scaffold now exist, and `db:migrate` runs through a Gate 1 preflight wrapper. Without `DATABASE_URL`, migration preflight fails fast with `TM_GATE1_DATABASE_URL_REQUIRED` without printing the URL. Seed parity is planned by `npm run gate1:seed:plan` and checked by `npm run gate1:seed:test`; migration preflight is checked by `npm run gate1:migrate:test`; the database seed writer is `npm run gate1:seed:database` and checked by `npm run gate1:seed:database:test`; store mapping is checked by `npm run gate1:database-store:test`; fixture-vs-database read parity is checked by `npm run gate1:read-parity:test`; persisted write delegation is checked by `npm run gate1:write-path:test`; rollback preflight is checked by `npm run gate1:rollback:test`; live DB smoke is run by `npm run gate1:live-smoke` and preflight-checked by `npm run gate1:live-smoke:test`; CI Postgres smoke is checked by `npm run gate1:ci-postgres:test` and runs migrate, seed, and live smoke in `.github/workflows/contract-drift.yml`. Secret injection and environment provisioning is checked by `npm run gate1:env` and `npm run gate1:env:test`; the preflight reports key presence, placeholder key names, and group status only, with a `keys-only` secret output policy, and rejects combined output modes. Remote GitHub production environment inventory is checked by `npm run gate1:github-env` and `npm run gate1:github-env:test`; it reports configured secret and variable names only, with a `names-only` output policy, its plan points back to the stdin-only apply flow, and it rejects combined output modes. Live deploy rehearsal is planned by `npm run gate1:deploy-rehearsal` and checked by `npm run gate1:deploy-rehearsal:test`; it targets `AWS CI Deploy` without dispatching the workflow automatically, prints the safe remediation command sequence while the protected environment is missing names, and rejects combined output modes. Production rollout checks still gate switching production API reads to the database store.
+
+LINE webhook event-key persistence is separately guarded by `LINE_WEBHOOK_EVENT_STORE_MODE=database`. Leave it unset or `memory` until the `LineWebhookEvent` migration is applied to the target database; default runtime behavior stays verified idempotent no-op counting.
 
 ## Required Checks
 
