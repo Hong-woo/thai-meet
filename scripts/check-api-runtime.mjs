@@ -105,9 +105,8 @@ const child = spawn(process.execPath, ["apps/api/src/server.mjs"], {
     ...process.env,
     API_PORT: "0",
     LINE_CHANNEL_SECRET: lineWebhookSecret,
-    AUTH_PROVIDER_ISSUER: "https://auth.example.invalid/pool",
-    AUTH_PROVIDER_AUDIENCE: "thai-meet-api",
-    AUTH_PROVIDER_TOKEN_URL: fakeCognito.url
+    AUTH_PROVIDER_ISSUER: fakeCognito.issuerUrl,
+    AUTH_PROVIDER_AUDIENCE: "thai-meet-api"
   },
   stdio: ["ignore", "pipe", "pipe"]
 });
@@ -287,6 +286,16 @@ async function fetchAnyJson(port, route, options = {}) {
 
 async function startFakeCognitoTokenEndpoint() {
   const server = http.createServer(async (req, res) => {
+    if (req.method === "GET" && req.url === "/pool/.well-known/openid-configuration") {
+      const address = server.address();
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify({
+        issuer: `http://127.0.0.1:${address.port}/pool`,
+        token_endpoint: `http://127.0.0.1:${address.port}/oauth2/token`
+      }));
+      return;
+    }
+
     if (req.method !== "POST" || req.url !== "/oauth2/token") {
       res.writeHead(404).end();
       return;
@@ -319,6 +328,7 @@ async function startFakeCognitoTokenEndpoint() {
   await once(server, "listening");
   const address = server.address();
   return {
+    issuerUrl: `http://127.0.0.1:${address.port}/pool`,
     url: `http://127.0.0.1:${address.port}/oauth2/token`,
     close: () => new Promise((resolve) => server.close(resolve))
   };
