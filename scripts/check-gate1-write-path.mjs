@@ -32,24 +32,36 @@ const service = createGate0Service({
   async createSafetyBlock() {
     delegated.push(["createSafetyBlock"]);
     return { event: fixture.safetyEvents.find((event) => event.type === "block") };
+  },
+  async acceptLineWebhookEvents(events) {
+    delegated.push(["acceptLineWebhookEvents", events.length]);
+    return {
+      eventCount: events.length,
+      acceptedEventCount: 1,
+      duplicateEventCount: 0,
+      invalidEventCount: 0
+    };
   }
-});
+}, { lineWebhookEventStoreMode: "database" });
 
 await service.createLineContactExchange(fixture.chatRoom.id, null, "available");
 await service.createSafetyReport();
 await service.createSafetyBlock();
+await service.acceptLineWebhookEvents([{ eventKey: "line-webhook-write-key-001", eventType: "message" }]);
 
-assertEqual(delegated.length, 3, "Gate 0 service should delegate write endpoints when store write methods exist");
+assertEqual(delegated.length, 4, "Gate 0 service should delegate write endpoints when store write methods exist");
 assertEqual(delegated[0]?.[0], "createLineContactExchange", "service should delegate contact exchange writes");
 assertEqual(delegated[0]?.[2], "available", "service should pass contact exchange state to store delegate");
 assertEqual(delegated[1]?.[0], "createSafetyReport", "service should delegate report writes");
 assertEqual(delegated[2]?.[0], "createSafetyBlock", "service should delegate block writes");
+assertEqual(delegated[3]?.[0], "acceptLineWebhookEvents", "service should delegate LINE webhook event writes");
 
 const writeClient = createWriteTrackingPrismaClient(fixture);
 const writeStore = createGate1DatabaseStore(root, { client: writeClient.client });
 if (typeof writeStore.createLineContactExchange !== "function") failures.push("database store must expose createLineContactExchange");
 if (typeof writeStore.createSafetyReport !== "function") failures.push("database store must expose createSafetyReport");
 if (typeof writeStore.createSafetyBlock !== "function") failures.push("database store must expose createSafetyBlock");
+if (typeof writeStore.acceptLineWebhookEvents !== "function") failures.push("database store must expose acceptLineWebhookEvents");
 const lineWrite =
   typeof writeStore.createLineContactExchange === "function"
     ? await writeStore.createLineContactExchange(fixture.chatRoom.id, "available")
@@ -62,17 +74,29 @@ const blockWrite =
   typeof writeStore.createSafetyBlock === "function"
     ? await writeStore.createSafetyBlock()
     : { event: {} };
+const lineWebhookWrite =
+  typeof writeStore.acceptLineWebhookEvents === "function"
+    ? await writeStore.acceptLineWebhookEvents([{ eventKey: "line-webhook-write-key-001", eventType: "message" }])
+    : { acceptedEventCount: null };
+const lineWebhookDuplicate =
+  typeof writeStore.acceptLineWebhookEvents === "function"
+    ? await writeStore.acceptLineWebhookEvents([{ eventKey: "line-webhook-write-key-001", eventType: "message" }])
+    : { duplicateEventCount: null };
 
 assertEqual(lineWrite.status, 201, "database store contact exchange write should return HTTP 201 payload");
 assertEqual(lineWrite.payload.contactExchange.id, fixture.contactExchange.id, "database store contact exchange write should return fixture-compatible exchange");
 assertEqual(reportWrite.event.type, "report", "database store report write should return report event");
 assertEqual(blockWrite.event.type, "block", "database store block write should return block event");
+assertEqual(lineWebhookWrite.acceptedEventCount, 1, "database store LINE webhook write should persist new event key");
+assertEqual(lineWebhookDuplicate.duplicateEventCount, 1, "database store LINE webhook write should count duplicate event key");
 assertIncludes(writeClient.operations, "contactExchange.upsert", "database store should upsert ContactExchange");
 assertIncludes(writeClient.operations, "chatMessage.upsert", "database store should upsert ContactExchange chat message");
 assertIncludes(writeClient.operations, "report.upsert", "database store should upsert Report");
 assertIncludes(writeClient.operations, "block.upsert", "database store should upsert Block");
+assertIncludes(writeClient.operations, "lineWebhookEvent.create", "database store should create LineWebhookEvent");
+assertIncludes(writeClient.operations, "lineWebhookEvent.update", "database store should update duplicate LineWebhookEvent");
 
-const writePayload = JSON.stringify([lineWrite, reportWrite, blockWrite, writeClient.operations]);
+const writePayload = JSON.stringify([lineWrite, reportWrite, blockWrite, lineWebhookWrite, lineWebhookDuplicate, writeClient.operations]);
 for (const forbidden of ["mock-line-contact", "facebook.example.invalid/mock-contact"]) {
   if (writePayload.includes(forbidden)) {
     failures.push(`database write path must not expose raw provider value ${forbidden}`);
@@ -217,6 +241,7 @@ function createWriteTrackingPrismaClient(source) {
         return create;
       }
     },
+    lineWebhookEvent: createLineWebhookEventDelegate(operations),
     rewardLedger: {
       async findMany() {
         return source.rewardLedger ?? [];
@@ -228,6 +253,33 @@ function createWriteTrackingPrismaClient(source) {
   };
 
   return { client, operations };
+}
+
+function createLineWebhookEventDelegate(operations) {
+  const rows = new Map();
+  return {
+    async findUnique({ where }) {
+      operations.push("lineWebhookEvent.findUnique");
+      return rows.get(where.eventKey) ?? null;
+    },
+    async create({ data }) {
+      operations.push("lineWebhookEvent.create");
+      const row = { id: `line_webhook_${rows.size + 1}`, duplicateCount: 0, ...data };
+      rows.set(data.eventKey, row);
+      return row;
+    },
+    async update({ where, data }) {
+      operations.push("lineWebhookEvent.update");
+      const row = rows.get(where.eventKey);
+      const updated = {
+        ...row,
+        duplicateCount: row.duplicateCount + (data.duplicateCount?.increment ?? 0),
+        eventType: data.eventType ?? row.eventType
+      };
+      rows.set(where.eventKey, updated);
+      return updated;
+    }
+  };
 }
 
 function toContactExchangeRow(exchange) {

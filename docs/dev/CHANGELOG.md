@@ -2,6 +2,11 @@
 
 Record developer-facing changes that affect local setup, API contracts, generated clients, mobile routes, smoke stages, privacy checks, DB migrations, or safety-sensitive behavior.
 
+## 2026-06-26
+
+- LINE webhook handling now has a Prisma `LineWebhookEvent` migration and database store path for hashed event-key idempotency.
+- LINE webhook database persistence is gated by `LINE_WEBHOOK_EVENT_STORE_MODE=database`; default runtime remains verified in-memory no-op counting until the target database is migrated.
+
 ## 2026-06-15
 
 - Gate 1 environment preflight now fails closed on `replace-with-` placeholders while keeping output keys-only.

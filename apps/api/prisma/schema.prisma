@@ -276,3 +276,16 @@ model AuditEvent {
   @@index([targetUserId, createdAt])
   @@index([eventType, createdAt])
 }
+
+model LineWebhookEvent {
+  id             String          @id @default(cuid())
+  eventKey       String          @unique
+  provider       ContactProvider @default(LINE)
+  eventType      String?
+  duplicateCount Int             @default(0)
+  receivedAt     DateTime        @default(now())
+  lastSeenAt     DateTime        @updatedAt
+
+  @@index([provider, receivedAt])
+  @@index([eventType, receivedAt])
+}

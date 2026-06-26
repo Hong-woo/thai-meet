@@ -19,7 +19,8 @@ const requiredModels = [
   "Report",
   "RewardLedger",
   "RewardConsumption",
-  "AuditEvent"
+  "AuditEvent",
+  "LineWebhookEvent"
 ];
 const requiredEnums = [
   "ContactProvider",
@@ -42,16 +43,19 @@ const requiredMigrationTerms = [
   "CREATE TABLE \"RewardLedger\"",
   "CREATE TABLE \"RewardConsumption\"",
   "CREATE TABLE \"AuditEvent\"",
+  "CREATE TABLE \"LineWebhookEvent\"",
   "CREATE UNIQUE INDEX \"UserIdentity_provider_providerUserId_key\"",
   "CREATE UNIQUE INDEX \"PublicIdentity_publicId_key\"",
   "CREATE UNIQUE INDEX \"ExternalContact_active_provider_key\"",
   "CREATE UNIQUE INDEX \"ChatRoomParticipant_room_user_public_identity_key\"",
   "CREATE UNIQUE INDEX \"Block_blocker_blocked_key\"",
   "CREATE UNIQUE INDEX \"RewardLedger_idempotency_key\"",
+  "CREATE UNIQUE INDEX \"LineWebhookEvent_event_key\"",
   "CREATE INDEX \"ChatMessage_room_created_idx\"",
   "CREATE INDEX \"ChatMessage_sender_public_identity_idx\"",
   "CREATE INDEX \"ContactExchange_status_created_idx\"",
-  "CREATE INDEX \"Report_reported_public_identity_created_idx\""
+  "CREATE INDEX \"Report_reported_public_identity_created_idx\"",
+  "CREATE INDEX \"LineWebhookEvent_provider_received_idx\""
 ];
 const forbiddenPersistenceTerms = [
   "lineRaw",
