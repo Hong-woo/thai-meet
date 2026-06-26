@@ -165,3 +165,21 @@ The `sslip.io` hostname is acceptable as a temporary HTTPS endpoint, but it is n
 2. Open inbound ports `80` and `443` only where needed.
 3. Reissue TLS for the real domain with Certbot or an AWS-managed TLS path.
 4. Replace public IP and `sslip.io` callback/config URLs with HTTPS domain URLs.
+
+Generate the exact cutover checklist after choosing the domain:
+
+```powershell
+npm run gate1:domain:plan -- --domain <real-domain> --certbot-email <email> --json
+```
+
+Run DNS/HTTPS preflight after the A record is live:
+
+```powershell
+npm run gate1:domain -- --domain <real-domain> --expected-ip 15.164.219.139 --json
+```
+
+Then run the signed public smoke against the final URL:
+
+```powershell
+npm run gate1:public-smoke -- --base-url https://<real-domain> --env-file .env.production.local --json
+```
