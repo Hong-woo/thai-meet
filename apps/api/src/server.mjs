@@ -165,7 +165,8 @@ async function exchangeCognitoAuthorizationCode({ code, redirectUri }) {
   const audience = process.env.AUTH_PROVIDER_AUDIENCE || "";
   if (!issuer || !audience) return { status: "config_required" };
 
-  const tokenUrl = process.env.AUTH_PROVIDER_TOKEN_URL || `${issuer}/oauth2/token`;
+  const tokenUrl = await resolveCognitoTokenUrl(issuer);
+  if (!tokenUrl) return { status: "exchange_failed" };
   const body = new URLSearchParams({
     grant_type: "authorization_code",
     code,
@@ -199,6 +200,20 @@ async function exchangeCognitoAuthorizationCode({ code, redirectUri }) {
     };
   } catch {
     return { status: "exchange_failed" };
+  }
+}
+
+async function resolveCognitoTokenUrl(issuer) {
+  if (process.env.AUTH_PROVIDER_TOKEN_URL) return process.env.AUTH_PROVIDER_TOKEN_URL;
+
+  try {
+    const discoveryUrl = `${issuer}/.well-known/openid-configuration`;
+    const response = await fetch(discoveryUrl, { signal: AbortSignal.timeout(5000) });
+    if (!response.ok) return null;
+    const discovery = await response.json();
+    return typeof discovery?.token_endpoint === "string" ? discovery.token_endpoint : null;
+  } catch {
+    return null;
   }
 }
 

@@ -23,8 +23,9 @@ Current configured values:
 - App client ID: `582lqcvt9hs02433o2sppjr84m`
 - Issuer: `https://cognito-idp.ap-northeast-2.amazonaws.com/ap-northeast-2_2q4x5HDnO`
 - JWKS URL: `https://cognito-idp.ap-northeast-2.amazonaws.com/ap-northeast-2_2q4x5HDnO/.well-known/jwks.json`
+- Token endpoint: discovered from OpenID configuration as `https://ap-northeast-22q4x5hdno.auth.ap-northeast-2.amazoncognito.com/oauth2/token`
 
-The API exchanges Cognito authorization codes at the provider token endpoint, returns only a safe authenticated summary, and binds the result to an HTTP-only `tm_session` cookie. It does not print raw provider tokens.
+The API discovers the Cognito token endpoint from the provider OpenID configuration, exchanges authorization codes there, returns only a safe authenticated summary, and binds the result to an HTTP-only `tm_session` cookie. It does not print raw provider tokens.
 
 Cognito callback shape:
 
