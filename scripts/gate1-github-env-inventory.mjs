@@ -45,6 +45,7 @@ const variableNames = new Set([
   "AWS_REGION",
   "S3_BUCKET_PUBLIC_ASSETS",
   "PERSISTENCE_MODE",
+  "LINE_WEBHOOK_EVENT_STORE_MODE",
   "EC2_HOST",
   "EC2_USER",
   "EC2_APP_DIR",
@@ -66,7 +67,8 @@ const groups = {
     "AWS_REGION",
     "S3_BUCKET_PUBLIC_ASSETS",
     "PERSISTENCE_MODE",
-    "DATABASE_URL"
+    "DATABASE_URL",
+    "LINE_WEBHOOK_EVENT_STORE_MODE"
   ]),
   awsDeploy: checkNames([
     "EC2_HOST",

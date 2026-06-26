@@ -39,6 +39,9 @@ try {
   if (!missingJson?.groups?.productionRuntime?.missingNames?.includes("DATABASE_URL")) {
     failures.push("missing github env inventory must include DATABASE_URL under productionRuntime missingNames");
   }
+  if (!missingJson?.groups?.productionRuntime?.missingNames?.includes("LINE_WEBHOOK_EVENT_STORE_MODE")) {
+    failures.push("missing github env inventory must include LINE_WEBHOOK_EVENT_STORE_MODE under productionRuntime missingNames");
+  }
   if (!missingJson?.groups?.awsDeploy?.missingNames?.includes("EC2_HOST")) {
     failures.push("missing github env inventory must include EC2_HOST under awsDeploy missingNames");
   }
@@ -86,6 +89,9 @@ try {
   if (!planResult.stdout.includes("gh secret set DATABASE_URL --env production --body '<DATABASE_URL>'")) {
     failures.push("github env provisioning plan must include DATABASE_URL secret set command with placeholder");
   }
+  if (!planResult.stdout.includes("gh variable set LINE_WEBHOOK_EVENT_STORE_MODE --env production --body '<LINE_WEBHOOK_EVENT_STORE_MODE>'")) {
+    failures.push("github env provisioning plan must include LINE webhook event store mode variable set command with placeholder");
+  }
   if (!planResult.stdout.includes("gh variable set EC2_SERVICE_NAME --env production --body '<EC2_SERVICE_NAME>'")) {
     failures.push("github env provisioning plan must include EC2 service variable set command with placeholder");
   }
@@ -120,6 +126,7 @@ try {
     "S3_BUCKET_PUBLIC_ASSETS",
     "PERSISTENCE_MODE",
     "DATABASE_URL",
+    "LINE_WEBHOOK_EVENT_STORE_MODE",
     "EC2_HOST",
     "EC2_USER",
     "EC2_SSH_PRIVATE_KEY_B64",
