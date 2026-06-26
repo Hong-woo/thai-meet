@@ -131,6 +131,8 @@ gh run watch <run-id> --interval 15
 
 The workflow builds `apps/api/Dockerfile`, packages the image with `docker save`, copies the archive to EC2, loads it, tags `thai-meet-api:latest`, and restarts `thai-meet-api`.
 
+The API image must include production Prisma runtime dependencies and a generated Prisma client before enabling runtime database-only features such as `LINE_WEBHOOK_EVENT_STORE_MODE=database`.
+
 ## Verify
 
 EC2 local checks:
