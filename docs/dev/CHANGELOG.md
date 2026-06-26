@@ -4,6 +4,7 @@ Record developer-facing changes that affect local setup, API contracts, generate
 
 ## 2026-06-27
 
+- Added `gate1:domain` to verify real-domain DNS, HTTPS health, and provider callback URL replacements before moving off temporary `sslip.io`.
 - Added `gate1:public-smoke` to verify deployed health, Cognito callback fail-closed behavior, and signed LINE webhook idempotency without printing provider secrets.
 - Cognito callback now exchanges authorization codes at the provider token endpoint, returns only a safe authenticated summary, and binds the result to an HTTP-only `tm_session` cookie.
 - Cognito callback token exchange now uses OpenID discovery for the provider `token_endpoint` instead of assuming the issuer URL is the OAuth token host.

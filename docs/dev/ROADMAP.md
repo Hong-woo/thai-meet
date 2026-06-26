@@ -22,6 +22,7 @@ Next execution order:
 1. Real domain hardening.
    - Point a real domain or subdomain at the EC2 public IP.
    - Reissue TLS with Certbot or an AWS-managed TLS path.
+   - Verify DNS and HTTPS health with `npm run gate1:domain -- --domain <real-domain> --expected-ip 15.164.219.139 --json`.
    - Replace public-IP and `sslip.io` callback/config URLs with HTTPS domain URLs.
 
 2. Provider callback routes.
