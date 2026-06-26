@@ -2,6 +2,10 @@
 
 Record developer-facing changes that affect local setup, API contracts, generated clients, mobile routes, smoke stages, privacy checks, DB migrations, or safety-sensitive behavior.
 
+## 2026-06-27
+
+- Gate 1 environment preflight now requires production RDS URLs to include `sslmode=require&uselibpqcompat=true` and requires `LINE_WEBHOOK_EVENT_STORE_MODE=database` for production runtime readiness.
+
 ## 2026-06-26
 
 - API Docker image now installs production Node dependencies, generates Prisma Client, and prunes dev dependencies so database-backed runtime features can load Prisma in production.

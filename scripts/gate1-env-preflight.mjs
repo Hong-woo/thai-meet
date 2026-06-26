@@ -42,13 +42,18 @@ const groups = {
       "AWS_REGION",
       "S3_BUCKET_PUBLIC_ASSETS",
       "PERSISTENCE_MODE",
-      "DATABASE_URL"
+      "DATABASE_URL",
+      "LINE_WEBHOOK_EVENT_STORE_MODE"
     ],
     expectedValues: {
       AUTH_MODE: "production",
       LINE_PROVIDER_MODE: "production",
       OBJECT_STORAGE_MODE: "s3",
-      PERSISTENCE_MODE: "database"
+      PERSISTENCE_MODE: "database",
+      LINE_WEBHOOK_EVENT_STORE_MODE: "database"
+    },
+    validators: {
+      DATABASE_URL: validateDatabaseUrl
     }
   }),
   awsDeploy: checkGroup({
@@ -97,7 +102,7 @@ if (jsonMode) {
 
 process.exit(summary.status === "ready" ? 0 : 1);
 
-function checkGroup({ requiredKeys, expectedValues = {} }) {
+function checkGroup({ requiredKeys, expectedValues = {}, validators = {} }) {
   const missingKeys = [];
   const invalidKeys = [];
   const placeholderKeys = [];
@@ -110,6 +115,12 @@ function checkGroup({ requiredKeys, expectedValues = {} }) {
 
   for (const [key, expected] of Object.entries(expectedValues)) {
     if (env[key] && env[key] !== expected) {
+      invalidKeys.push(key);
+    }
+  }
+
+  for (const [key, validate] of Object.entries(validators)) {
+    if (env[key] && !validate(env[key])) {
       invalidKeys.push(key);
     }
   }
@@ -128,6 +139,20 @@ function checkGroup({ requiredKeys, expectedValues = {} }) {
     invalidKeys,
     placeholderKeys
   };
+}
+
+function validateDatabaseUrl(value) {
+  try {
+    const url = new URL(value);
+    const protocol = url.protocol.replace(/:$/, "");
+    return (
+      (protocol === "postgresql" || protocol === "postgres") &&
+      url.searchParams.get("sslmode") === "require" &&
+      url.searchParams.get("uselibpqcompat") === "true"
+    );
+  } catch {
+    return false;
+  }
 }
 
 async function readEnvFile(filePath) {

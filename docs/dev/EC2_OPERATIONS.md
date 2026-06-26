@@ -7,7 +7,7 @@ Gate 1 production runtime currently runs on one AWS Free Tier EC2 instance, back
 - Temporary HTTPS health URL: `https://15-164-219-139.sslip.io/health`
 - HTTP redirects to HTTPS: `http://15-164-219-139.sslip.io/health`
 - Raw public IP health URL: `http://15.164.219.139/health`
-- Runtime mode: `AUTH_MODE=production`, `PERSISTENCE_MODE=database`
+- Runtime mode: `AUTH_MODE=production`, `PERSISTENCE_MODE=database`, `LINE_WEBHOOK_EVENT_STORE_MODE=database`
 - EC2 app directory: `/opt/thai-meet`
 - systemd service: `thai-meet-api`
 - Container image tag used by service: `thai-meet-api:latest`
@@ -20,7 +20,7 @@ Gate 1 production runtime currently runs on one AWS Free Tier EC2 instance, back
 Gate 1 deploy requires these protected GitHub `production` environment names:
 
 - Variables: `AUTH_MODE`, `AUTH_PROVIDER_JWKS_URL`, `AUTH_PROVIDER_ISSUER`, `AUTH_PROVIDER_AUDIENCE`
-- Variables: `LINE_PROVIDER_MODE`, `LINE_CHANNEL_ID`, `OBJECT_STORAGE_MODE`, `AWS_REGION`, `S3_BUCKET_PUBLIC_ASSETS`, `PERSISTENCE_MODE`
+- Variables: `LINE_PROVIDER_MODE`, `LINE_CHANNEL_ID`, `OBJECT_STORAGE_MODE`, `AWS_REGION`, `S3_BUCKET_PUBLIC_ASSETS`, `PERSISTENCE_MODE`, `LINE_WEBHOOK_EVENT_STORE_MODE`
 - Variables: `EC2_HOST`, `EC2_USER`, `EC2_APP_DIR`, `EC2_SERVICE_NAME`
 - Variables: `THAI_MEET_UPLOAD_KEYSTORE`, `THAI_MEET_UPLOAD_KEY_ALIAS`
 - Secrets: `LINE_CHANNEL_SECRET`, `DATABASE_URL`, `EC2_SSH_PRIVATE_KEY_B64`
@@ -56,6 +56,8 @@ sudo mkdir -p /opt/thai-meet
 sudo chown root:root /opt/thai-meet/runtime.env
 sudo chmod 600 /opt/thai-meet/runtime.env
 ```
+
+For RDS PostgreSQL runtime access, `DATABASE_URL` in `runtime.env` must include `sslmode=require&uselibpqcompat=true`. Keep `LINE_WEBHOOK_EVENT_STORE_MODE=database` only after the `LineWebhookEvent` migration is applied and Prisma runtime is present in the API image.
 
 `/etc/systemd/system/thai-meet-api.service`:
 

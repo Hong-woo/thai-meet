@@ -31,6 +31,9 @@ if (missingJson?.status !== "not_ready") {
 if (!missingJson?.groups?.productionRuntime?.missingKeys?.includes("DATABASE_URL")) {
   failures.push("missing gate1 env preflight must include DATABASE_URL under productionRuntime missingKeys");
 }
+if (!missingJson?.groups?.productionRuntime?.missingKeys?.includes("LINE_WEBHOOK_EVENT_STORE_MODE")) {
+  failures.push("missing gate1 env preflight must include LINE_WEBHOOK_EVENT_STORE_MODE under productionRuntime missingKeys");
+}
 if (!missingJson?.groups?.awsDeploy?.missingKeys?.includes("EC2_HOST")) {
   failures.push("missing gate1 env preflight must include EC2_HOST under awsDeploy missingKeys");
 }
@@ -53,7 +56,8 @@ const readyEnv = {
   AWS_REGION: "ap-southeast-1",
   S3_BUCKET_PUBLIC_ASSETS: "thai-meet-public-assets",
   PERSISTENCE_MODE: "database",
-  DATABASE_URL: "postgresql://user:gate1_db_secret@example.invalid:5432/thai_meet",
+  DATABASE_URL: "postgresql://user:gate1_db_secret@example.invalid:5432/thai_meet?sslmode=require&uselibpqcompat=true",
+  LINE_WEBHOOK_EVENT_STORE_MODE: "database",
   EC2_HOST: "ec2.example.invalid",
   EC2_USER: "ec2-user",
   EC2_SSH_PRIVATE_KEY_B64: "Z2F0ZTFfc3NoX3ByaXZhdGVfa2V5",
@@ -88,6 +92,23 @@ if (readyJson?.groups?.androidRelease?.status !== "ready") {
 }
 assertNoSecretValues(readyResult.stdout, "ready preflight stdout");
 assertNoSecretValues(readyResult.stderr, "ready preflight stderr");
+
+const missingSslDatabaseUrlResult = runPreflight({
+  env: {
+    ...readyEnv,
+    DATABASE_URL: "postgresql://user:gate1_db_secret@example.invalid:5432/thai_meet"
+  },
+  args: ["--json"]
+});
+if (missingSslDatabaseUrlResult.status === 0) {
+  failures.push("gate1 env preflight must fail when DATABASE_URL omits RDS SSL options");
+}
+const missingSslDatabaseUrlJson = parseJson(missingSslDatabaseUrlResult.stdout, "missing ssl database url preflight stdout");
+if (!missingSslDatabaseUrlJson?.groups?.productionRuntime?.invalidKeys?.includes("DATABASE_URL")) {
+  failures.push("gate1 env preflight must mark DATABASE_URL invalid when RDS SSL options are missing");
+}
+assertNoSecretValues(missingSslDatabaseUrlResult.stdout, "missing ssl database url preflight stdout");
+assertNoSecretValues(missingSslDatabaseUrlResult.stderr, "missing ssl database url preflight stderr");
 
 const fieldResult = runPreflight({ env: readyEnv, args: ["--field", "groups.awsDeploy.status"] });
 if (fieldResult.status !== 0 || fieldResult.stdout.trim() !== "ready") {
@@ -138,7 +159,8 @@ try {
     "AWS_REGION=ap-southeast-1",
     "S3_BUCKET_PUBLIC_ASSETS=thai-meet-public-assets",
     "PERSISTENCE_MODE=database",
-    "DATABASE_URL=postgresql://user:gate1_db_secret@example.invalid:5432/thai_meet",
+    "DATABASE_URL=postgresql://user:gate1_db_secret@example.invalid:5432/thai_meet?sslmode=require&uselibpqcompat=true",
+    "LINE_WEBHOOK_EVENT_STORE_MODE=database",
     "EC2_HOST=ec2.example.invalid",
     "EC2_USER=ec2-user",
     "EC2_SSH_PRIVATE_KEY_B64=Z2F0ZTFfc3NoX3ByaXZhdGVfa2V5",
@@ -179,6 +201,7 @@ try {
     "S3_BUCKET_PUBLIC_ASSETS=replace-with-s3-bucket",
     "PERSISTENCE_MODE=database",
     "DATABASE_URL=replace-with-postgresql-database-url",
+    "LINE_WEBHOOK_EVENT_STORE_MODE=database",
     "EC2_HOST=replace-with-ec2-host",
     "EC2_USER=replace-with-ec2-user",
     "EC2_SSH_PRIVATE_KEY_B64=replace-with-ec2-ssh-private-key-b64",
@@ -247,6 +270,7 @@ function scrubGate1Env(env) {
     "S3_BUCKET_PUBLIC_ASSETS",
     "PERSISTENCE_MODE",
     "DATABASE_URL",
+    "LINE_WEBHOOK_EVENT_STORE_MODE",
     "EC2_HOST",
     "EC2_USER",
     "EC2_SSH_PRIVATE_KEY_B64",
