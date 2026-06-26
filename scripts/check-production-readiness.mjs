@@ -14,6 +14,7 @@ await requireFile("docs/dev/CI.md");
 await requireFile("docs/dev/PRODUCTION_GAPS.md");
 await requireFile("docs/dev/RELEASE_SIGNING.md");
 await requireFile("apps/mobile/android/app/build.gradle.kts");
+await requireFile("apps/api/Dockerfile");
 
 const envExample = await readText(".env.example");
 const ci = await readText("docs/dev/CI.md");
@@ -22,6 +23,7 @@ const designStatus = await readText("docs/dev/DESIGN_STATUS.md");
 const releaseSigning = await readText("docs/dev/RELEASE_SIGNING.md");
 const gradle = await readText("apps/mobile/android/app/build.gradle.kts");
 const awsWorkflow = await readText(".github/workflows/aws-ci-deploy.yml");
+const apiDockerfile = await readText("apps/api/Dockerfile");
 const manifest = createProductionIntegrationManifest({
   AUTH_MODE: "production",
   AUTH_PROVIDER_JWKS_URL: "https://auth.example.invalid/.well-known/jwks.json",
@@ -71,6 +73,17 @@ for (const marker of [
   "secrets.EC2_SERVICE_NAME || vars.EC2_SERVICE_NAME"
 ]) {
   assertIncludes(awsWorkflow, marker, `AWS workflow must guard deploy with ${marker}`);
+}
+
+for (const marker of [
+  "PRISMA_SKIP_POSTINSTALL_GENERATE=1",
+  "COPY apps/api/prisma apps/api/prisma",
+  "COPY prisma.config.ts ./",
+  "npm install",
+  "npx prisma generate --config prisma.config.ts",
+  "npm prune --omit=dev"
+]) {
+  assertIncludes(apiDockerfile, marker, `API Dockerfile must include ${marker}`);
 }
 
 for (const marker of [

@@ -4,6 +4,7 @@ Record developer-facing changes that affect local setup, API contracts, generate
 
 ## 2026-06-26
 
+- API Docker image now installs production Node dependencies, generates Prisma Client, and prunes dev dependencies so database-backed runtime features can load Prisma in production.
 - LINE webhook handling now has a Prisma `LineWebhookEvent` migration and database store path for hashed event-key idempotency.
 - LINE webhook database persistence is gated by `LINE_WEBHOOK_EVENT_STORE_MODE=database`; default runtime remains verified in-memory no-op counting until the target database is migrated.
 
