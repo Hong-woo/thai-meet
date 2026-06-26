@@ -3,8 +3,10 @@ import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import {
+  authCallbackAccepted,
   authCallbackCodeRequired,
-  authCallbackNotImplemented,
+  authCallbackConfigRequired,
+  authCallbackTokenExchangeFailed,
   createGate0Service,
   databaseClientUnavailable,
   databaseStoreNotScaffolded,
@@ -52,7 +54,22 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
-      sendJson(res, 501, authCallbackNotImplemented());
+      const callbackResult = await exchangeCognitoAuthorizationCode({
+        code: url.searchParams.get("code"),
+        redirectUri: buildCallbackRedirectUri(req, url)
+      });
+      if (callbackResult.status === "config_required") {
+        sendJson(res, 503, authCallbackConfigRequired());
+        return;
+      }
+      if (callbackResult.status === "exchange_failed") {
+        sendJson(res, 502, authCallbackTokenExchangeFailed());
+        return;
+      }
+
+      sendJson(res, 200, authCallbackAccepted(callbackResult.session), {
+        "set-cookie": buildSessionCookie(callbackResult.session)
+      });
       return;
     }
 
@@ -138,9 +155,70 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-function sendJson(res, status, payload) {
-  res.writeHead(status, { "content-type": "application/json; charset=utf-8" });
+function sendJson(res, status, payload, extraHeaders = {}) {
+  res.writeHead(status, { "content-type": "application/json; charset=utf-8", ...extraHeaders });
   res.end(JSON.stringify(payload, null, 2));
+}
+
+async function exchangeCognitoAuthorizationCode({ code, redirectUri }) {
+  const issuer = (process.env.AUTH_PROVIDER_ISSUER || "").replace(/\/$/, "");
+  const audience = process.env.AUTH_PROVIDER_AUDIENCE || "";
+  if (!issuer || !audience) return { status: "config_required" };
+
+  const tokenUrl = process.env.AUTH_PROVIDER_TOKEN_URL || `${issuer}/oauth2/token`;
+  const body = new URLSearchParams({
+    grant_type: "authorization_code",
+    code,
+    client_id: audience,
+    redirect_uri: redirectUri
+  });
+
+  const headers = { "content-type": "application/x-www-form-urlencoded" };
+  const clientSecret = process.env.AUTH_PROVIDER_CLIENT_SECRET || "";
+  if (clientSecret) {
+    headers.authorization = `Basic ${Buffer.from(`${audience}:${clientSecret}`).toString("base64")}`;
+  }
+
+  try {
+    const response = await fetch(tokenUrl, { method: "POST", headers, body });
+    if (!response.ok) return { status: "exchange_failed" };
+    const token = await response.json();
+    if (!token?.id_token && !token?.access_token) return { status: "exchange_failed" };
+
+    const expiresInSeconds = Number.isFinite(Number(token.expires_in)) ? Number(token.expires_in) : 3600;
+    const material = [token.id_token, token.access_token, token.refresh_token].filter(Boolean).join(".");
+    const sessionId = crypto.createHash("sha256").update(material).digest("hex");
+    return {
+      status: "ok",
+      session: {
+        sessionId,
+        expiresInSeconds,
+        tokenType: typeof token.token_type === "string" ? token.token_type : "Bearer",
+        hasRefreshToken: Boolean(token.refresh_token)
+      }
+    };
+  } catch {
+    return { status: "exchange_failed" };
+  }
+}
+
+function buildCallbackRedirectUri(req, url) {
+  if (process.env.AUTH_CALLBACK_COGNITO_REDIRECT_URI) return process.env.AUTH_CALLBACK_COGNITO_REDIRECT_URI;
+  const proto = String(req.headers["x-forwarded-proto"] || "http").split(",")[0].trim() || "http";
+  const host = req.headers["x-forwarded-host"] || req.headers.host || "localhost";
+  return `${proto}://${host}${url.pathname}`;
+}
+
+function buildSessionCookie(session) {
+  const maxAge = Math.max(60, Math.min(Number(session.expiresInSeconds) || 3600, 86400));
+  return [
+    `tm_session=${session.sessionId}`,
+    "HttpOnly",
+    "Secure",
+    "SameSite=Lax",
+    "Path=/",
+    `Max-Age=${maxAge}`
+  ].join("; ");
 }
 
 async function readBody(req) {

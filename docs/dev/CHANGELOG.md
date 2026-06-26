@@ -4,6 +4,7 @@ Record developer-facing changes that affect local setup, API contracts, generate
 
 ## 2026-06-27
 
+- Cognito callback now exchanges authorization codes at the provider token endpoint, returns only a safe authenticated summary, and binds the result to an HTTP-only `tm_session` cookie.
 - Gate 1 environment preflight now requires production RDS URLs to include `sslmode=require&uselibpqcompat=true` and requires `LINE_WEBHOOK_EVENT_STORE_MODE=database` for production runtime readiness.
 
 ## 2026-06-26

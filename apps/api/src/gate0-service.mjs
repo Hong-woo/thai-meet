@@ -157,6 +157,43 @@ export function authCallbackNotImplemented() {
   });
 }
 
+export function authCallbackConfigRequired() {
+  return apiError({
+    type: "system_error",
+    code: "TM_API_AUTH_CALLBACK_CONFIG_REQUIRED",
+    message: "Cognito callback requires provider issuer and audience configuration.",
+    param: "AUTH_PROVIDER_ISSUER",
+    docRef: "docs/dev/PROVIDER_CONSOLE_SETTINGS.md#cognito"
+  });
+}
+
+export function authCallbackTokenExchangeFailed() {
+  return apiError({
+    type: "provider_error",
+    code: "TM_API_AUTH_CALLBACK_TOKEN_EXCHANGE_FAILED",
+    message: "Cognito authorization code exchange failed.",
+    param: "code",
+    docRef: "docs/dev/PROVIDER_CONSOLE_SETTINGS.md#cognito"
+  });
+}
+
+export function authCallbackAccepted({ sessionId, expiresInSeconds, tokenType, hasRefreshToken }) {
+  return {
+    status: "authenticated",
+    provider: "Cognito",
+    session: {
+      id: sessionId,
+      expiresInSeconds
+    },
+    tokenSummary: {
+      tokenType,
+      expiresInSeconds,
+      hasRefreshToken
+    },
+    message: "Cognito authorization code exchanged and bound to an HTTP-only session cookie."
+  };
+}
+
 export function lineWebhookSignatureRequired() {
   return apiError({
     type: "auth_error",
