@@ -83,3 +83,15 @@ Before provider console callback URLs can be used in public production, verify:
 3. Optional later: `GET /auth/callback/line`
 
 After a real domain exists, replace every `sslip.io` URL in provider settings with the final HTTPS domain.
+
+Run the domain preflight before editing provider consoles:
+
+```bash
+npm run gate1:domain -- --domain <real-domain> --expected-ip 15.164.219.139 --json
+```
+
+Then run the full public smoke against that domain:
+
+```bash
+npm run gate1:public-smoke -- --base-url https://<real-domain> --env-file .env.production.local --json
+```
