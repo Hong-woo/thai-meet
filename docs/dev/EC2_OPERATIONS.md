@@ -152,7 +152,10 @@ Public checks:
 ```powershell
 Invoke-RestMethod -Uri "http://15.164.219.139/health"
 Invoke-RestMethod -Uri "https://15-164-219-139.sslip.io/health"
+npm run gate1:public-smoke -- --base-url https://15-164-219-139.sslip.io --env-file .env.production.local --json
 ```
+
+`gate1:public-smoke` verifies public health, Cognito callback fail-closed behavior, and signed LINE webhook idempotency without printing provider secrets or raw webhook payloads.
 
 ## Next Hardening
 

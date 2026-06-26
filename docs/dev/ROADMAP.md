@@ -14,6 +14,7 @@ Current Gate 1 infrastructure state:
 2. Live deploy rehearsal: complete on EC2.
    - `AWS CI Deploy` builds the API image, copies it to EC2, loads Docker, and restarts `thai-meet-api`.
    - Temporary HTTPS health is available at `https://15-164-219-139.sslip.io/health`.
+   - `npm run gate1:public-smoke` verifies public health, Cognito callback fail-closed behavior, and signed LINE webhook idempotency.
    - EC2 operational steps live in `docs/dev/EC2_OPERATIONS.md`.
 
 Next execution order:
