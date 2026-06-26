@@ -26,6 +26,9 @@ API error codes:
 - `TM_API_CONTACT_EXCHANGE_REPORTED` - contact exchange has already been reported.
 - `TM_API_CONTACT_EXCHANGE_BLOCKED` - contact exchange is blocked.
 - `TM_API_CONTACT_PROVIDER_UNAVAILABLE` - provider is temporarily unavailable.
+- `TM_API_AUTH_CALLBACK_CODE_REQUIRED` - Cognito callback did not include an authorization code.
+- `TM_API_AUTH_CALLBACK_CONFIG_REQUIRED` - Cognito callback is missing issuer or audience configuration.
+- `TM_API_AUTH_CALLBACK_TOKEN_EXCHANGE_FAILED` - Cognito authorization code exchange failed.
 
 Smoke doctor codes:
 

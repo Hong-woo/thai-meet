@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import crypto from "node:crypto";
 import { once } from "node:events";
 import { readFile } from "node:fs/promises";
+import http from "node:http";
 import path from "node:path";
 import { createGate0StoreFromEnv } from "../apps/api/src/gate0-store-factory.mjs";
 
@@ -97,9 +98,17 @@ assertThrows(
   "Gate 0 store factory must fail closed for unknown persistence modes"
 );
 
+const fakeCognito = await startFakeCognitoTokenEndpoint();
 const child = spawn(process.execPath, ["apps/api/src/server.mjs"], {
   cwd: root,
-  env: { ...process.env, API_PORT: "0", LINE_CHANNEL_SECRET: lineWebhookSecret },
+  env: {
+    ...process.env,
+    API_PORT: "0",
+    LINE_CHANNEL_SECRET: lineWebhookSecret,
+    AUTH_PROVIDER_ISSUER: "https://auth.example.invalid/pool",
+    AUTH_PROVIDER_AUDIENCE: "thai-meet-api",
+    AUTH_PROVIDER_TOKEN_URL: fakeCognito.url
+  },
   stdio: ["ignore", "pipe", "pipe"]
 });
 
@@ -129,9 +138,20 @@ try {
     failures.push("Cognito callback route must fail closed when code is missing");
   }
 
-  const cognitoReserved = await fetchAnyJson(port, "/auth/callback/cognito?code=test-code");
-  if (cognitoReserved.status !== 501 || cognitoReserved.payload?.error?.code !== "TM_API_AUTH_CALLBACK_NOT_IMPLEMENTED") {
-    failures.push("Cognito callback route must reserve token exchange with 501 until implemented");
+  const cognitoCallback = await fetchAnyJson(port, "/auth/callback/cognito?code=test-code", {
+    headers: { "x-forwarded-proto": "https", "x-forwarded-host": "thai-meet.example.invalid" }
+  });
+  if (cognitoCallback.status !== 200 || cognitoCallback.payload?.status !== "authenticated" || cognitoCallback.payload?.provider !== "Cognito") {
+    failures.push("Cognito callback route must exchange authorization codes and return a safe authenticated summary");
+  }
+  if (!cognitoCallback.headers.get("set-cookie")?.includes("tm_session=") || !cognitoCallback.headers.get("set-cookie")?.includes("HttpOnly")) {
+    failures.push("Cognito callback route must bind the exchanged code to an HTTP-only session cookie");
+  }
+  const cognitoCallbackText = JSON.stringify(cognitoCallback.payload);
+  for (const rawToken of ["test-id-token", "test-access-token", "test-refresh-token"]) {
+    if (cognitoCallbackText.includes(rawToken)) {
+      failures.push("Cognito callback route must not print raw provider tokens");
+    }
   }
 
   const unsignedLineWebhook = await fetchAnyJson(port, "/webhooks/line", { method: "POST", body: "{}" });
@@ -170,6 +190,7 @@ try {
   failures.push(`API runtime check failed: ${error.message}`);
 } finally {
   await stopChild(child);
+  await fakeCognito.close();
 }
 
 const databaseChild = spawn(process.execPath, ["apps/api/src/server.mjs"], {
@@ -259,7 +280,47 @@ async function fetchAnyJson(port, route, options = {}) {
   const response = await fetch(`http://127.0.0.1:${port}${route}`, options);
   return {
     status: response.status,
+    headers: response.headers,
     payload: await response.json()
+  };
+}
+
+async function startFakeCognitoTokenEndpoint() {
+  const server = http.createServer(async (req, res) => {
+    if (req.method !== "POST" || req.url !== "/oauth2/token") {
+      res.writeHead(404).end();
+      return;
+    }
+
+    let body = "";
+    for await (const chunk of req) body += chunk;
+    const params = new URLSearchParams(body);
+    if (
+      params.get("grant_type") !== "authorization_code" ||
+      params.get("code") !== "test-code" ||
+      params.get("client_id") !== "thai-meet-api" ||
+      params.get("redirect_uri") !== "https://thai-meet.example.invalid/auth/callback/cognito"
+    ) {
+      res.writeHead(400, { "content-type": "application/json" });
+      res.end(JSON.stringify({ error: "invalid_request" }));
+      return;
+    }
+
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify({
+      token_type: "Bearer",
+      expires_in: 3600,
+      id_token: "test-id-token",
+      access_token: "test-access-token",
+      refresh_token: "test-refresh-token"
+    }));
+  });
+  server.listen(0, "127.0.0.1");
+  await once(server, "listening");
+  const address = server.address();
+  return {
+    url: `http://127.0.0.1:${address.port}/oauth2/token`,
+    close: () => new Promise((resolve) => server.close(resolve))
   };
 }
 

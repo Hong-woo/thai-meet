@@ -48,9 +48,9 @@ for (const route of ["cognitoCallbackPath", "lineWebhookPath"]) {
 }
 
 const cognitoResponses = openApi.paths?.["/auth/callback/cognito"]?.get?.responses || {};
-if (!cognitoResponses["400"] || !cognitoResponses["501"]) {
+if (!cognitoResponses["200"] || !cognitoResponses["400"] || !cognitoResponses["502"] || !cognitoResponses["503"]) {
   console.error("TM_CONTRACT_OPENAPI_STALE");
-  console.error("- Cognito callback OpenAPI must fail closed with 400 and 501 responses");
+  console.error("- Cognito callback OpenAPI must expose 200 success plus 400, 502, and 503 fail-closed responses");
   process.exit(1);
 }
 

@@ -24,11 +24,10 @@ Next execution order:
    - Replace public-IP and `sslip.io` callback/config URLs with HTTPS domain URLs.
 
 2. Provider callback routes.
-   - Reserved fail-closed route shell exists for `GET /auth/callback/cognito`.
+   - Cognito token exchange and HTTP-only session cookie binding exists for `GET /auth/callback/cognito`.
    - Verified idempotent route exists for `POST /webhooks/line`.
    - LINE event-key persistence is schema-backed and guarded by `LINE_WEBHOOK_EVENT_STORE_MODE=database`.
-   - Implement Cognito token exchange and session binding.
-   - Apply the `LineWebhookEvent` migration and enable database-backed LINE event handling.
+   - Production RDS has the `LineWebhookEvent` migration applied and database-backed LINE event handling enabled.
    - Keep LINE Login callback separate from Messaging API webhook setup.
    - Use `docs/dev/PROVIDER_CONSOLE_SETTINGS.md` as the console setup checklist.
 

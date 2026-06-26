@@ -24,7 +24,7 @@ Current configured values:
 - Issuer: `https://cognito-idp.ap-northeast-2.amazonaws.com/ap-northeast-2_2q4x5HDnO`
 - JWKS URL: `https://cognito-idp.ap-northeast-2.amazonaws.com/ap-northeast-2_2q4x5HDnO/.well-known/jwks.json`
 
-The API now reserves the Cognito callback route, but token exchange is not implemented yet. Keep this out of public production traffic until `TM_API_AUTH_CALLBACK_NOT_IMPLEMENTED` is replaced by a real token exchange flow.
+The API exchanges Cognito authorization codes at the provider token endpoint, returns only a safe authenticated summary, and binds the result to an HTTP-only `tm_session` cookie. It does not print raw provider tokens.
 
 Cognito callback shape:
 
@@ -71,13 +71,13 @@ These routes are live today:
 - `POST /api/v1/safety/reports`
 - `POST /api/v1/safety/blocks`
 
-The provider routes expose stable paths. Cognito still fails closed until token exchange exists. LINE verifies signatures and accepts verified payloads with idempotent counting; database-backed event-key persistence is gated by `LINE_WEBHOOK_EVENT_STORE_MODE=database`.
+The provider routes expose stable paths. Cognito exchanges authorization codes and fails closed when provider configuration or token exchange fails. LINE verifies signatures and accepts verified payloads with idempotent counting; database-backed event-key persistence is gated by `LINE_WEBHOOK_EVENT_STORE_MODE=database`.
 
 ## Next Implementation Step
 
-Before provider console callback URLs can be used in public production, implement and contract-test:
+Before provider console callback URLs can be used in public production, verify:
 
-1. Cognito token exchange and session binding behind `GET /auth/callback/cognito`.
+1. Cognito hosted UI callback URL is set to the final HTTPS domain route.
 2. Apply the `LineWebhookEvent` migration to the production database, then enable `LINE_WEBHOOK_EVENT_STORE_MODE=database`.
 3. Optional later: `GET /auth/callback/line`
 

@@ -81,6 +81,75 @@
           }
         ],
         "responses": {
+          "200": {
+            "description": "Cognito authorization code exchanged and bound to an HTTP-only session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "provider",
+                    "session",
+                    "tokenSummary"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "authenticated"
+                      ]
+                    },
+                    "provider": {
+                      "type": "string",
+                      "enum": [
+                        "Cognito"
+                      ]
+                    },
+                    "session": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "expiresInSeconds"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "expiresInSeconds": {
+                          "type": "integer",
+                          "minimum": 60
+                        }
+                      }
+                    },
+                    "tokenSummary": {
+                      "type": "object",
+                      "required": [
+                        "tokenType",
+                        "expiresInSeconds",
+                        "hasRefreshToken"
+                      ],
+                      "properties": {
+                        "tokenType": {
+                          "type": "string"
+                        },
+                        "expiresInSeconds": {
+                          "type": "integer",
+                          "minimum": 60
+                        },
+                        "hasRefreshToken": {
+                          "type": "boolean"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
           "400": {
             "description": "Cognito callback authorization code is missing",
             "content": {
@@ -91,8 +160,18 @@
               }
             }
           },
-          "501": {
-            "description": "Cognito callback token exchange is not implemented yet",
+          "502": {
+            "description": "Cognito callback token exchange failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Cognito callback provider configuration is missing",
             "content": {
               "application/json": {
                 "schema": {
