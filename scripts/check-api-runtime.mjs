@@ -122,6 +122,26 @@ try {
     failures.push(`health endpoint must expose persistenceMode=fixture, got ${health.persistenceMode}`);
   }
 
+  const landing = await fetchAnyText(port, "/");
+  if (landing.status !== 200 || !landing.headers.get("content-type")?.includes("text/html")) {
+    failures.push("root landing route must return HTML");
+  }
+  if (!landing.body.includes("<title>Thai Meet</title>") || !landing.body.includes("Safety-first social discovery")) {
+    failures.push("root landing route must expose Thai Meet brand and safety-first positioning");
+  }
+  for (const assetPath of ["/assets/thai-meet-logo-clean.png", "/assets/thai-meet-monogram-clean.png", "/assets/thai-meet-mobile-phone-frame.png"]) {
+    if (!landing.body.includes(assetPath)) {
+      failures.push(`root landing route must reference ${assetPath}`);
+    }
+  }
+
+  for (const assetPath of ["/assets/thai-meet-logo-clean.png", "/assets/thai-meet-monogram-clean.png", "/assets/thai-meet-brand-board.png", "/assets/thai-meet-mobile-phone-frame.png"]) {
+    const landingAsset = await fetchAnyBuffer(port, assetPath);
+    if (landingAsset.status !== 200 || !landingAsset.headers.get("content-type")?.includes("image/png") || landingAsset.body.length < 1024) {
+      failures.push(`${assetPath} must return a non-empty PNG`);
+    }
+  }
+
   const openApi = await fetchJson(port, "/openapi.json");
   if (openApi.openapi !== "3.0.3" || !openApi.paths?.["/api/v1/discover/profiles"]) {
     failures.push("OpenAPI endpoint must return the Gate 0 contract");
@@ -281,6 +301,24 @@ async function fetchAnyJson(port, route, options = {}) {
     status: response.status,
     headers: response.headers,
     payload: await response.json()
+  };
+}
+
+async function fetchAnyText(port, route, options = {}) {
+  const response = await fetch(`http://127.0.0.1:${port}${route}`, options);
+  return {
+    status: response.status,
+    headers: response.headers,
+    body: await response.text()
+  };
+}
+
+async function fetchAnyBuffer(port, route, options = {}) {
+  const response = await fetch(`http://127.0.0.1:${port}${route}`, options);
+  return {
+    status: response.status,
+    headers: response.headers,
+    body: Buffer.from(await response.arrayBuffer())
   };
 }
 
