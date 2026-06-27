@@ -6,7 +6,7 @@ const shouldDryRun = args.includes("--dry-run");
 const shouldJson = args.includes("--json") || shouldDryRun;
 const fieldName = readOption("--field", false);
 const envFile = readOption("--env-file", false);
-const baseUrl = normalizeBaseUrl(readOption("--base-url", false) || process.env.GATE1_PUBLIC_BASE_URL || "https://15-164-219-139.sslip.io");
+const baseUrl = normalizeBaseUrl(readOption("--base-url", false) || process.env.GATE1_PUBLIC_BASE_URL || "https://www.thai-meet.com");
 const expectedPersistenceMode = readOption("--expected-persistence-mode", false) || "database";
 const expectedLineMode = readOption("--expected-line-mode", false) || "verified_idempotent_database";
 

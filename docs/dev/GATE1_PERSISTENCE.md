@@ -66,7 +66,7 @@ npm run gate1:deploy-rehearsal:test
 npm run gate1:deploy-rehearsal -- --json
 npm run gate1:deploy-rehearsal -- --plan
 npm run gate1:public-smoke:test
-npm run gate1:public-smoke -- --base-url https://15-164-219-139.sslip.io --env-file .env.production.local --json
+npm run gate1:public-smoke -- --base-url https://www.thai-meet.com --env-file .env.production.local --json
 npm run gate1:live-smoke
 npm run not-scaffolded:test
 node scripts/not-scaffolded.mjs --help
@@ -97,7 +97,7 @@ Run `npm run gate1:github-env:apply -- --env-file .env.production.local --plan` 
 
 Run `npm run gate1:deploy-rehearsal -- --json` or `npm run gate1:deploy-rehearsal -- --plan` before manually dispatching `AWS CI Deploy`. Use only one output mode: `--json`, `--field`, or `--plan`. This safe preflight does not run `gh workflow run`; it first requires `npm run gate1:github-env -- --json` to report the protected GitHub `production` environment ready. When blocked, the plan prints the safe remediation sequence: local env-file preflight, GitHub env apply preview, GitHub env apply, and inventory verification.
 
-After deploy, run `npm run gate1:public-smoke -- --base-url https://15-164-219-139.sslip.io --env-file .env.production.local --json`. It checks public health, Cognito callback fail-closed behavior, and signed LINE webhook idempotency while keeping output secrets-safe.
+After deploy, run `npm run gate1:public-smoke -- --base-url https://www.thai-meet.com --env-file .env.production.local --json`. It checks public health, Cognito callback fail-closed behavior, and signed LINE webhook idempotency while keeping output secrets-safe.
 
 When ready, dispatch with `gh workflow run "AWS CI Deploy" --ref main` and watch the result with `gh run list --workflow "AWS CI Deploy" --branch main --limit 1`.
 

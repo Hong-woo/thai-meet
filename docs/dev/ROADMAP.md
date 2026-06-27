@@ -13,17 +13,17 @@ Current Gate 1 infrastructure state:
 
 2. Live deploy rehearsal: complete on EC2.
    - `AWS CI Deploy` builds the API image, copies it to EC2, loads Docker, and restarts `thai-meet-api`.
-   - Temporary HTTPS health is available at `https://15-164-219-139.sslip.io/health`.
+   - Production HTTPS health is available at `https://www.thai-meet.com/health`.
    - `npm run gate1:public-smoke` verifies public health, Cognito callback fail-closed behavior, and signed LINE webhook idempotency.
    - EC2 operational steps live in `docs/dev/EC2_OPERATIONS.md`.
 
 Next execution order:
 
-1. Real domain hardening.
-   - Point a real domain or subdomain at the EC2 public IP.
-   - Reissue TLS with Certbot or an AWS-managed TLS path.
-   - Verify DNS and HTTPS health with `npm run gate1:domain -- --domain <real-domain> --expected-ip 15.164.219.139 --json`.
-   - Replace public-IP and `sslip.io` callback/config URLs with HTTPS domain URLs.
+1. Provider console hardening.
+   - Keep Cognito callback on `https://www.thai-meet.com/auth/callback/cognito`.
+   - Keep LINE webhook on `https://www.thai-meet.com/webhooks/line`.
+   - Verify DNS and HTTPS health with `npm run gate1:domain -- --domain www.thai-meet.com --expected-ip 15.164.219.139 --json`.
+   - Keep public-IP and legacy `sslip.io` URLs out of provider-review settings.
 
 2. Provider callback routes.
    - Cognito token exchange and HTTP-only session cookie binding exists for `GET /auth/callback/cognito`.

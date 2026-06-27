@@ -1,18 +1,18 @@
 # Provider Console Settings
 
-Current temporary production base URL:
+Current production base URL:
 
 ```text
-https://15-164-219-139.sslip.io
+https://www.thai-meet.com
 ```
 
 Public health check:
 
 ```text
-https://15-164-219-139.sslip.io/health
+https://www.thai-meet.com/health
 ```
 
-This URL uses temporary `sslip.io` DNS for the EC2 public IP. It is valid for smoke and provider-console setup rehearsal, but it should be replaced by a real Thai Meet domain before provider review, app store review, or public launch.
+This URL uses the Thai Meet production domain. Do not use the legacy `sslip.io` hostname in provider-review settings, app store metadata, or public launch materials.
 
 ## Cognito
 
@@ -30,7 +30,7 @@ The API discovers the Cognito token endpoint from the provider OpenID configurat
 Cognito callback shape:
 
 ```text
-https://15-164-219-139.sslip.io/auth/callback/cognito
+https://www.thai-meet.com/auth/callback/cognito
 ```
 
 ## LINE
@@ -45,7 +45,7 @@ The API now verifies the LINE webhook signature with `LINE_CHANNEL_SECRET` and c
 LINE webhook shape:
 
 ```text
-https://15-164-219-139.sslip.io/webhooks/line
+https://www.thai-meet.com/webhooks/line
 ```
 
 If LINE Login is added later, use a separate LINE Login channel and implement the callback route before filling console values.
@@ -53,7 +53,7 @@ If LINE Login is added later, use a separate LINE Login channel and implement th
 Future expected LINE Login callback shape:
 
 ```text
-https://<real-domain>/auth/callback/line
+https://www.thai-meet.com/auth/callback/line
 ```
 
 ## Current Implemented Public Routes
@@ -82,16 +82,16 @@ Before provider console callback URLs can be used in public production, verify:
 2. Apply the `LineWebhookEvent` migration to the production database, then enable `LINE_WEBHOOK_EVENT_STORE_MODE=database`.
 3. Optional later: `GET /auth/callback/line`
 
-After a real domain exists, replace every `sslip.io` URL in provider settings with the final HTTPS domain.
+Provider settings should use only the final HTTPS domain.
 
 Run the domain preflight before editing provider consoles:
 
 ```bash
-npm run gate1:domain -- --domain <real-domain> --expected-ip 15.164.219.139 --json
+npm run gate1:domain -- --domain www.thai-meet.com --expected-ip 15.164.219.139 --json
 ```
 
 Then run the full public smoke against that domain:
 
 ```bash
-npm run gate1:public-smoke -- --base-url https://<real-domain> --env-file .env.production.local --json
+npm run gate1:public-smoke -- --base-url https://www.thai-meet.com --env-file .env.production.local --json
 ```

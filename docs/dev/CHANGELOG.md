@@ -4,6 +4,7 @@ Record developer-facing changes that affect local setup, API contracts, generate
 
 ## 2026-06-27
 
+- Switched Gate 1 public smoke and provider runbooks from temporary `sslip.io` URLs to the production `www.thai-meet.com` domain.
 - Added `gate1:domain:plan` to generate the real-domain DNS, Certbot, provider callback, and smoke-test cutover checklist without printing provider secrets.
 - Added `gate1:domain` to verify real-domain DNS, HTTPS health, and provider callback URL replacements before moving off temporary `sslip.io`.
 - Added `gate1:public-smoke` to verify deployed health, Cognito callback fail-closed behavior, and signed LINE webhook idempotency without printing provider secrets.
