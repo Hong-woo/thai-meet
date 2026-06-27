@@ -79,6 +79,10 @@ for (const marker of [
   "PRISMA_SKIP_POSTINSTALL_GENERATE=1",
   "COPY apps/api/prisma apps/api/prisma",
   "COPY prisma.config.ts ./",
+  "COPY thai-meet-mobile-phone-frame.png ./",
+  "ThaiMeet logo clean.png",
+  "ThaiMeet monogram clean.png",
+  "ThaiMeet_BrandPackage.png",
   "npm install",
   "npx prisma generate --config prisma.config.ts",
   "npm prune --omit=dev"
