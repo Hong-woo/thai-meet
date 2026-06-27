@@ -17,6 +17,7 @@ env:
   EC2_USER: ${{ secrets.EC2_USER || vars.EC2_USER }}
   EC2_APP_DIR: ${{ secrets.EC2_APP_DIR || vars.EC2_APP_DIR }}
   EC2_SERVICE_NAME: ${{ secrets.EC2_SERVICE_NAME || vars.EC2_SERVICE_NAME }}
+  GATE1_PUBLIC_BASE_URL: ${{ vars.GATE1_PUBLIC_BASE_URL || 'https://www.thai-meet.com' }}
 
 jobs:
   deploy:
@@ -98,3 +99,23 @@ jobs:
             docker tag 'thai-meet-api:${{ github.sha }}' thai-meet-api:latest
             sudo systemctl restart '$EC2_SERVICE_NAME'
           "
+
+      - name: Check public smoke settings
+        id: public-smoke-preflight
+        if: ${{ steps.aws-deploy-preflight.outputs.deploy_ready == 'true' }}
+        shell: bash
+        env:
+          LINE_CHANNEL_SECRET: ${{ secrets.LINE_CHANNEL_SECRET }}
+        run: |
+          if [ -z "$LINE_CHANNEL_SECRET" ]; then
+            echo "Gate 1 public smoke skipped: missing LINE_CHANNEL_SECRET"
+            echo "public_smoke_ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "public_smoke_ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify deployed public smoke
+        if: ${{ steps.aws-deploy-preflight.outputs.deploy_ready == 'true' && steps.public-smoke-preflight.outputs.public_smoke_ready == 'true' }}
+        env:
+          LINE_CHANNEL_SECRET: ${{ secrets.LINE_CHANNEL_SECRET }}
+        run: npm run gate1:public-smoke -- --base-url "$GATE1_PUBLIC_BASE_URL" --json
