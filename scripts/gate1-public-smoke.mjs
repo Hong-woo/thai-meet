@@ -29,6 +29,8 @@ const summary = {
   expectedLineMode,
   checks: [
     "health endpoint",
+    "root landing HTML",
+    "root landing image assets",
     "Cognito callback missing-code fail-closed",
     "Cognito callback invalid-code fail-closed",
     "LINE webhook signed idempotency"
@@ -61,6 +63,28 @@ if (health.response.status !== 200 || health.payload?.status !== "ok" || health.
 }
 if (health.payload?.persistenceMode !== expectedPersistenceMode) {
   fail("TM_GATE1_PUBLIC_SMOKE_PERSISTENCE_MODE_MISMATCH", `health persistenceMode did not match expected ${expectedPersistenceMode}`);
+}
+
+const landing = await fetchText("/");
+if (landing.response.status !== 200 || !landing.response.headers.get("content-type")?.includes("text/html")) {
+  fail("TM_GATE1_PUBLIC_SMOKE_LANDING_FAILED", `root landing returned ${landing.response.status}`);
+}
+for (const marker of ["<title>Thai Meet</title>", "/assets/thai-meet-logo-clean.png", "/assets/thai-meet-mobile-phone-frame.png"]) {
+  if (!landing.text.includes(marker)) {
+    fail("TM_GATE1_PUBLIC_SMOKE_LANDING_MARKER_MISSING", `root landing did not include ${marker}`);
+  }
+}
+
+for (const assetPath of [
+  "/assets/thai-meet-logo-clean.png?v=2",
+  "/assets/thai-meet-monogram-clean.png?v=2",
+  "/assets/thai-meet-mobile-phone-frame.png",
+  "/assets/thai-meet-brand-board.png"
+]) {
+  const asset = await fetchBytes(assetPath);
+  if (asset.response.status !== 200 || !asset.response.headers.get("content-type")?.includes("image/png") || asset.bytes.byteLength < 1024) {
+    fail("TM_GATE1_PUBLIC_SMOKE_LANDING_ASSET_FAILED", `${assetPath} returned ${asset.response.status}`);
+  }
 }
 
 const missingCode = await fetchJson("/auth/callback/cognito");
@@ -121,6 +145,16 @@ async function fetchJson(pathname, options = {}) {
     fail("TM_GATE1_PUBLIC_SMOKE_JSON_FAILED", `public endpoint did not return JSON: ${pathname}`);
   }
   return { response, payload };
+}
+
+async function fetchText(pathname, options = {}) {
+  const response = await fetch(`${baseUrl}${pathname}`, options);
+  return { response, text: await response.text() };
+}
+
+async function fetchBytes(pathname, options = {}) {
+  const response = await fetch(`${baseUrl}${pathname}`, options);
+  return { response, bytes: await response.arrayBuffer() };
 }
 
 async function readEnvFile(filePath) {
