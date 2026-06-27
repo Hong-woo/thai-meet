@@ -56,6 +56,7 @@ for (const marker of [
   "EC2_SSH_PRIVATE_KEY_B64",
   "docker save",
   "systemctl restart",
+  "npm run gate1:public-smoke",
   "npm run production:check"
 ]) {
   assertIncludes(ci, marker, `CI doc must include ${marker}`);
@@ -70,7 +71,12 @@ for (const marker of [
   "secrets.EC2_HOST || vars.EC2_HOST",
   "secrets.EC2_USER || vars.EC2_USER",
   "secrets.EC2_SSH_PRIVATE_KEY_B64",
-  "secrets.EC2_SERVICE_NAME || vars.EC2_SERVICE_NAME"
+  "secrets.EC2_SERVICE_NAME || vars.EC2_SERVICE_NAME",
+  "vars.GATE1_PUBLIC_BASE_URL || 'https://www.thai-meet.com'",
+  "id: public-smoke-preflight",
+  "Gate 1 public smoke skipped: missing LINE_CHANNEL_SECRET",
+  "steps.public-smoke-preflight.outputs.public_smoke_ready == 'true'",
+  "secrets.LINE_CHANNEL_SECRET"
 ]) {
   assertIncludes(awsWorkflow, marker, `AWS workflow must guard deploy with ${marker}`);
 }
