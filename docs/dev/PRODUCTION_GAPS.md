@@ -19,7 +19,7 @@ Current allowed scope:
 Operational follow-up:
 
 1. Inject real provider, AWS, signing, and database secrets only in protected environments.
-2. Replace the temporary `sslip.io` HTTPS endpoint with a real domain before provider review or public production usage.
+2. Keep provider-review and public production usage on `https://www.thai-meet.com`; do not use the legacy `sslip.io` endpoint.
 3. Run `npm run production:check` before release builds or deploys.
 4. Keep raw external contact values out of chat messages, logs, screenshots, and generated artifacts.
 5. Keep Android physical-device smoke manual until CI has a remote device strategy.

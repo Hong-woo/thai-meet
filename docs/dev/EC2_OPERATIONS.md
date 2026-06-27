@@ -4,15 +4,15 @@ Gate 1 production runtime currently runs on one AWS Free Tier EC2 instance, back
 
 ## Current Production Endpoint
 
-- Temporary HTTPS health URL: `https://15-164-219-139.sslip.io/health`
-- HTTP redirects to HTTPS: `http://15-164-219-139.sslip.io/health`
+- Production HTTPS health URL: `https://www.thai-meet.com/health`
+- HTTP redirects to HTTPS: `http://www.thai-meet.com/health`
 - Raw public IP health URL: `http://15.164.219.139/health`
 - Runtime mode: `AUTH_MODE=production`, `PERSISTENCE_MODE=database`, `LINE_WEBHOOK_EVENT_STORE_MODE=database`
 - EC2 app directory: `/opt/thai-meet`
 - systemd service: `thai-meet-api`
 - Container image tag used by service: `thai-meet-api:latest`
 - Nginx proxy: port `80` to `127.0.0.1:3000`
-- TLS certificate: Let's Encrypt for `15-164-219-139.sslip.io`
+- TLS certificate: Let's Encrypt for `www.thai-meet.com`
 - TLS renewal: `certbot-renew.timer`
 
 ## GitHub Production Environment
@@ -108,10 +108,10 @@ sudo systemctl daemon-reload
 sudo systemctl enable thai-meet-api
 ```
 
-Temporary HTTPS can be enabled with the EC2 public-IP `sslip.io` hostname:
+The legacy EC2 public-IP `sslip.io` hostname can be used only for emergency rehearsal. Production should use `www.thai-meet.com`.
 
 ```bash
-sudo certbot --nginx -d 15-164-219-139.sslip.io --non-interactive --agree-tos --register-unsafely-without-email --redirect
+sudo certbot --nginx -d www.thai-meet.com --non-interactive --agree-tos --email <email> --redirect
 sudo systemctl enable --now certbot-renew.timer
 sudo certbot renew --dry-run
 ```
@@ -151,35 +151,36 @@ Public checks:
 
 ```powershell
 Invoke-RestMethod -Uri "http://15.164.219.139/health"
-Invoke-RestMethod -Uri "https://15-164-219-139.sslip.io/health"
-npm run gate1:public-smoke -- --base-url https://15-164-219-139.sslip.io --env-file .env.production.local --json
+Invoke-RestMethod -Uri "https://www.thai-meet.com/health"
+npm run gate1:domain -- --domain www.thai-meet.com --expected-ip 15.164.219.139 --json
+npm run gate1:public-smoke -- --base-url https://www.thai-meet.com --env-file .env.production.local --json
 ```
 
 `gate1:public-smoke` verifies public health, Cognito callback fail-closed behavior, and signed LINE webhook idempotency without printing provider secrets or raw webhook payloads.
 
 ## Next Hardening
 
-The `sslip.io` hostname is acceptable as a temporary HTTPS endpoint, but it is not the final brand/domain path for production sign-in callbacks, mobile release, or provider review. Next infrastructure step is:
+The `www.thai-meet.com` hostname is now the production HTTPS endpoint. Keep the EC2 public IP and legacy `sslip.io` hostname out of provider-review settings and app-facing docs. Next infrastructure hardening is:
 
-1. Point a real domain or subdomain at the EC2 public IP.
-2. Open inbound ports `80` and `443` only where needed.
-3. Reissue TLS for the real domain with Certbot or an AWS-managed TLS path.
-4. Replace public IP and `sslip.io` callback/config URLs with HTTPS domain URLs.
+1. Keep inbound ports `80` and `443` open only where needed.
+2. Keep TLS renewal healthy with `certbot-renew.timer`.
+3. Keep provider callback/config URLs on HTTPS `www.thai-meet.com`.
+4. Remove legacy `sslip.io` references after all provider consoles are updated.
 
-Generate the exact cutover checklist after choosing the domain:
+Regenerate the exact cutover checklist if the production domain changes:
 
 ```powershell
-npm run gate1:domain:plan -- --domain <real-domain> --certbot-email <email> --json
+npm run gate1:domain:plan -- --domain www.thai-meet.com --certbot-email <email> --json
 ```
 
-Run DNS/HTTPS preflight after the A record is live:
+Run DNS/HTTPS preflight:
 
 ```powershell
-npm run gate1:domain -- --domain <real-domain> --expected-ip 15.164.219.139 --json
+npm run gate1:domain -- --domain www.thai-meet.com --expected-ip 15.164.219.139 --json
 ```
 
 Then run the signed public smoke against the final URL:
 
 ```powershell
-npm run gate1:public-smoke -- --base-url https://<real-domain> --env-file .env.production.local --json
+npm run gate1:public-smoke -- --base-url https://www.thai-meet.com --env-file .env.production.local --json
 ```
